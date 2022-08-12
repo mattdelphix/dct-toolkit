@@ -3,11 +3,40 @@
 #
 import os
 import sys
+import json
+import time
 import tabulate
 import requests
 import urllib.parse
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
+
+# Environment API
+
+def environment_by_id(ID):
+    resp = url_GET("/environments/"+urllib.parse.quote(ID))
+    if resp.status_code == 200:
+        content_formatter(json.loads(resp.text))
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+    return
+
+def environment_operation(ID, OPS):
+    OPS = OPS.lower()
+    if not any(x in OPS for x in ["enable", "disable"]):
+        print("Wrong operation on environment: "+OPS)
+        sys.exit(1)
+
+    resp = url_POST("/environments/"+urllib.parse.quote(ID)+"/"+OPS,"")
+    if resp.status_code == 200:
+        print(json.loads(resp.text))
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+    return
+
 
 # Engine API
 def engine_register(NAME, HOSTNAME, USERNAME, PASSWORD):
@@ -20,7 +49,7 @@ def engine_register(NAME, HOSTNAME, USERNAME, PASSWORD):
     payload['unsafe_ssl_hostname_check'] = "true"
     resp = url_POST("/management/engines" , payload)
     if resp.status_code == 201:
-        print(resp.text)
+        content_formatter(json.loads(resp.text))
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
@@ -204,6 +233,14 @@ def source_search(FILTER):
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
     return
+def source_by_id(ID):
+    resp = url_GET("/sources/"+urllib.parse.quote(ID))
+    if resp.status_code == 200:
+        content_formatter(json.loads(resp.text))
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+    return
 
 # Dsource API
 def dsource_list():
@@ -235,6 +272,28 @@ def dsource_search(FILTER):
         sys.exit(1)
     return
 
+# Job API
+
+def job_status_by_id(JOB_ID):
+    resp = url_GET("/jobs/"+JOB_ID)
+    if resp.status_code == 200:
+        return json.loads(resp.text)
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+    return
+
+def job_monitor(JOB_ID):
+    job = {"status": ""}
+    while job['status'] not in ['TIMEDOUT', 'CANCELED', 'FAILED', 'COMPLETED']:
+        time.sleep(3)
+        job = job_status_by_id(JOB_ID)
+
+    if job['status'] != 'COMPLETED':
+        raise RuntimeError(f"Job {job['id']} failed {job['error_details']}")
+    else:
+        print(f"Job {JOB_ID} COMPLETED - {job['update_time']}")
+    return
 
 # general helpers
 def build_headers():
@@ -261,6 +320,7 @@ def tabular_report(TITLE, ldict):
     print(tabulate.tabulate(rows, header, tablefmt="psql", showindex=False, numalign="right"))
     return
 
+
 def get_host_name():
     os.environ.setdefault('HOST', 'https://uvo18oz1uisfurv1b4l.vm.cld.sr')
     HOST = os.environ['HOST']
@@ -274,5 +334,15 @@ def url_GET(url_encoded_text):
 
 def url_POST(url_encoded_text,JSON_DATA):
     #print(JSON_DATA)
-    rsp = requests.post(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), json=JSON_DATA, verify=False)
+    if JSON_DATA:
+        rsp = requests.post(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), json=JSON_DATA, verify=False)
+    else:
+        rsp = requests.post(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
+
     return rsp
+
+def content_formatter(dct):
+    # print formatted key, value for a dictionary
+    for key, value in dct.items():
+        print(f" {key} = {value}")
+    return

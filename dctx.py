@@ -7,8 +7,18 @@ from helpers import *
 #
 # Main dctx logic
 #
+#rp = environment_list()
+#rp = environment_by_id("1-UNIX_HOST_ENVIRONMENT-41")
+#rp = environment_operation("1-UNIX_HOST_ENVIRONMENT-41","disable")
+js = job_status_by_id("d3bc4852c98345549a030903ecb6d713")
+job_monitor("d3bc4852c98345549a030903ecb6d713")
+content_formatter(js)
+
+quit()
+rp = source_by_id("1-APPDATA_SOURCE_CONFIG-177")
 rp = source_list()
 rp = source_search("ASE")
+
 quit()
 
 rp = dsource_list()
