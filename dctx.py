@@ -2,27 +2,39 @@
 # DCT reports
 
 import os
-from helpers import *
+
+from sources import *
+from dsources import *
+from jobs import *
+from vdbgroups import *
+from vdbs import *
+from reports import *
+from environments import *
+
 
 #
 # Main dctx logic
 #
-#rp = environment_list()
-#rp = environment_by_id("1-UNIX_HOST_ENVIRONMENT-41")
-#rp = environment_operation("1-UNIX_HOST_ENVIRONMENT-41","disable")
-js = job_status_by_id("d3bc4852c98345549a030903ecb6d713")
-job_monitor("d3bc4852c98345549a030903ecb6d713")
-content_formatter(js)
 
+rp = dsource_list()
 quit()
+
+
 rp = source_by_id("1-APPDATA_SOURCE_CONFIG-177")
 rp = source_list()
 rp = source_search("ASE")
 
 quit()
 
-rp = dsource_list()
+#rp = environment_list()
+#rp = environment_by_id("1-UNIX_HOST_ENVIRONMENT-41")
+#rp = environment_operation("1-UNIX_HOST_ENVIRONMENT-41","disable")
+js = job_status_by_id("d3bc4852c98345549a030903ecb6d713")
+content_formatter(js)
+#job_monitor("d3bc4852c98345549a030903ecb6d713")
+
 quit()
+
 
 rp = vdbgroup_search("231")
 quit()
