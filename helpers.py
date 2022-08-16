@@ -37,7 +37,8 @@ def tabular_report(TITLE, ldict):
     return
 
 def get_host_name():
-    os.environ.setdefault('HOST', 'https://uvo18oz1uisfurv1b4l.vm.cld.sr')
+    #os.environ.setdefault('HOST', 'https://uvo18oz1uisfurv1b4l.vm.cld.sr')
+    os.environ.setdefault('HOST', 'https://172.16.111.50')
     HOST = os.environ['HOST']
     if HOST is None:
         raise Exception("Set environment variable HOST in the form: https://hostname")

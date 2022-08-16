@@ -17,13 +17,14 @@ from environments import *
 #
 
 rp = dsource_list()
-quit()
-
+print(rp)
 
 rp = source_by_id("1-APPDATA_SOURCE_CONFIG-177")
+print(rp)
 rp = source_list()
+print(rp)
 rp = source_search("ASE")
-
+print(rp)
 quit()
 
 #rp = environment_list()
