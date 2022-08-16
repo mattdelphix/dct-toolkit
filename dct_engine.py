@@ -10,22 +10,44 @@ parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
 list = subparser.add_parser('list')
 search = subparser.add_parser('search')
+delete = subparser.add_parser('delete')
 register = subparser.add_parser('register')
+view = subparser.add_parser('view')
+
+
+# define view parms
+view.add_argument('--id', type=str, required=True, help="engine UUID to be viewed")
+
+# define delete parms
+delete.add_argument('--id', type=str, required=True, help="engine UUID to be deleted")
 
 # define search parms
 search.add_argument('--name', type=str, required=True, help="engine UUID search string")
 
 # define register parms
-register.add_argument('--hostname', type=str, required=True, help="Name used to refer to the engine in DCT")
-register.add_argument('--hostaddress', type=str, required=True, help="hostname or ip address")
+register.add_argument('--name', type=str, required=True, help="Name used to refer to the engine in DCT")
+register.add_argument('--hostname', type=str, required=True, help="hostname or ip address")
 register.add_argument('--user', type=str, required=True, help="admin user")
 register.add_argument('--password', type=str, required=True, help="admin password")
+register.add_argument('--insecure_ssl', type=str, required=False, help="is SSL secure?", default = True)
+register.add_argument('--unsafe_ssl_hostname_check', required=False, type=str, help="check SSL connection", default= True)
+
 
 args = parser.parse_args()
 
 if args.command == 'list':
   print("Processing Engine list")
   rs = engine_list()
+  print(rs)
+
+if args.command == 'view':
+  print("Processing Engine view ID="+args.id)
+  rs = engine_by_id(args.id)
+  print(rs)
+
+if args.command == 'delete':
+  print("Processing Engine delete ID="+args.id)
+  rs = engine_delete(args.id)
   print(rs)
 
 if args.command == 'search':
@@ -35,3 +57,5 @@ if args.command == 'search':
 
 if args.command == 'register':
   print("Processing Engine register ")
+  rs = engine_register(args.name, args.hostname, args.user, args.password, args.insecure_ssl, args.unsafe_ssl_hostname_check)
+  print(rs)

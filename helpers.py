@@ -56,6 +56,10 @@ def url_POST(url_encoded_text,JSON_DATA):
         rsp = requests.post(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
     return rsp
 
+def url_DELETE(url_encoded_text):
+    rsp = requests.delete(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
+    return rsp
+
 def content_formatter(dct):
     # print formatted key, value for a dictionary
     for key, value in dct.items():
