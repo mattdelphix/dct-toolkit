@@ -32,8 +32,8 @@ register.add_argument('--password', type=str, required=True, help="admin passwor
 register.add_argument('--insecure_ssl', type=str, required=False, help="is SSL secure?", default = True)
 register.add_argument('--unsafe_ssl_hostname_check', required=False, type=str, help="check SSL connection", default= True)
 
-
-args = parser.parse_args()
+# force help if no parms
+args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 if args.command == 'list':
   print("Processing Engine list")

@@ -9,7 +9,7 @@ def report_api_usage(BEGIN, END):
     if resp.status_code == 200:
         report_data = resp.json()['items']
         if report_data:
-            tabular_report("DELPHIX Data Control Tower - API USAGE REPORT",report_data)
+            tabular_report(f"DELPHIX Data Control Tower - API USAGE REPORT\nInterval: {BEGIN} to {END}",report_data)
         else:
             print(f"\nNo API Usage Report for this interval - {BEGIN} to {END}")
             return
