@@ -17,6 +17,7 @@ from environments import *
 #
 
 rp = dsource_list()
+rp = vdbgroup_list()
 print(rp)
 
 rp = source_by_id("1-APPDATA_SOURCE_CONFIG-177")

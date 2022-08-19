@@ -10,6 +10,7 @@ import requests
 import urllib.parse
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+import pandas as pd
 
 # general helpers
 def build_headers():
@@ -30,10 +31,14 @@ def tabular_report(TITLE, ldict):
     if not ldict:
         print("Empty report request.")
         return
-    header = ldict[0].keys()
-    rows = [x.values() for x in ldict]
+    #normalize data
+    df = pd.json_normalize(ldict)
+    # remove NaN
+    df2 = df.fillna("")
     print("\n"+TITLE)
-    print(tabulate.tabulate(rows, header, tablefmt="psql", showindex=False, numalign="right"))
+    print(tabulate.tabulate(df2, headers='keys', tablefmt='psql'))
+    #print(tabulate.tabulate(rows, header, tablefmt="psql", showindex=False, numalign="right"))
+
     return
 
 def get_host_name():

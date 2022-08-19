@@ -60,7 +60,7 @@ def engine_delete(ENGINE_ID):
     resp = url_DELETE("/management/engines/"+urllib.parse.quote(ENGINE_ID))
     if resp.status_code == 200:
         print(f"Deleted engine with ID={ENGINE_ID}")
-        return json.loads(resp.text)
+        return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
@@ -77,8 +77,8 @@ def engine_register(NAME, HOSTNAME, USER, PASSWORD, INSECURE_SSL, UNSAFE_SSL):
     payload["unsafe_ssl_hostname_check"] = UNSAFE_SSL
     resp = url_POST("/management/engines",payload)
     if resp.status_code == 201:
-        print(f"REgistered engine with ID={resp['id']}")
-        return(json.loads(resp.text))
+        print(f"Registered engine with ID={resp['id']}")
+        return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
@@ -87,7 +87,7 @@ def engine_register(NAME, HOSTNAME, USER, PASSWORD, INSECURE_SSL, UNSAFE_SSL):
 def engine_by_id(ENGINE_ID):
     resp = url_GET("/management/engines/"+ENGINE_ID)
     if resp.status_code == 200:
-        return json.loads(resp.text)
+        return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
