@@ -1,8 +1,9 @@
 from helpers import *
 
+
 # Engine API
 #
-#TODO implement
+# TODO implement
 # POST /management/engines/{engineId}/tags
 # Create tags for a engine.
 # GET /management/engines/{engineId}/tags
@@ -29,7 +30,7 @@ def engine_list():
     if resp.status_code == 200:
         report_data = resp.json()['items']
         if report_data:
-            tabular_report("DELPHIX Data Control Tower - ENGINE LIST",report_data)
+            tabular_report("DELPHIX Data Control Tower - ENGINE LIST", report_data)
             return report_data
         else:
             print(f"\nNo Engines defined.")
@@ -37,16 +38,15 @@ def engine_list():
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return
 
-def engine_search(FILTER):
-    payload = {}
-    payload["filter_expression"] = "SEARCH '"+FILTER+"'"
-    resp = url_POST("/management/engines/search?limit=50&sort=id",payload)
+
+def engine_search(engine_filter):
+    payload = {"filter_expression": "SEARCH '" + engine_filter + "'"}
+    resp = url_POST("/management/engines/search?limit=50&sort=id", payload)
     if resp.status_code == 200:
         report_data = resp.json()['items']
         if report_data:
-            tabular_report("DELPHIX Data Control Tower - ENGINE SEARCH",report_data)
+            tabular_report("DELPHIX Data Control Tower - ENGINE SEARCH", report_data)
             return report_data
         else:
             print(f"\nNo Engines match search criteria.")
@@ -54,41 +54,35 @@ def engine_search(FILTER):
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return
 
-def engine_delete(ENGINE_ID):
-    resp = url_DELETE("/management/engines/"+urllib.parse.quote(ENGINE_ID))
+
+def engine_delete(engine_id):
+    resp = url_DELETE("/management/engines/" + urllib.parse.quote(engine_id))
     if resp.status_code == 200:
-        print(f"Deleted engine with ID={ENGINE_ID}")
+        print(f"Deleted engine with ID={engine_id}")
         return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return
 
-def engine_register(NAME, HOSTNAME, USER, PASSWORD, INSECURE_SSL, UNSAFE_SSL):
-    #TODO add hashicorp, trustore and tags
-    payload = {}
-    payload["name"] = NAME
-    payload["hostname"] = HOSTNAME
-    payload["username"] = USER
-    payload["password"] = PASSWORD
-    payload["insecure_ssl"] = INSECURE_SSL
-    payload["unsafe_ssl_hostname_check"] = UNSAFE_SSL
-    resp = url_POST("/management/engines",payload)
+
+def engine_register(name, hostname, user, password, insecure_ssl, unsafe_ssl):
+    # TODO add hashicorp, trustore and tags
+    payload = {"name": name, "hostname": hostname, "username": user, "password": password, "insecure_ssl": insecure_ssl,
+               "unsafe_ssl_hostname_check": unsafe_ssl}
+    resp = url_POST("/management/engines", payload)
     if resp.status_code == 201:
         print(f"Registered engine with ID={resp['id']}")
         return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return
 
-def engine_by_id(ENGINE_ID):
-    resp = url_GET("/management/engines/"+ENGINE_ID)
+
+def engine_by_id(engine_id):
+    resp = url_GET("/management/engines/" + engine_id)
     if resp.status_code == 200:
         return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return

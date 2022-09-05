@@ -16,6 +16,8 @@ create = subparser.add_parser('create')
 search = subparser.add_parser('search')
 delete = subparser.add_parser('delete')
 view = subparser.add_parser('view')
+disable = subparser.add_parser('disable')
+enable = subparser.add_parser('enable')
 
 
 # define view parms
@@ -48,4 +50,14 @@ if args.command == 'delete':
 if args.command == 'search':
     print("Processing VDB search name="+args.name)
     rs = vdb_search(args.name)
+    print(rs)
+
+if args.command == 'enable':
+    print("Processing VDB enable ID="+args.id)
+    rs = vdb_enable(args.id)
+    print(rs)
+
+if args.command == 'disable':
+    print("Processing VDB disable ID="+args.id)
+    rs = vdb_disable(args.id)
     print(rs)

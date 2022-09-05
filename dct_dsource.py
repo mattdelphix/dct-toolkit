@@ -18,7 +18,7 @@ snapshot_list = subparser.add_parser('snapshot_list')
 tags_view = subparser.add_parser('tags_view')
 
 # define view parms
-view.add_argument('--id', type=str, required=True, help="DSource to be viewed")
+view.add_argument('--id', type=str, required=True, help="DSource ID to be viewed")
 
 # define search parms
 search.add_argument('--name', type=str, required=True, help="DSource search string")
