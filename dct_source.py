@@ -16,7 +16,7 @@ view = subparser.add_parser('view')
 view.add_argument('--id', type=str, required=True, help="Source to be viewed")
 
 # define search parms
-search.add_argument('--name', type=str, required=True, help="source search string")
+search.add_argument('--name', type=str, required=True, help="Source search string")
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -32,6 +32,6 @@ if args.command == 'view':
     print(rs)
 
 if args.command == 'search':
-    print("Processing VDB search name="+args.name)
+    print("Processing Source search name="+args.name)
     rs = source_search(args.name)
     print(rs)

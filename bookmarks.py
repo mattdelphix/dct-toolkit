@@ -34,3 +34,13 @@ def bookmark_create(NAME, VDB_ID, RETENTION):
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
     return
+
+def bookmark_delete(BKM_ID):
+    resp = url_DELETE("/bookmarks/"+urllib.parse.quote(BKM_ID))
+    if resp.status_code == 200:
+        print(f"Deleted VDB with ID={BKM_ID}")
+        return resp.json()
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+    return

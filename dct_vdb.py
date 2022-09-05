@@ -2,6 +2,7 @@ import argparse
 from vdbs import *
 
 # TODO VDB report is wrong
+# TODO VDB delete to be tested
 
 parser = argparse.ArgumentParser(description='Delphix DCT VDB operations')
 subparser = parser.add_subparsers(dest='command')
@@ -21,7 +22,7 @@ view = subparser.add_parser('view')
 view.add_argument('--id', type=str, required=True, help="VDB to be viewed")
 
 # define delete parms
-delete.add_argument('--id', type=str, required=True, help="VDB to be deleted")
+delete.add_argument('--id', type=str, required=True, help="VDB ID to be deleted")
 
 # define search parms
 search.add_argument('--name', type=str, required=True, help="VDB search string")

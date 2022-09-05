@@ -34,7 +34,7 @@ def source_search(FILTER):
         sys.exit(1)
     return
 
-def source_by_id(ID):
+def dsource_snapshot_list(ID):
     resp = url_GET("/sources/"+urllib.parse.quote(ID))
     if resp.status_code == 200:
         result = json.loads(resp.text)

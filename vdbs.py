@@ -32,3 +32,13 @@ def vdb_search(FILTER):
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
     return
+
+def vdb_delete(VDB_ID):
+    resp = url_DELETE("/vdbs/"+urllib.parse.quote(VDB_ID))
+    if resp.status_code == 200:
+        print(f"Deleted VDB with ID={VDB_ID}")
+        return resp.json()
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+    return

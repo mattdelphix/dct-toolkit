@@ -2,6 +2,7 @@ from helpers import *
 
 # VDB group
 
+
 def vdbgroup_list():
     resp = url_GET("/vdb-groups?limit=50&sort=id")
     if resp.status_code == 200:
@@ -15,7 +16,6 @@ def vdbgroup_list():
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return
 
 def vdbgroup_create(NAME, VDBG_ID):
     # create VDB_ID list
@@ -32,12 +32,11 @@ def vdbgroup_create(NAME, VDBG_ID):
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return
 
 def vdbgroup_search(FILTER):
     payload = {}
     payload["filter_expression"] = "SEARCH '"+FILTER+"'"
-    resp = url_POST("/vdb-groups/search?limit=50&sort=id",payload)
+    resp = url_POST("/vdb-groups/search?limit=50&sort=id", payload)
     if resp.status_code == 200:
         report_data = resp.json()['items']
         if report_data:
@@ -49,7 +48,7 @@ def vdbgroup_search(FILTER):
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return
+
 
 def vdbgroup_delete(VDBG_ID):
     resp = url_DELETE("/vdb-groups/"+urllib.parse.quote(VDBG_ID))
@@ -59,7 +58,6 @@ def vdbgroup_delete(VDBG_ID):
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return
 
 def vdbgroup_by_id(VDBG_ID):
     resp = url_GET("/vdb-groups/"+VDBG_ID)
@@ -69,14 +67,13 @@ def vdbgroup_by_id(VDBG_ID):
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return
 
 def vdbgroup_bookmarks(DBG_ID):
     resp = url_GET("/vdb-groups/"+DBG_ID+"/bookmarks")
     if resp.status_code == 200:
         report_data = resp.json()['items']
         if report_data:
-            tabular_report("DELPHIX Data Control Tower - VDB GROUP BOOKMARKS - Name = "+FILTER,report_data)
+            tabular_report("DELPHIX Data Control Tower - VDB GROUP BOOKMARKS - Name = "+DBG_ID,report_data)
             return report_data
         else:
             print(f"\nNo Bookmarks match VDBGroup with ID="+DBG_ID)
