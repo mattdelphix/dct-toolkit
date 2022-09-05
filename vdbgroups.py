@@ -1,5 +1,6 @@
 from helpers import *
 
+
 # VDB group
 
 
@@ -8,7 +9,7 @@ def vdbgroup_list():
     if resp.status_code == 200:
         report_data = resp.json()['items']
         if report_data:
-            tabular_report("DELPHIX Data Control Tower - VDBGROUPS LIST",report_data)
+            tabular_report("DELPHIX Data Control Tower - VDBGROUPS LIST", report_data)
             return report_data
         else:
             print(f"\nNo VDBGroups defined.")
@@ -17,30 +18,29 @@ def vdbgroup_list():
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
 
-def vdbgroup_create(NAME, VDBG_ID):
+
+def vdbgroup_create(name, vdbg_id):
     # create VDB_ID list
-    vdb_id_list = VDBG_ID.split(",")
+    vdb_id_list = vdbg_id.split(",")
     # build payload
-    payload = {}
-    payload["name"] = NAME
-    payload["vdb_ids"] = vdb_id_list
-    resp = url_POST("/vdb-groups",payload)
+    payload = {"name": name, "vdb_ids": vdb_id_list}
+    resp = url_POST("/vdb-groups", payload)
     if resp.status_code == 201:
-        vdbg=resp.json()['vdb_group']
+        vdbg = resp.json()['vdb_group']
         print(f"Created VDBGroup with ID={vdbg['id']}")
         return vdbg
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
 
-def vdbgroup_search(FILTER):
-    payload = {}
-    payload["filter_expression"] = "SEARCH '"+FILTER+"'"
+
+def vdbgroup_search(vdb_filter):
+    payload = {"filter_expression": "SEARCH '" + vdb_filter + "'"}
     resp = url_POST("/vdb-groups/search?limit=50&sort=id", payload)
     if resp.status_code == 200:
         report_data = resp.json()['items']
         if report_data:
-            tabular_report("DELPHIX Data Control Tower - VDB GROUP SEARCH - Name = "+FILTER,report_data)
+            tabular_report("DELPHIX Data Control Tower - VDB GROUP SEARCH - Name = " + vdb_filter, report_data)
             return report_data
         else:
             print(f"\nNo VDBGrooups match search criteria.")
@@ -50,35 +50,36 @@ def vdbgroup_search(FILTER):
         sys.exit(1)
 
 
-def vdbgroup_delete(VDBG_ID):
-    resp = url_DELETE("/vdb-groups/"+urllib.parse.quote(VDBG_ID))
+def vdbgroup_delete(vdbg_id):
+    resp = url_DELETE("/vdb-groups/" + urllib.parse.quote(vdbg_id))
     if resp.status_code == 200:
-        print(f"Deleted VDBGroup with ID={VDBG_ID}")
+        print(f"Deleted VDBGroup with ID={vdbg_id}")
         return resp
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
 
-def vdbgroup_by_id(VDBG_ID):
-    resp = url_GET("/vdb-groups/"+VDBG_ID)
+
+def vdbgroup_by_id(vdbg_id):
+    resp = url_GET("/vdb-groups/" + vdbg_id)
     if resp.status_code == 200:
-        print(f"View VDBGroup with ID={VDBG_ID}")
+        print(f"View VDBGroup with ID={vdbg_id}")
         return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
 
-def vdbgroup_bookmarks(DBG_ID):
-    resp = url_GET("/vdb-groups/"+DBG_ID+"/bookmarks")
+
+def vdbgroup_bookmarks(dbg_id):
+    resp = url_GET("/vdb-groups/" + dbg_id + "/bookmarks")
     if resp.status_code == 200:
         report_data = resp.json()['items']
         if report_data:
-            tabular_report("DELPHIX Data Control Tower - VDB GROUP BOOKMARKS - Name = "+DBG_ID,report_data)
+            tabular_report("DELPHIX Data Control Tower - VDB GROUP BOOKMARKS - Name = " + dbg_id, report_data)
             return report_data
         else:
-            print(f"\nNo Bookmarks match VDBGroup with ID="+DBG_ID)
+            print(f"\nNo Bookmarks match VDBGroup with ID=" + dbg_id)
             return
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return

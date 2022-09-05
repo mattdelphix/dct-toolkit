@@ -1,5 +1,6 @@
 from helpers import *
 
+
 # Bookmark
 
 def bookmark_list():
@@ -7,7 +8,7 @@ def bookmark_list():
     if resp.status_code == 200:
         report_data = resp.json()['items']
         if report_data:
-            tabular_report("DELPHIX Data Control Tower - BOOKMARKS LIST",report_data)
+            tabular_report("DELPHIX Data Control Tower - BOOKMARKS LIST", report_data)
             return report_data
         else:
             print(f"\nNo Bookmarks defined.")
@@ -15,32 +16,28 @@ def bookmark_list():
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return
 
-def bookmark_create(NAME, VDB_ID, RETENTION):
+
+def bookmark_create(name, bookmark_id, retention):
     # create VDB_ID list
-    vdb_id_list = VDB_ID.split(",")
+    vdb_id_list = bookmark_id.split(",")
     # build payload
-    payload = {}
-    payload["name"] = NAME
-    payload["vdb_ids"] = vdb_id_list
-    payload["retention"] = RETENTION
-    resp = url_POST("/bookmarks",payload)
+    payload = {"name": name, "vdb_ids": vdb_id_list, "retention": retention}
+    resp = url_POST("/bookmarks", payload)
     if resp.status_code == 201:
-        bookm=resp.json()
-        print(f"Created Bookmark with ID={NAME}, Retention={RETENTION}")
+        bookm = resp.json()
+        print(f"Created Bookmark with ID={name}, Retention={retention}")
         return bookm
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return
 
-def bookmark_delete(BKM_ID):
-    resp = url_DELETE("/bookmarks/"+urllib.parse.quote(BKM_ID))
+
+def bookmark_delete(bookmark_id):
+    resp = url_DELETE("/bookmarks/" + urllib.parse.quote(bookmark_id))
     if resp.status_code == 200:
-        print(f"Deleted VDB with ID={BKM_ID}")
+        print(f"Deleted VDB with ID={bookmark_id}")
         return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return

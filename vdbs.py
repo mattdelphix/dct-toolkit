@@ -1,5 +1,6 @@
 from helpers import *
 
+
 # VDB API
 
 def vdb_list():
@@ -7,7 +8,7 @@ def vdb_list():
     if resp.status_code == 200:
         report_data = resp.json()['items']
         if report_data:
-            tabular_report("DELPHIX Data Control Tower - VDB LIST",report_data)
+            tabular_report("DELPHIX Data Control Tower - VDB LIST", report_data)
             return report_data
         else:
             print(f"\nNo VDBS defined.")
@@ -15,15 +16,15 @@ def vdb_list():
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return
-def vdb_search(FILTER):
-    payload = {}
-    payload["filter_expression"] = "SEARCH '"+FILTER+"'"
-    resp = url_POST("/vdbs/search?limit=50&sort=id",payload)
+
+
+def vdb_search(vdb_filter):
+    payload = {"filter_expression": "SEARCH '" + vdb_filter + "'"}
+    resp = url_POST("/vdbs/search?limit=50&sort=id", payload)
     if resp.status_code == 200:
         report_data = resp.json()['items']
         if report_data:
-            tabular_report("DELPHIX Data Control Tower - VDB SEARCH",report_data)
+            tabular_report("DELPHIX Data Control Tower - VDB SEARCH", report_data)
             return report_data
         else:
             print(f"\nNo VDB match search criteria.")
@@ -31,14 +32,13 @@ def vdb_search(FILTER):
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return
 
-def vdb_delete(VDB_ID):
-    resp = url_DELETE("/vdbs/"+urllib.parse.quote(VDB_ID))
+
+def vdb_delete(vdb_id):
+    resp = url_DELETE("/vdbs/" + urllib.parse.quote(vdb_id))
     if resp.status_code == 200:
-        print(f"Deleted VDB with ID={VDB_ID}")
+        print(f"Deleted VDB with ID={vdb_id}")
         return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-    return
