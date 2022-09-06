@@ -3,7 +3,6 @@ from helpers import *
 
 # VDB API
 
-# TODO test enable/disable and
 
 def vdb_list():
     resp = url_GET("/vdbs?limit=50&sort=id")
@@ -55,21 +54,19 @@ def vdb_delete(vdb_id):
         sys.exit(1)
 
 
-def vdb_enable(vdb_id):
-    resp = url_POST("/vdbs/" + urllib.parse.quote(vdb_id) + "/enable", "")
-    if resp.status_code == 200:
-        print(f"Enabled VDB with ID={vdb_id}")
-        return resp.json()
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+def vdb_operation(vdb_id, ops):
+    ops = ops.lower()
+    if not any(x in ops for x in ["enable", "disable", "stop", "start"]):
+        print("Wrong operation on VDB: "+ops)
         sys.exit(1)
-
-
-def vdb_disable(vdb_id):
-    resp = url_POST("/vdbs/" + urllib.parse.quote(vdb_id) + "/disable", "")
+    payload =""
+    if ops == "enable":
+        payload = {"attempt_start": "true"}
+    if ops == "disable":
+        payload = {"attempt_cleanup": "true"}
+    resp = url_POST("/vdbs/"+urllib.parse.quote(vdb_id)+"/"+ops, payload)
     if resp.status_code == 200:
-        print(f"Disabled VDB with ID={vdb_id}")
-        return resp.json()
+        return json.loads(resp.text)
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
