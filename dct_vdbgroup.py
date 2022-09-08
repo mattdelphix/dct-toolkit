@@ -5,7 +5,7 @@ from vdbgroups import *
 # UPDATE
 # refresh
 # rollback
-
+# TODO search should provide a generic filter as dct_report
 
 parser = argparse.ArgumentParser(description = "Delphix DCT VDBgroup operations")
 subparser = parser.add_subparsers(dest='command')
@@ -46,7 +46,6 @@ if args.command == 'list':
   print(rs)
 
 if args.command == 'view':
-  print("Processing VDBGroup view ID="+args.id)
   rs = vdbgroup_by_id(args.id)
   print(rs)
 

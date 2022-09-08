@@ -37,9 +37,7 @@ def dsource_search(dsource_filter):
 def dsource_by_id(dsource_id):
     resp = url_GET("/dsources/" + urllib.parse.quote(dsource_id))
     if resp.status_code == 200:
-        result = json.loads(resp.text)
-        content_formatter(result)
-        return result
+        return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)

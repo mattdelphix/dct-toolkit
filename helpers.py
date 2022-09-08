@@ -12,9 +12,12 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 import pandas as pd
 
+# TODO add -format table/csv/json (default) to output
+# TODO unify by_id API output in one single function
+
 # general helpers
 def build_headers():
-    os.environ.setdefault('API_KEY', 'APK 2.YYgpjHxljW7A7gdU1Llu8ZiUacHw84gfbnuaqSXmNFpP8yFxsOxF1xt4urW9D3ZN')
+    os.environ.setdefault('API_KEY', 'apk 2.YYgpjHxljW7A7gdU1Llu8ZiUacHw84gfbnuaqSXmNFpP8yFxsOxF1xt4urW9D3ZN')
     API_KEY = os.environ['API_KEY']
 
     if API_KEY is None:

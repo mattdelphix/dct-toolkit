@@ -3,6 +3,15 @@ from helpers import *
 
 # Source API
 
+
+def source_by_id(src_id):
+    resp = url_GET("/sources/" + src_id)
+    if resp.status_code == 200:
+        return resp.json()
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+
 def source_list():
     resp = url_GET("/sources?limit=50&sort=id")
     if resp.status_code == 200:
@@ -19,8 +28,7 @@ def source_list():
 
 
 def source_search(source_filter):
-    payload = {}
-    payload["filter_expression"] = "SEARCH '" + source_filter + "'"
+    payload = {"filter_expression": "SEARCH '" + source_filter + "'"}
     resp = url_POST("/sources/search?limit=50&sort=id", payload)
     if resp.status_code == 200:
         report_data = resp.json()['items']

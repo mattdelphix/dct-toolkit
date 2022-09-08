@@ -4,6 +4,7 @@ from vdbs import *
 # TODO VDB report is wrong
 # TODO VDB delete to be tested
 # TODO add job monitoring where needed
+# TODO search should provide a generic filter as dct_report
 
 parser = argparse.ArgumentParser(description='Delphix DCT VDB operations')
 subparser = parser.add_subparsers(dest='command')
@@ -53,7 +54,6 @@ if args.command == 'list':
     print(rs)
 
 if args.command == 'view':
-    print("Processing VDB view ID="+args.id)
     rs = vdb_by_id(args.id)
     print(rs)
 

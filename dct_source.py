@@ -1,6 +1,8 @@
 import argparse
 from sources import *
 
+# TODO search should provide a generic filter as dct_report
+
 parser = argparse.ArgumentParser(description='Delphix DCT Source operations')
 subparser = parser.add_subparsers(dest='command')
 
@@ -27,7 +29,6 @@ if args.command == 'list':
     print(rs)
 
 if args.command == 'view':
-    print("Processing Source view ID="+args.id)
     rs = source_by_id(args.id)
     print(rs)
 

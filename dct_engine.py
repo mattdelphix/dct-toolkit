@@ -1,6 +1,8 @@
 import argparse
 from engines import *
 
+# TODO search should provide a generic filter as dct_report
+
 parser = argparse.ArgumentParser(description="Delphix DCT Engine operations")
 subparser = parser.add_subparsers(dest='command')
 
@@ -41,7 +43,6 @@ if args.command == 'list':
     print(rs)
 
 if args.command == 'view':
-    print("Processing Engine view ID=" + args.id)
     rs = engine_by_id(args.id)
     print(rs)
 

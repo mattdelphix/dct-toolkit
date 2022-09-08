@@ -2,6 +2,7 @@ import argparse
 from bookmarks import *
 
 # TODO implement search, view, delete, list_vdbgroups
+# TODO search should provide a generic filter as dct_report
 
 parser = argparse.ArgumentParser(description="Delphix DCT Bookmark operations")
 subparser = parser.add_subparsers(dest='command')

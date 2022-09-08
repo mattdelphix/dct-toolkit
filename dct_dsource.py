@@ -3,6 +3,7 @@ from dsources import *
 
 # TODO test snapshot list
 # TODO test dsource_tags_view when no tags are present. report is produced
+# TODO search should provide a generic filter as dct_report
 
 parser = argparse.ArgumentParser(description='Delphix DCT DSource operations')
 subparser = parser.add_subparsers(dest='command')
@@ -38,7 +39,6 @@ if args.command == 'list':
     print(rs)
 
 if args.command == 'view':
-    print("Processing DSource view ID="+args.id)
     rs = dsource_by_id(args.id)
     print(rs)
 

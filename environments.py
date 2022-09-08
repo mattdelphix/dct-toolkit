@@ -6,9 +6,7 @@ from helpers import *
 def environment_by_id(env_id):
     resp = url_GET("/environments/" + urllib.parse.quote(env_id))
     if resp.status_code == 200:
-        result = json.loads(resp.text)
-        content_formatter(result)
-        return result
+        return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)

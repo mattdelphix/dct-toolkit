@@ -63,7 +63,6 @@ def vdbgroup_delete(vdbg_id):
 def vdbgroup_by_id(vdbg_id):
     resp = url_GET("/vdb-groups/" + vdbg_id)
     if resp.status_code == 200:
-        print(f"View VDBGroup with ID={vdbg_id}")
         return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
