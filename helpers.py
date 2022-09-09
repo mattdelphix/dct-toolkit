@@ -7,7 +7,7 @@ import json
 # import time
 import tabulate
 import requests
-# import urllib.parse
+import urllib.parse
 import pandas as pd
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
@@ -80,6 +80,9 @@ def content_formatter(dct):
 
 
 def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
+
+    # this function satisifes both list and search AP calls
+
     if dct_filter is not None:
         payload = {"filter_expression": dct_filter}
         resp = url_POST(dct_query + "/search", payload)
@@ -104,6 +107,15 @@ def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
 
 def dct_view_by_id(dct_query, view_id, dct_output="json"):
     resp = url_GET(dct_query + "/" + view_id)
+    if resp.status_code == 200:
+        # return resp.json()
+        return json.dumps(resp.json(), indent=4)
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+
+def dct_list_by_id(dct_base_query, view_id, dct_operation, dct_output="json"):
+    resp = url_GET(dct_base_query + "/" + view_id + dct_operation)
     if resp.status_code == 200:
         # return resp.json()
         return json.dumps(resp.json(), indent=4)

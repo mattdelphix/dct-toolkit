@@ -4,21 +4,6 @@ from helpers import *
 # VDB API
 
 
-def vdb_list():
-    resp = url_GET("/vdbs?limit=50&sort=id")
-    if resp.status_code == 200:
-        report_data = resp.json()['items']
-        if report_data:
-            tabular_report("DELPHIX Data Control Tower - VDB LIST", report_data)
-            return report_data
-        else:
-            print(f"\nNo VDBS defined.")
-            return
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
-
-
 def vdb_by_id(vdb_id):
     resp = url_GET("/vdbs/" + vdb_id)
     if resp.status_code == 200:

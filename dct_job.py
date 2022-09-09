@@ -21,6 +21,9 @@ lst = subparser.add_parser('list')
 # define view parms
 view.add_argument('--id', type=str, required=True, help="job ID to be viewed")
 
+# define list parms
+lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+
 # define monitor parms
 monitor.add_argument('--id', type=str, required=True, help="job ID to be monitored")
 
@@ -51,5 +54,5 @@ if args.command == 'search':
     print(rs)
 
 if args.command == 'list':
-    rs = job_list()
+    rs = dct_search("Job List ", "/jobs", None, "No Jobs defined.", args.format)
     print(rs)

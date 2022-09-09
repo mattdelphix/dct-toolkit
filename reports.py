@@ -31,7 +31,6 @@ def report_product_info():
 
 
 def report_vdb_inventory(report_filter):
-    payload = ""
     display_filter = ""
     if report_filter is not None:
         payload = {"filter_expression": report_filter}
@@ -53,7 +52,6 @@ def report_vdb_inventory(report_filter):
 
 
 def report_dsource_usage(report_filter):
-    payload = ""
     display_filter = ""
     if report_filter is not None:
         payload = {"filter_expression": report_filter}
@@ -75,7 +73,6 @@ def report_dsource_usage(report_filter):
 
 
 def report_storage_summary(report_filter):
-    payload = ""
     display_filter = ""
     if report_filter is not None:
         payload = {"filter_expression": report_filter}

@@ -18,6 +18,9 @@ view = subparser.add_parser('view')
 # define view parms
 view.add_argument('--id', type=str, required=True, help="engine UUID to be viewed")
 
+# define list parms
+lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+
 # define delete parms
 delete.add_argument('--id', type=str, required=True, help="engine UUID to be deleted")
 
@@ -38,8 +41,7 @@ register.add_argument('--unsafe_ssl_hostname_check', required=False, type=str, h
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 if args.command == 'list':
-    print("Processing Engine list")
-    rs = engine_list()
+    rs = dct_search("Engine List ", "/management/engines", None, "No Engines defined.", args.format)
     print(rs)
 
 if args.command == 'view':

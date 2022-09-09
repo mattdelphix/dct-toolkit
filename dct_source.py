@@ -16,6 +16,9 @@ view = subparser.add_parser('view')
 # define view parms
 view.add_argument('--id', type=str, required=True, help="Source to be viewed")
 
+# define list parms
+lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="Source search string")
 search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
@@ -24,8 +27,7 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 if args.command == 'list':
-    print("Processing Source list")
-    rs = source_list()
+    rs = dct_search("Source List ", "/sources", None, "No Sources defined.", args.format)
     print(rs)
 
 if args.command == 'view':

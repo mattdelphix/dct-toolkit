@@ -18,7 +18,11 @@ delete = subparser.add_parser('delete')
 disable = subparser.add_parser('disable')
 enable = subparser.add_parser('enable')
 refresh = subparser.add_parser('refresh')
+user_list = subparser.add_parser('user_list')
+tag_list = subparser.add_parser('tag_list')
 
+# define list parms
+lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
 
 # define view parms
 view.add_argument('--id', type=str, required=True, help="Environment ID to be viewed")
@@ -36,19 +40,40 @@ refresh.add_argument('--id', type=str, required=True, help="Environment ID to be
 delete.add_argument('--id', type=str, required=True, help="Environment ID to be deleted")
 
 # define search parms
-search.add_argument('--filter', type=str, required=False, help="Environment search string")
+search.add_argument('--filter', type=str, required=True, help="Environment search string")
 search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+
+# define user_list parms
+user_list.add_argument('--id', type=str, required=True, help="Environment ID to be viewed")
+user_list.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+
+# define tag_list parms
+tag_list.add_argument('--id', type=str, required=True, help="Environment ID to be viewed")
+tag_list.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
+
+# if args.command == 'list':
+#    print("Processing Environment list")
+#    rs = environment_list()
+#    print(rs)
+
 if args.command == 'list':
-    print("Processing Environment list")
-    rs = environment_list()
+    rs = dct_search("Environment List ", "/environments", None, "No Environments defined.", args.format)
     print(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id("/environments", args.id)
+    print(rs)
+
+if args.command == 'user_list':
+    rs = dct_list_by_id("/environments", args.id, "/users", args.format)
+    print(rs)
+
+if args.command == 'tag_list':
+    rs = dct_list_by_id("/environments", args.id, "/tags", args.format)
     print(rs)
 
 if args.command == 'delete':

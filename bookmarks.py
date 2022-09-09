@@ -4,21 +4,6 @@ from helpers import *
 # Bookmark
 
 
-def bookmark_list():
-    resp = url_GET("/bookmarks?limit=50&sort=id")
-    if resp.status_code == 200:
-        report_data = resp.json()['items']
-        if report_data:
-            tabular_report("DELPHIX Data Control Tower - BOOKMARKS LIST", report_data)
-            return report_data
-        else:
-            print(f"\nNo Bookmarks defined.")
-            return
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
-
-
 def bookmark_create(name, bookmark_id, retention):
     # create VDB_ID list
     vdb_id_list = bookmark_id.split(",")

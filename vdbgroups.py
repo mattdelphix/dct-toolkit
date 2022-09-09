@@ -4,21 +4,6 @@ from helpers import *
 # VDB group
 
 
-def vdbgroup_list():
-    resp = url_GET("/vdb-groups?limit=50&sort=id")
-    if resp.status_code == 200:
-        report_data = resp.json()['items']
-        if report_data:
-            tabular_report("DELPHIX Data Control Tower - VDBGROUPS LIST", report_data)
-            return report_data
-        else:
-            print(f"\nNo VDBGroups defined.")
-            return
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
-
-
 def vdbgroup_create(name, vdbg_id):
     # create VDB_ID list
     vdb_id_list = vdbg_id.split(",")

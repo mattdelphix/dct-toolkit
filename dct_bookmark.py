@@ -19,7 +19,7 @@ view = subparser.add_parser('view')
 vdbgroup_list = subparser.add_parser('vdbgroup_list')
 
 # define create parms
-create.add_argument('--name', type=str, required=True, help="Name of the new BookmarkT")
+create.add_argument('--name', type=str, required=True, help="Name of the new Bookmark")
 create.add_argument('--vdb_id', type=str, required=True, help="List of VDB IDs separated by commas")
 create.add_argument('--retention', type=int, required=False, help="Bookmark retention period in days", default=365)
 
@@ -28,6 +28,9 @@ delete.add_argument('--id', type=str, required=True, help="Bookmark ID to be del
 
 # define view parms
 view.add_argument('--id', type=str, required=True, help="Bookmark ID to be viewed")
+
+# define list parms
+lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="Bookmark search string")
@@ -50,8 +53,7 @@ if args.command == 'search':
     print(rs)
 
 if args.command == 'list':
-    print("Processing Bookmarks list")
-    rs = bookmark_list()
+    rs = dct_search("Bookmarks List ", "/bookmarks", None, "No Bookmarks defined.", args.format)
     print(rs)
 
 if args.command == 'create':

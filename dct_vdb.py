@@ -27,6 +27,9 @@ start = subparser.add_parser('start')
 # define view parms
 view.add_argument('--id', type=str, required=True, help="VDB ID to be viewed")
 
+# define list parms
+lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+
 # define enable parms
 enable.add_argument('--id', type=str, required=True, help="VDB ID to be enabled")
 
@@ -50,8 +53,7 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 if args.command == 'list':
-    print("Processing VDB list")
-    rs = vdb_list()
+    rs = dct_search("VDB List ", "/vdbs", None, "No VDBs defined.", args.format)
     print(rs)
 
 if args.command == 'view':

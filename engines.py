@@ -25,24 +25,10 @@ from helpers import *
 # POST /management/smtp/validate
 # Validate SMTP Config.
 
-def engine_list():
-    resp = url_GET("/management/engines?limit=50&sort=id")
-    if resp.status_code == 200:
-        report_data = resp.json()['items']
-        if report_data:
-            tabular_report("DELPHIX Data Control Tower - ENGINE LIST", report_data)
-            return report_data
-        else:
-            print(f"\nNo Engines defined.")
-            return
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
-
 
 def engine_delete(engine_id):
     resp = url_DELETE("/management/engines/" + urllib.parse.quote(engine_id))
-    if resp.status_code == 200:
+    if resp.status_code == 204:
         print(f"Deleted engine with ID={engine_id}")
         return resp.json()
     else:
@@ -61,4 +47,3 @@ def engine_register(name, hostname, user, password, insecure_ssl, unsafe_ssl):
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
-

@@ -20,6 +20,9 @@ tags_view = subparser.add_parser('tags_view')
 # define view parms
 view.add_argument('--id', type=str, required=True, help="DSource ID to be viewed")
 
+# define list parms
+lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="DSource search string")
 search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
@@ -34,8 +37,7 @@ tags_view.add_argument('--id', type=str, required=True, help="DSource ID for tag
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 if args.command == 'list':
-    print("Processing DSource list")
-    rs = dsource_list()
+    rs = dct_search("DSource List ", "/dsources", None, "No DSources defined.", args.format)
     print(rs)
 
 if args.command == 'view':
