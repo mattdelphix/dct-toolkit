@@ -18,31 +18,6 @@ def dsource_list():
         sys.exit(1)
 
 
-def dsource_search(dsource_filter):
-    payload = {"filter_expression": "SEARCH '" + dsource_filter + "'"}
-    resp = url_POST("/dsources/search?limit=50&sort=id", payload)
-    if resp.status_code == 200:
-        report_data = resp.json()['items']
-        if report_data:
-            tabular_report("DELPHIX Data Control Tower - DSOURCE SEARCH", report_data)
-            return report_data
-        else:
-            print(f"\nNo DSOURCE match search criteria.")
-            return
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
-
-
-def dsource_by_id(dsource_id):
-    resp = url_GET("/dsources/" + urllib.parse.quote(dsource_id))
-    if resp.status_code == 200:
-        return resp.json()
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
-
-
 def dsource_snapshot_list(dsource_id):
     resp = url_GET("/dsources/" + urllib.parse.quote(dsource_id) + "/snapshots")
     if resp.status_code == 200:

@@ -44,33 +44,6 @@ def bookmark_delete(bookmark_id):
         sys.exit(1)
 
 
-def bookmark_by_id(bookmark_id):
-    resp = url_GET("/bookmarks/" + urllib.parse.quote(bookmark_id))
-    if resp.status_code == 200:
-        result = json.loads(resp.text)
-        content_formatter(result)
-        return result
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
-
-
-def bookmark_search(bookmark_filter):
-    payload = {"filter_expression": "SEARCH '" + bookmark_filter + "'"}
-    resp = url_POST("/bookmarks/search?limit=50&sort=id", payload)
-    if resp.status_code == 200:
-        report_data = resp.json()['items']
-        if report_data:
-            tabular_report("DELPHIX Data Control Tower - BOOKMARK SEARCH", report_data)
-            return report_data
-        else:
-            print(f"\nNo Bookmarks match search criteria.")
-            return
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
-
-
 def bookmark_vdbgroup_list(bookmark_id):
     resp = url_GET("/dsources/" + urllib.parse.quote(bookmark_id) + "/vdb-groups")
     if resp.status_code == 200:

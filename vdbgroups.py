@@ -34,22 +34,6 @@ def vdbgroup_create(name, vdbg_id):
         sys.exit(1)
 
 
-def vdbgroup_search(vdb_filter):
-    payload = {"filter_expression": "SEARCH '" + vdb_filter + "'"}
-    resp = url_POST("/vdb-groups/search?limit=50&sort=id", payload)
-    if resp.status_code == 200:
-        report_data = resp.json()['items']
-        if report_data:
-            tabular_report("DELPHIX Data Control Tower - VDB GROUP SEARCH - Name = " + vdb_filter, report_data)
-            return report_data
-        else:
-            print(f"\nNo VDBGrooups match search criteria.")
-            return
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
-
-
 def vdbgroup_delete(vdbg_id):
     resp = url_DELETE("/vdb-groups/" + urllib.parse.quote(vdbg_id))
     if resp.status_code == 200:

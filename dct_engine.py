@@ -1,7 +1,6 @@
 import argparse
 from engines import *
 
-# TODO search should provide a generic filter as dct_report
 
 parser = argparse.ArgumentParser(description="Delphix DCT Engine operations")
 subparser = parser.add_subparsers(dest='command')
@@ -23,7 +22,8 @@ view.add_argument('--id', type=str, required=True, help="engine UUID to be viewe
 delete.add_argument('--id', type=str, required=True, help="engine UUID to be deleted")
 
 # define search parms
-search.add_argument('--name', type=str, required=True, help="engine UUID search string")
+search.add_argument('--filter', type=str, required=False, help="Engine search string")
+search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
 
 # define register parms
 register.add_argument('--name', type=str, required=True, help="Name used to refer to the engine in DCT")
@@ -43,7 +43,7 @@ if args.command == 'list':
     print(rs)
 
 if args.command == 'view':
-    rs = engine_by_id(args.id)
+    rs = dct_view_by_id("/management/engines", args.id)
     print(rs)
 
 if args.command == 'delete':
@@ -52,8 +52,8 @@ if args.command == 'delete':
     print(rs)
 
 if args.command == 'search':
-    print("Processing Engine search name=" + args.name)
-    rs = engine_search(args.name)
+    rs = dct_search("Engine List ", "/management/engines", args.filter, "No Engines match the search criteria.",
+                    args.format)
     print(rs)
 
 if args.command == 'register':

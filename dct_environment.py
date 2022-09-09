@@ -3,7 +3,6 @@ from environments import *
 
 # TODO Environment delete to be tested
 # TODO add job monitoring where needed
-# TODO search should provide a generic filter as dct_report
 
 parser = argparse.ArgumentParser(description='Delphix DCT Environment operations')
 subparser = parser.add_subparsers(dest='command')
@@ -37,7 +36,8 @@ refresh.add_argument('--id', type=str, required=True, help="Environment ID to be
 delete.add_argument('--id', type=str, required=True, help="Environment ID to be deleted")
 
 # define search parms
-search.add_argument('--name', type=str, required=True, help="Environment search string")
+search.add_argument('--filter', type=str, required=False, help="Environment search string")
+search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -48,7 +48,7 @@ if args.command == 'list':
     print(rs)
 
 if args.command == 'view':
-    rs = environment_by_id(args.id)
+    rs = dct_view_by_id("/environments", args.id)
     print(rs)
 
 if args.command == 'delete':
@@ -57,8 +57,8 @@ if args.command == 'delete':
     print(rs)
 
 if args.command == 'search':
-    print("Processing Environment search name="+args.name)
-    rs = environment_search(args.name)
+    rs = dct_search("Environment List ", "/environments", args.filter, "No Environments match the search criteria.",
+                    args.format)
     print(rs)
 
 if args.command == 'refresh':

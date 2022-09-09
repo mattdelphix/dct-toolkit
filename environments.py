@@ -3,15 +3,6 @@ from helpers import *
 
 # Environment API
 
-def environment_by_id(env_id):
-    resp = url_GET("/environments/" + urllib.parse.quote(env_id))
-    if resp.status_code == 200:
-        return resp.json()
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
-
-
 def environment_operation(env_id, ops):
     ops = ops.lower()
     if not any(x in ops for x in ["enable", "disable", "refresh"]):
@@ -20,22 +11,6 @@ def environment_operation(env_id, ops):
     resp = url_POST("/environments/" + urllib.parse.quote(env_id) + "/" + ops, "")
     if resp.status_code == 200:
         return json.loads(resp.text)
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
-
-
-def environment_search(filter):
-    payload = {"filter_expression": "SEARCH '" + filter + "'"}
-    resp = url_POST("/environments/search?limit=50&sort=id", payload)
-    if resp.status_code == 200:
-        report_data = resp.json()['items']
-        if report_data:
-            tabular_report("DELPHIX Data Control Tower - ENVIRONMENT SEARCH", report_data)
-            return report_data
-        else:
-            print(f"\nNo Environments match search criteria.")
-            return
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)

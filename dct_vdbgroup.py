@@ -28,10 +28,11 @@ view.add_argument('--id', type=str, required=True, help="VDBGroup full name or I
 delete.add_argument('--id', type=str, required=True, help="VDBgroup to be deleted")
 
 # define search parms
-search.add_argument('--name', type=str, required=True, help="VDBgroup search string")
+search.add_argument('--filter', type=str, required=False, help="VDBgroup search string")
+search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
 
 # define create parms
-create.add_argument('--name', type=str, required=True, help="Name of the new VDBgroupT")
+create.add_argument('--name', type=str, required=True, help="Name of the new VDBgroup")
 create.add_argument('--vdb_id', type=str, required=True, help="List of VDB IDs separated by commas")
 
 # define view parms
@@ -46,8 +47,8 @@ if args.command == 'list':
   print(rs)
 
 if args.command == 'view':
-  rs = vdbgroup_by_id(args.id)
-  print(rs)
+    rs = dct_view_by_id("/vdb-groups", args.id)
+    print(rs)
 
 if args.command == 'delete':
   print("Processing VDBGroup delete ID="+args.id)
@@ -55,9 +56,10 @@ if args.command == 'delete':
   print(rs)
 
 if args.command == 'search':
-  print("Processing VDBGroup search name="+args.name)
-  rs = vdbgroup_search(args.name)
-  print(rs)
+    rs = dct_search("VDBgroups List ", "/vdb-groups", args.filter, "No VDBgroups match the search criteria.",
+                    args.format)
+    print(rs)
+
 
 if args.command == 'create':
   print("Processing VDBGroup create ")

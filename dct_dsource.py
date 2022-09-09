@@ -3,7 +3,6 @@ from dsources import *
 
 # TODO test snapshot list
 # TODO test dsource_tags_view when no tags are present. report is produced
-# TODO search should provide a generic filter as dct_report
 
 parser = argparse.ArgumentParser(description='Delphix DCT DSource operations')
 subparser = parser.add_subparsers(dest='command')
@@ -22,7 +21,8 @@ tags_view = subparser.add_parser('tags_view')
 view.add_argument('--id', type=str, required=True, help="DSource ID to be viewed")
 
 # define search parms
-search.add_argument('--name', type=str, required=True, help="DSource search string")
+search.add_argument('--filter', type=str, required=False, help="DSource search string")
+search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
 
 # define snapshot_list parms
 snapshot_list.add_argument('--id', type=str, required=True, help="DSource ID for snapshot list")
@@ -39,13 +39,14 @@ if args.command == 'list':
     print(rs)
 
 if args.command == 'view':
-    rs = dsource_by_id(args.id)
+    rs = dct_view_by_id("/dsources", args.id)
     print(rs)
 
 if args.command == 'search':
-    print("Processing DSource search name="+args.name)
-    rs = dsource_search(args.name)
+    rs = dct_search("DSource List ", "/dsources", args.filter, "No DSources match the search criteria.",
+                    args.format)
     print(rs)
+
 
 if args.command == 'snapshot_list':
     print("Processing Snapshot list for DSource ID="+args.id)

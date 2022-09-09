@@ -2,7 +2,7 @@ import argparse
 from jobs import *
 
 # TODO job cancel not implemented
-# TODO search should provide a generic filter as dct_report
+
 
 parser = argparse.ArgumentParser(description="Delphix DCT Job operations")
 subparser = parser.add_subparsers(dest='command')
@@ -25,7 +25,8 @@ view.add_argument('--id', type=str, required=True, help="job ID to be viewed")
 monitor.add_argument('--id', type=str, required=True, help="job ID to be monitored")
 
 # define search parms
-search.add_argument('--filter', type=str, required=True, help="Job search string")
+search.add_argument('--filter', type=str, required=False, help="Job search string")
+search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -36,7 +37,7 @@ if args.command == 'monitor':
     print(rs)
 
 if args.command == 'view':
-    rs = job_status_by_id(args.id)
+    rs = dct_view_by_id("/jobs", args.id)
     print(rs)
 
 if args.command == 'cancel':
@@ -45,7 +46,8 @@ if args.command == 'cancel':
     print(rs)
 
 if args.command == 'search':
-    rs = job_search(args.filter)
+    rs = dct_search("Job List ", "/jobs", args.filter, "No Jobs match the search criteria.",
+                    args.format)
     print(rs)
 
 if args.command == 'list':

@@ -4,7 +4,7 @@ from vdbs import *
 # TODO VDB report is wrong
 # TODO VDB delete to be tested
 # TODO add job monitoring where needed
-# TODO search should provide a generic filter as dct_report
+
 
 parser = argparse.ArgumentParser(description='Delphix DCT VDB operations')
 subparser = parser.add_subparsers(dest='command')
@@ -43,7 +43,8 @@ start.add_argument('--id', type=str, required=True, help="VDB ID to be started")
 delete.add_argument('--id', type=str, required=True, help="VDB ID to be deleted")
 
 # define search parms
-search.add_argument('--name', type=str, required=True, help="VDB search string")
+search.add_argument('--filter', type=str, required=False, help="VDB search string")
+search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -54,7 +55,7 @@ if args.command == 'list':
     print(rs)
 
 if args.command == 'view':
-    rs = vdb_by_id(args.id)
+    rs = dct_view_by_id("/vdbs", args.id)
     print(rs)
 
 if args.command == 'delete':
@@ -63,8 +64,8 @@ if args.command == 'delete':
     print(rs)
 
 if args.command == 'search':
-    print("Processing VDB search name="+args.name)
-    rs = vdb_search(args.name)
+    rs = dct_search("VDB List ", "/vdbs", args.filter, "No VDBs match the search criteria.",
+                    args.format)
     print(rs)
 
 if args.command == 'enable':
