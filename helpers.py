@@ -80,7 +80,6 @@ def content_formatter(dct):
 
 
 def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
-
     # this function satisifes both list and search AP calls
 
     if dct_filter is not None:
@@ -92,7 +91,7 @@ def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
         report_data = resp.json()['items']
         if report_data:
             if dct_output == "report":
-                return tabular_report("DELPHIX Data Control Tower - " + dct_title + "- Filter = " + str(dct_filter),
+                return tabular_report("DELPHIX Data Control Tower - " + dct_title + " - Filter = " + str(dct_filter),
                                       report_data)
             else:
                 # return report_data
@@ -114,11 +113,22 @@ def dct_view_by_id(dct_query, view_id, dct_output="json"):
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
 
+
 def dct_list_by_id(dct_base_query, view_id, dct_operation, dct_output="json"):
     resp = url_GET(dct_base_query + "/" + view_id + dct_operation)
     if resp.status_code == 200:
         # return resp.json()
         return json.dumps(resp.json(), indent=4)
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+
+
+def dct_delete_by_id(dct_query, dct_message, delete_id):
+    resp = url_DELETE(dct_query + "/" + urllib.parse.quote(delete_id))
+    if resp.status_code == 204:
+        print(dct_message + " - ID=" + delete_id)
+        return
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)

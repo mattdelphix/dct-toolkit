@@ -41,7 +41,7 @@ register.add_argument('--unsafe_ssl_hostname_check', required=False, type=str, h
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 if args.command == 'list':
-    rs = dct_search("Engine List ", "/management/engines", None, "No Engines defined.", args.format)
+    rs = dct_search("Engine List", "/management/engines", None, "No Engines defined.", args.format)
     print(rs)
 
 if args.command == 'view':
@@ -54,7 +54,7 @@ if args.command == 'delete':
     print(rs)
 
 if args.command == 'search':
-    rs = dct_search("Engine List ", "/management/engines", args.filter, "No Engines match the search criteria.",
+    rs = dct_search("Engine List", "/management/engines", args.filter, "No Engines match the search criteria.",
                     args.format)
     print(rs)
 

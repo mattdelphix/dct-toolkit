@@ -1,9 +1,29 @@
+#
+# dc_environment
+#
+
+
 import argparse
-from environments import *
+from helpers import *
+
 
 # TODO Environment delete to be tested
 # TODO add job monitoring where needed
 
+# Environment functions
+def environment_operation(base_url, env_id, ops):
+    ops = ops.lower()
+    if not any(x in ops for x in ["enable", "disable", "refresh"]):
+        print("Wrong operation on Environment: " + ops)
+        sys.exit(1)
+    resp = url_POST(base_url + "/" + urllib.parse.quote(env_id) + "/" + ops, "")
+    if resp.status_code == 200:
+        return json.loads(resp.text)
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+
+# Init
 parser = argparse.ArgumentParser(description='Delphix DCT Environment operations')
 subparser = parser.add_subparsers(dest='command')
 
@@ -54,49 +74,45 @@ tag_list.add_argument('--format', type=str, required=False, help="Type of output
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
-
-# if args.command == 'list':
-#    print("Processing Environment list")
-#    rs = environment_list()
-#    print(rs)
+# Start processing
+dct_base_url = "/environments"
 
 if args.command == 'list':
-    rs = dct_search("Environment List ", "/environments", None, "No Environments defined.", args.format)
+    rs = dct_search("Environment List", dct_base_url, None, "No Environments defined.", args.format)
     print(rs)
 
 if args.command == 'view':
-    rs = dct_view_by_id("/environments", args.id)
+    rs = dct_view_by_id(dct_base_url, args.id)
     print(rs)
 
 if args.command == 'user_list':
-    rs = dct_list_by_id("/environments", args.id, "/users", args.format)
+    rs = dct_list_by_id(dct_base_url, args.id, "/users", args.format)
     print(rs)
 
 if args.command == 'tag_list':
-    rs = dct_list_by_id("/environments", args.id, "/tags", args.format)
-    print(rs)
-
-if args.command == 'delete':
-    print("Processing Environment delete ID="+args.id)
-    rs = environment_delete(args.id)
+    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
     print(rs)
 
 if args.command == 'search':
-    rs = dct_search("Environment List ", "/environments", args.filter, "No Environments match the search criteria.",
+    rs = dct_search("Environment List", dct_base_url, args.filter, "No Environments match the search criteria.",
                     args.format)
     print(rs)
 
 if args.command == 'refresh':
     print("Processing Environment refresh ID="+args.id)
-    rs = environment_operation(args.id, args.command)
+    rs = environment_operation(dct_base_url, args.id, args.command)
     print(rs)
 
 if args.command == 'enable':
     print("Processing Environment enable ID="+args.id)
-    rs = environment_operation(args.id, args.command)
+    rs = environment_operation(dct_base_url, args.id, args.command)
     print(rs)
 
 if args.command == 'disable':
     print("Processing Environment disable ID="+args.id)
-    rs = environment_operation(args.id, args.command)
+    rs = environment_operation(dct_base_url, args.id, args.command)
     print(rs)
+
+if args.command == 'delete':
+    print("Processing Environment delete ID=" + args.id)
+    rs = dct_delete_by_id(dct_base_url, "Deleted Environment", args.id)
