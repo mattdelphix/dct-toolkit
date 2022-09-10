@@ -96,6 +96,7 @@ def report_storage_summary(report_filter):
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
 
+# Init
 parser = argparse.ArgumentParser(description = "Delphix DCT Reports")
 subparser = parser.add_subparsers(dest='command')
 
