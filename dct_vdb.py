@@ -1,11 +1,29 @@
+#
+# dct_vdb
+#
+
 import argparse
-from vdbs import *
+from helpers import *
 
-# TODO VDB report is wrong
-# TODO VDB delete to be tested
-# TODO add job monitoring where needed
+# VDB functions
+def vdb_operation(base_url, vdb_id, ops):
+    ops = ops.lower()
+    if not any(x in ops for x in ["enable", "disable", "stop", "start"]):
+        print("Error: Wrong operation on VDB: "+ops)
+        sys.exit(1)
+    payload =""
+    if ops == "enable":
+        payload = {"attempt_start": "true"}
+    if ops == "disable":
+        payload = {"attempt_cleanup": "true"}
+    resp = url_POST(base_url+urllib.parse.quote(vdb_id)+"/"+ops, payload)
+    if resp.status_code == 200:
+        return json.loads(resp.text)
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
 
-
+# Init
 parser = argparse.ArgumentParser(description='Delphix DCT VDB operations')
 subparser = parser.add_subparsers(dest='command')
 
@@ -52,41 +70,42 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
+# Start processing
+dct_base_url = "/vdbs"
+
 if args.command == 'list':
-    rs = dct_search("VDB List ", "/vdbs", None, "No VDBs defined.", args.format)
+    rs = dct_search("VDB List ", dct_base_url, None, "No VDBs defined.", args.format)
     print(rs)
 
 if args.command == 'view':
-    rs = dct_view_by_id("/vdbs", args.id)
+    rs = dct_view_by_id(dct_base_url, args.id)
     print(rs)
 
 if args.command == 'delete':
-    print("Processing VDB delete ID="+args.id)
-    rs = vdb_delete(args.id)
-    print(rs)
+    print("Processing VDB delete ID=" + args.id)
+    rs = dct_delete_by_id(dct_base_url, "Deleted VDB", args.id)
 
 if args.command == 'search':
-    rs = dct_search("VDB List ", "/vdbs", args.filter, "No VDBs match the search criteria.",
+    rs = dct_search("VDB List ", dct_base_url, args.filter, "No VDBs match the search criteria.",
                     args.format)
     print(rs)
 
 if args.command == 'enable':
     print("Processing VDB enable ID="+args.id)
-    rs = vdb_operation(args.id, args.command)
+    rs = vdb_operation(dct_base_url, args.id, args.command)
     print(rs)
 
 if args.command == 'disable':
     print("Processing VDB disable ID="+args.id)
-    rs = vdb_operation(args.id, args.command)
+    rs = vdb_operation(dct_base_url, args.id, args.command)
     print(rs)
-
 
 if args.command == 'stop':
     print("Processing VDB stop ID="+args.id)
-    rs = vdb_operation(args.id, args.command)
+    rs = vdb_operation(dct_base_url, args.id, args.command)
     print(rs)
 
 if args.command == 'start':
     print("Processing VDB start ID="+args.id)
-    rs = vdb_operation(args.id, args.command)
+    rs = vdb_operation(dct_base_url, args.id, args.command)
     print(rs)

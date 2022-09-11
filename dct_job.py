@@ -1,9 +1,24 @@
+#
+# dct_job
+#
+
 import argparse
-from jobs import *
+from helpers import *
 
 # TODO job cancel not implemented
 
+# Job functions
+def job_monitor(job_id):
+    job = {"status": ""}
+    while job['status'] not in ['TIMEDOUT', 'CANCELED', 'FAILED', 'COMPLETED']:
+        time.sleep(3)
+        job = dct_view_by_id("/jobs", job_id)
+    if job['status'] != 'COMPLETED':
+        raise RuntimeError(f"Job {job['id']} failed {job['error_details']}")
+    else:
+        print(f"Job {job_id} COMPLETED - {job['update_time']}")
 
+# Init
 parser = argparse.ArgumentParser(description="Delphix DCT Job operations")
 subparser = parser.add_subparsers(dest='command')
 
@@ -34,13 +49,17 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
+
+# Start processing
+dct_base_url = "/jobs"
+
 if args.command == 'monitor':
     print("Monitor Job ID=" + args.id)
     rs = job_monitor(args.id)
     print(rs)
 
 if args.command == 'view':
-    rs = dct_view_by_id("/jobs", args.id)
+    rs = dct_view_by_id(dct_base_url, args.id)
     print(rs)
 
 if args.command == 'cancel':
@@ -49,10 +68,10 @@ if args.command == 'cancel':
     print(rs)
 
 if args.command == 'search':
-    rs = dct_search("Job List ", "/jobs", args.filter, "No Jobs match the search criteria.",
+    rs = dct_search("Job List ", dct_base_url, args.filter, "No Jobs match the search criteria.",
                     args.format)
     print(rs)
 
 if args.command == 'list':
-    rs = dct_search("Job List ", "/jobs", None, "No Jobs defined.", args.format)
+    rs = dct_search("Job List ", dct_base_url, None, "No Jobs defined.", args.format)
     print(rs)

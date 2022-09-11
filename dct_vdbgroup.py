@@ -1,12 +1,26 @@
+#
+# dct_vdbgroup
+#
+
 import argparse
-from vdbgroups import *
+from helpers import *
 
-# TODO implement
-# UPDATE
-# refresh
-# rollback
-# TODO search should provide a generic filter as dct_report
+# VDBGroup functions
+def vdbgroup_create(base_url, name, vdbg_id):
+    # create VDB_ID list
+    vdb_id_list = vdbg_id.split(",")
+    # build payload
+    payload = {"name": name, "vdb_ids": vdb_id_list}
+    resp = url_POST(base_url, payload)
+    if resp.status_code == 201:
+        vdbg = resp.json()['vdb_group']
+        print(f"Created VDBGroup with ID={vdbg['id']}")
+        return vdbg
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
 
+# Init
 parser = argparse.ArgumentParser(description="Delphix DCT VDBgroup operations")
 subparser = parser.add_subparsers(dest='command')
 
@@ -40,34 +54,36 @@ create.add_argument('--vdb_id', type=str, required=True, help="List of VDB IDs s
 
 # define view parms
 bookmarks.add_argument('--id', type=str, required=True, help="VDBGroup full name or ID to be viewed")
+bookmarks.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
+# Start processing
+dct_base_url = "/vdb-groups"
+
 if args.command == 'list':
-    rs = dct_search("VDBGroup List ", "/vdb-groups", None, "No VDBGroups defined.", args.format)
+    rs = dct_search("VDBGroup List ", dct_base_url, None, "No VDBGroups defined.", args.format)
     print(rs)
 
 if args.command == 'view':
-    rs = dct_view_by_id("/vdb-groups", args.id)
+    rs = dct_view_by_id(dct_base_url, args.id)
     print(rs)
 
 if args.command == 'delete':
     print("Processing VDBGroup delete ID=" + args.id)
-    rs = vdbgroup_delete(args.id)
-    print(rs)
+    rs = dct_delete_by_id(dct_base_url, "Deleted VDBGroup", args.id)
 
 if args.command == 'search':
-    rs = dct_search("VDBGroups List ", "/vdb-groups", args.filter, "No VDBgroups match the search criteria.",
+    rs = dct_search("VDBGroups List ", dct_base_url, args.filter, "No VDBGroups match the search criteria.",
                     args.format)
     print(rs)
 
 if args.command == 'create':
     print("Processing VDBGroup create ")
-    rs = vdbgroup_create(args.name, args.vdb_id)
+    rs = vdbgroup_create(dct_base_url, args.name, args.vdb_id)
     print(rs)
 
 if args.command == 'bookmarks':
-    print("Processing VDBGroup Bookmarks ID=" + args.id)
-    rs = vdbgroup_bookmarks(args.id)
+    rs = dct_list_by_id(dct_base_url, args.id, "/bookmarks", args.format)
     print(rs)

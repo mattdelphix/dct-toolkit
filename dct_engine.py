@@ -1,7 +1,24 @@
+#
+# dct_engine
+#
+
 import argparse
-from engines import *
+from helpers import *
 
+# Engine functions
+def engine_register(base_url, name, hostname, user, password, insecure_ssl, unsafe_ssl):
+    # TODO add hashicorp, trustore and tags
+    payload = {"name": name, "hostname": hostname, "username": user, "password": password, "insecure_ssl": insecure_ssl,
+               "unsafe_ssl_hostname_check": unsafe_ssl}
+    resp = url_POST(base_url, payload)
+    if resp.status_code == 201:
+        print(f"Registered engine with ID={resp['id']}")
+        return resp.json()
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
 
+# Init
 parser = argparse.ArgumentParser(description="Delphix DCT Engine operations")
 subparser = parser.add_subparsers(dest='command')
 
@@ -40,26 +57,29 @@ register.add_argument('--unsafe_ssl_hostname_check', required=False, type=str, h
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
+
+# Start processing
+dct_base_url = "/management/engines"
+
 if args.command == 'list':
-    rs = dct_search("Engine List", "/management/engines", None, "No Engines defined.", args.format)
+    rs = dct_search("Engine List", dct_base_url, None, "No Engines defined.", args.format)
     print(rs)
 
 if args.command == 'view':
-    rs = dct_view_by_id("/management/engines", args.id)
+    rs = dct_view_by_id(dct_base_url, args.id)
     print(rs)
 
 if args.command == 'delete':
     print("Processing Engine delete ID=" + args.id)
-    rs = engine_delete(args.id)
-    print(rs)
+    rs = dct_delete_by_id(dct_base_url, "Deleted Engine", args.id)
 
 if args.command == 'search':
-    rs = dct_search("Engine List", "/management/engines", args.filter, "No Engines match the search criteria.",
+    rs = dct_search("Engine List", dct_base_url, args.filter, "No Engines match the search criteria.",
                     args.format)
     print(rs)
 
 if args.command == 'register':
     print("Processing Engine register ")
-    rs = engine_register(args.name, args.hostname, args.user, args.password, args.insecure_ssl,
+    rs = engine_register(dct_base_url, args.name, args.hostname, args.user, args.password, args.insecure_ssl,
                          args.unsafe_ssl_hostname_check)
     print(rs)
