@@ -48,7 +48,7 @@ create = subparser.add_parser('create')
 delete = subparser.add_parser('delete')
 search = subparser.add_parser('search')
 view = subparser.add_parser('view')
-uèdt = subparser.add_parser('update')
+updt = subparser.add_parser('update')
 tags = subparser.add_parser('tag_list')
 
 
