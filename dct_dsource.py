@@ -5,9 +5,7 @@
 import argparse
 from helpers import *
 
-# TODO test snapshot list
-# TODO test dsource_tags_view when no tags are present. report is produced
-
+# Init
 parser = argparse.ArgumentParser(description='Delphix DCT DSource operations')
 subparser = parser.add_subparsers(dest='command')
 

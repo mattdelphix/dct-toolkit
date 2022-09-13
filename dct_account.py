@@ -1,5 +1,5 @@
 #
-# dc_account
+# dct_account
 #
 
 import argparse
@@ -29,7 +29,7 @@ def account_update(base_url, client_id, first_name, last_name, email, username, 
     resp = url_POST(base_url, payload)
     if resp.status_code == 200:
         rsp = resp.json()
-        print(f"Upadated account with ID={rsp['id']}")
+        print(f"Updated account with ID={rsp['id']}")
         return rsp
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
@@ -115,7 +115,7 @@ if args.command == 'create':
                         args.password, args.tags)
     print(rs)
 
-if args.command == 'updatete':
+if args.command == 'update':
     print("Processing Account update")
     rs = account_update(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
                         args.password, args.tags)
