@@ -67,9 +67,6 @@ updt.add_argument('--last_name', type=str, required=False, help="Last name of th
 updt.add_argument('--email', type=str, required=False, help="E-mail of the new API-client")
 updt.add_argument('--username', type=str, required=False, help="Username of the new API-client")
 updt.add_argument('--password', type=str, required=False, help="Password of the new API-client")
-updt.add_argument('--tags', type=str, required=False,
-                  help="Tags of the new API-client in this format:  [{'key': 'key-1','value': 'value-1''},"
-                       " {'key': 'key-2','value': 'value-2'}]")
 
 # define delete parms
 delete.add_argument('--id', type=str, required=True, help="API-client ID to be deleted")
@@ -96,14 +93,14 @@ if args.command == 'list':
 
 if args.command == 'create':
     print("Processing API-clients create")
-    rs = API - client_create(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
-                             args.password, args.tags)
+    rs = api_client_create(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
+                           args.password, args.tags)
     print(rs)
 
 if args.command == 'update':
     print("Processing API-client update")
-    rs = API - client_update(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
-                             args.password, args.tags)
+    rs = api_client_update(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
+                           args.password, args.tags)
     print(rs)
 
 if args.command == 'delete':

@@ -114,6 +114,16 @@ def dct_view_by_id(dct_query, view_id, dct_output="json"):
         sys.exit(1)
 
 
+def dct_act_by_id(dct_base_query, view_id, dct_operation):
+    resp = url_POST(dct_base_query + "/" + view_id + dct_operation, "")
+    if resp.status_code == 200:
+        # return resp.json()
+        return json.dumps(resp.json(), indent=4)
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+
+
 def dct_list_by_id(dct_base_query, view_id, dct_operation, dct_output="json"):
     resp = url_GET(dct_base_query + "/" + view_id + dct_operation)
     if resp.status_code == 200:
