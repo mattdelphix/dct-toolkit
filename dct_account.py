@@ -8,10 +8,14 @@ from helpers import *
 
 # Account functions
 def account_create(base_url, client_id, first_name, last_name, email, username, password, tags):
-    tags_dic = json.loads(tags)
-    payload = {"generate_api_key": 'true', "api_client_id": client_id, "first_name": first_name, "last_name": last_name,
-               "email": email,
-               "username": username, "password": password, "tags": tags_dic}
+    if tags is None:
+        payload = {"generate_api_key": 'true', "api_client_id": client_id, "first_name": first_name,
+                   "last_name": last_name, "email": email, "username": username, "password": password}
+    else:
+        tags_dic = json.loads(tags)
+        payload = {"generate_api_key": 'true', "api_client_id": client_id, "first_name": first_name,
+                   "last_name": last_name, "email": email, "username": username, "password": password, "tags": tags_dic}
+
     resp = url_POST(base_url, payload)
     if resp.status_code == 201:
         rsp = resp.json()
@@ -21,19 +25,12 @@ def account_create(base_url, client_id, first_name, last_name, email, username, 
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
 
-def account_update(base_url, client_id, first_name, last_name, email, username, password, tags):
-    tags_dic = json.loads(tags)
-    payload = {"generate_api_key": 'true', "api_client_id": client_id, "first_name": first_name, "last_name": last_name,
-               "email": email,
-               "username": username, "password": password, "tags": tags_dic}
-    resp = url_POST(base_url, payload)
-    if resp.status_code == 200:
-        rsp = resp.json()
-        print(f"Upadated account with ID={rsp['id']}")
-        return rsp
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
+
+def account_update(base_url,account_id, client_id, first_name, last_name, email, username):
+    payload = {"api_client_id": client_id, "first_name": first_name, "last_name": last_name,"email": email,
+                   "username": username}
+
+    return dct_update_by_id(base_url, "Updated Account", payload, account_id)
 
 
 # Init
@@ -115,7 +112,7 @@ if args.command == 'create':
                         args.password, args.tags)
     print(rs)
 
-if args.command == 'updatete':
+if args.command == 'update':
     print("Processing Account update")
     rs = account_update(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
                         args.password, args.tags)
@@ -127,4 +124,8 @@ if args.command == 'delete':
 
 if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
+    print(rs)
+
+if args.command == 'password_reset':
+    rs = dct_update_by_id(dct_base_url, "Password Reset for Account",  args.tags, args.id)
     print(rs)
