@@ -55,8 +55,11 @@ view = subparser.add_parser('view')
 updt = subparser.add_parser('update')
 tags = subparser.add_parser('tag_list')
 pwd_reset = subparser.add_parser('password_reset')
+tag_create = subparser.add_parser('tag_create')
+tag_delete = subparser.add_parser('tag_delete')
+tag_delete_all = subparser.add_parser('tag_delete_all')
 
-# define create parms
+# define create params
 create.add_argument('--client_id', type=str, required=True, help="Client_id name of the new Account")
 create.add_argument('--first_name', type=str, required=False, help="First name of the new Account")
 create.add_argument('--last_name', type=str, required=False, help="Last name of the new Account")
@@ -66,40 +69,49 @@ create.add_argument('--password', type=str, required=False, help="Password of th
 create.add_argument('--tags', type=str, required=False,
                     help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1'},"
                          " {'key': 'key-2','value': 'value-2'}]")
-# define update parms
+# define update params
 updt.add_argument('--id', type=str, required=True, help="Account ID to be updated")
 updt.add_argument('--client_id', type=str, required=True, help="Client_id name of the Account to be updated")
 updt.add_argument('--first_name', type=str, required=False, help="First name of the Account to be updated")
 updt.add_argument('--last_name', type=str, required=False, help="Last name of the Account to be updated")
 updt.add_argument('--email', type=str, required=False, help="E-mail of the Account to be updated")
 updt.add_argument('--username', type=str, required=True, help="Username of the Account to be updated")
-updt.add_argument('--tags', type=str, required=False,
-                  help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1'},"
-                       " {'key': 'key-2','value': 'value-2'}]")
 
-# define delete parms
+# define delete params
 delete.add_argument('--id', type=str, required=True, help="Account ID to be deleted")
 
-# define view parms
+# define view params
 view.add_argument('--id', type=str, required=True, help="Account ID to be viewed")
 
-# define tag_list parms
+# define tag_list params
 tags.add_argument('--id', type=str, required=True, help="Account ID to be viewed")
 tags.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
-# define list parms
+# define list params
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
-# define search parms
+# define search params
 search.add_argument('--filter', type=str, required=False, help="Account search string")
 search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
-# define password reset params
+# define password_reset params
 pwd_reset.add_argument('--id', type=str, required=True, help="Account ID to have pwd reset")
-pwd_reset.add_argument('--old_password', type=str, required=False, help="Existing Password of the Account")
-pwd_reset.add_argument('--new_password', type=str, required=False, help="New Password of the Account")
+pwd_reset.add_argument('--old_password', type=str, required=True, help="Existing Password of the Account")
+pwd_reset.add_argument('--new_password', type=str, required=True, help="New Password of the Account")
 
-# force help if no parms
+# define tag_create params
+tag_create.add_argument('--id', type=str, required=True, help="Account ID to add tags to")
+tag_create.add_argument('--tags', type=str, required=True,
+                         help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1'},"
+                              " {'key': 'key-2','value': 'value-2'}]")
+# define tag_delete params
+tag_delete.add_argument('--id', type=str, required=True, help="Account ID to delete tags from")
+tag_delete.add_argument('--key', type=str, required=True, help="Tags key of existing tag")
+
+# define tag_delete_all params
+tag_delete_all.add_argument('--id', type=str, required=True, help="Account ID to delete tags from")
+
+# force help if no params
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
@@ -142,3 +154,31 @@ if args.command == 'password_reset':
                                                                                 "new_password": args.new_password},
                           args.command)
     print(rs)
+
+if args.command == 'tag_create':
+    payload = {"tags": json.loads(args.tags)}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
+    if rs.status_code == 201:
+        print("Create tags for Account - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'tag_delete':
+    payload = {"key": args.key}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
+    if rs.status_code == 204:
+        print("Delete tag for Account - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'tag_delete_all':
+    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
+    if rs.status_code == 204:
+        print("Deleted all tags for Account - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+

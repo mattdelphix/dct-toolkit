@@ -152,3 +152,14 @@ def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
+
+
+def dct_post_by_id(dct_query, update_id, payload, dct_operation):
+    resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
+    return resp
+    #if resp.status_code == 201:
+    #    print(dct_message + " - ID=" + update_id)
+    #    return
+    #else:
+    #    print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+    #    sys.exit(1)
