@@ -45,7 +45,7 @@ def tabular_report(title, ldict):
 
 def get_host_name():
     os.environ.setdefault('HOST', 'https://uvo18oz1uisfurv1b4l.vm.cld.sr')
-    #os.environ.setdefault('HOST', 'https://172.16.111.50')
+    # os.environ.setdefault('HOST', 'https://172.16.111.50')
     host = os.environ['HOST']
     if host is None:
         raise Exception("Set environment variable HOST in the form: https://hostname")
@@ -58,12 +58,32 @@ def url_GET(url_encoded_text):
 
 
 def url_POST(url_encoded_text, json_data):
-    # print(JSON_DATA)
+    # print(json_data)
     if json_data:
         rsp = requests.post(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
                             verify=False)
     else:
         rsp = requests.post(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
+    return rsp
+
+
+def url_PUT(url_encoded_text, json_data):
+    # print(JSON_DATA)
+    if json_data:
+        rsp = requests.put(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
+                           verify=False)
+    else:
+        rsp = requests.put(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
+    return rsp
+
+
+def url_PATCH(url_encoded_text, json_data):
+    # print(JSON_DATA)
+    if json_data:
+        rsp = requests.patch(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
+                           verify=False)
+    else:
+        rsp = requests.patch(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
     return rsp
 
 
@@ -114,16 +134,6 @@ def dct_view_by_id(dct_query, view_id, dct_output="json"):
         sys.exit(1)
 
 
-def dct_act_by_id(dct_base_query, view_id, dct_operation):
-    resp = url_POST(dct_base_query + "/" + view_id + dct_operation, "")
-    if resp.status_code == 200:
-        # return resp.json()
-        return json.dumps(resp.json(), indent=4)
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
-
-
 def dct_list_by_id(dct_base_query, view_id, dct_operation, dct_output="json"):
     resp = url_GET(dct_base_query + "/" + view_id + dct_operation)
     if resp.status_code == 200:
@@ -142,3 +152,18 @@ def dct_delete_by_id(dct_query, dct_message, delete_id):
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
+
+
+def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
+    resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
+    if resp.status_code == 200:
+        print(dct_message + " - ID=" + update_id)
+        return
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+
+
+def dct_post_by_id(dct_query, update_id, payload, dct_operation):
+    resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
+    return resp

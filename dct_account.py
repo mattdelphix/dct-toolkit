@@ -8,10 +8,14 @@ from helpers import *
 
 # Account functions
 def account_create(base_url, client_id, first_name, last_name, email, username, password, tags):
-    tags_dic = json.loads(tags)
-    payload = {"generate_api_key": 'true', "api_client_id": client_id, "first_name": first_name, "last_name": last_name,
-               "email": email,
-               "username": username, "password": password, "tags": tags_dic}
+    if tags is None:
+        payload = {"generate_api_key": 'true', "api_client_id": client_id, "first_name": first_name,
+                   "last_name": last_name, "email": email, "username": username, "password": password}
+    else:
+        tags_dic = json.loads(tags)
+        payload = {"generate_api_key": 'true', "api_client_id": client_id, "first_name": first_name,
+                   "last_name": last_name, "email": email, "username": username, "password": password, "tags": tags_dic}
+
     resp = url_POST(base_url, payload)
     if resp.status_code == 201:
         rsp = resp.json()
@@ -21,15 +25,31 @@ def account_create(base_url, client_id, first_name, last_name, email, username, 
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
 
-def account_update(base_url, client_id, first_name, last_name, email, username, password, tags):
-    tags_dic = json.loads(tags)
-    payload = {"generate_api_key": 'true', "api_client_id": client_id, "first_name": first_name, "last_name": last_name,
-               "email": email,
-               "username": username, "password": password, "tags": tags_dic}
-    resp = url_POST(base_url, payload)
+
+def account_update(base_url, account_id, client_id, first_name, last_name, email, username):
+    payload = {"api_client_id": client_id, "first_name": first_name, "last_name": last_name, "email": email,
+               "username": username}
+
+    resp = url_PUT(base_url + "/" + urllib.parse.quote(account_id), payload)
     if resp.status_code == 200:
         rsp = resp.json()
-        print(f"Updated account with ID={rsp['id']}")
+        print("Updated Account" + " - ID=" + account_id)
+        return rsp
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+
+
+def password_policy_update (base_url, is_enabled, min_length, reuse_disallow_limit, digit, uppercase_letter,
+                            lowercase_letter, special_character, disallow_username_as_password):
+    payload = {"enabled": is_enabled, "min_length": min_length, "reuse_disallow_limit": reuse_disallow_limit,
+               "digit": digit,  "uppercase_letter": uppercase_letter,  "lowercase_letter": lowercase_letter,
+               "special_character": special_character,  "disallow_username_as_password": disallow_username_as_password}
+
+    resp = url_PATCH(base_url, payload)
+    if resp.status_code == 200:
+        rsp = resp.json()
+        print("Password policy updated")
         return rsp
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
@@ -50,47 +70,87 @@ search = subparser.add_parser('search')
 view = subparser.add_parser('view')
 updt = subparser.add_parser('update')
 tags = subparser.add_parser('tag_list')
+pwd_reset = subparser.add_parser('password_reset')
+tag_create = subparser.add_parser('tag_create')
+tag_delete = subparser.add_parser('tag_delete')
+tag_delete_all = subparser.add_parser('tag_delete_all')
+lst_pwd_policy = subparser.add_parser('list_pwd_policy')
+updt_pwd_policy = subparser.add_parser('update_pwd_policy')
 
-
-# define create parms
+# define create params
 create.add_argument('--client_id', type=str, required=True, help="Client_id name of the new Account")
-create.add_argument('--first_name', type=str, required=True, help="First name of the new Account")
-create.add_argument('--last_name', type=str, required=True, help="Last name of the new Account")
-create.add_argument('--email', type=str, required=True, help="E-mail of the new Account")
+create.add_argument('--first_name', type=str, required=False, help="First name of the new Account")
+create.add_argument('--last_name', type=str, required=False, help="Last name of the new Account")
+create.add_argument('--email', type=str, required=False, help="E-mail of the new Account")
 create.add_argument('--username', type=str, required=True, help="Username of the new Account")
-create.add_argument('--password', type=str, required=True, help="Password of the new Account")
+create.add_argument('--password', type=str, required=False, help="Password of the new Account")
 create.add_argument('--tags', type=str, required=False,
-                    help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1''},"
+                    help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1'},"
                          " {'key': 'key-2','value': 'value-2'}]")
-# define update parms
-updt.add_argument('--client_id', type=str, required=False, help="Client_id name of the new Account")
-updt.add_argument('--first_name', type=str, required=False, help="First name of the new Account")
-updt.add_argument('--last_name', type=str, required=False, help="Last name of the new Account")
-updt.add_argument('--email', type=str, required=False, help="E-mail of the new Account")
-updt.add_argument('--username', type=str, required=False, help="Username of the new Account")
-updt.add_argument('--password', type=str, required=False, help="Password of the new Account")
-updt.add_argument('--tags', type=str, required=False,
-                    help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1''},"
-                         " {'key': 'key-2','value': 'value-2'}]")
+# define update params
+updt.add_argument('--id', type=str, required=True, help="Account ID to be updated")
+updt.add_argument('--client_id', type=str, required=True, help="Client_id name of the Account to be updated")
+updt.add_argument('--first_name', type=str, required=False, help="First name of the Account to be updated")
+updt.add_argument('--last_name', type=str, required=False, help="Last name of the Account to be updated")
+updt.add_argument('--email', type=str, required=False, help="E-mail of the Account to be updated")
+updt.add_argument('--username', type=str, required=True, help="Username of the Account to be updated")
 
-# define delete parms
+# define delete params
 delete.add_argument('--id', type=str, required=True, help="Account ID to be deleted")
 
-# define view parms
+# define view params
 view.add_argument('--id', type=str, required=True, help="Account ID to be viewed")
 
-# define tag_list parms
+# define tag_list params
 tags.add_argument('--id', type=str, required=True, help="Account ID to be viewed")
 tags.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
-# define list parms
+# define list params
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
-# define search parms
+# define search params
 search.add_argument('--filter', type=str, required=False, help="Account search string")
 search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
-# force help if no parms
+# define password_reset params
+pwd_reset.add_argument('--id', type=str, required=True, help="Account ID to have pwd reset")
+pwd_reset.add_argument('--old_password', type=str, required=True, help="Existing Password of the Account")
+pwd_reset.add_argument('--new_password', type=str, required=True, help="New Password of the Account")
+
+# define tag_create params
+tag_create.add_argument('--id', type=str, required=True, help="Account ID to add tags to")
+tag_create.add_argument('--tags', type=str, required=True,
+                         help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1'},"
+                              " {'key': 'key-2','value': 'value-2'}]")
+# define tag_delete params
+tag_delete.add_argument('--id', type=str, required=True, help="Account ID to delete tags from")
+tag_delete.add_argument('--key', type=str, required=True, help="Tags key of existing tag")
+
+# define tag_delete_all params
+tag_delete_all.add_argument('--id', type=str, required=True, help="Account ID to delete tags from")
+
+# define lst_pwd_policy params
+lst_pwd_policy.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+
+# define updt_pwd_policy params
+updt_pwd_policy.add_argument('--enabled', type=str, required=True, help="Status of password policy",
+                             choices=['true', 'false'])
+updt_pwd_policy.add_argument('--min_length', type=int, required=True, help="Minimum lenght password should have",
+                             choices=range(1, 50))
+updt_pwd_policy.add_argument('--reuse_disallow_limit', type=int, required=True, choices=range(1, 50),
+                             help="Times password has to be different in order to be reused")
+updt_pwd_policy.add_argument('--digit', type=str, required=True, help="Has to contain at least one number",
+                             choices=['true', 'false'])
+updt_pwd_policy.add_argument('--uppercase_letter', type=str, required=True,
+                             help="Has to contain at least one Uppercase", choices=['true', 'false'])
+updt_pwd_policy.add_argument('--lowercase_letter', type=str, required=True,
+                             help="Has to contain at least one Lowercase", choices=['true', 'false'])
+updt_pwd_policy.add_argument('--special_character', type=str, required=True,
+                             help="Has to contain at least one special character", choices=['true', 'false'])
+updt_pwd_policy.add_argument('--disallow_username_as_password', type=str, required=True,
+                             help="Username cannot be used as password", choices=['true', 'false'])
+
+# force help if no params
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
@@ -101,8 +161,7 @@ if args.command == 'view':
     print(rs)
 
 if args.command == 'search':
-    rs = dct_search("Account List", dct_base_url, args.filter, "No Accounts match the search criteria.",
-                    args.format)
+    rs = dct_search("Account List", dct_base_url, args.filter, "No Accounts match the search criteria.", args.format)
     print(rs)
 
 if args.command == 'list':
@@ -116,9 +175,9 @@ if args.command == 'create':
     print(rs)
 
 if args.command == 'update':
-    print("Processing Account update")
-    rs = account_update(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
-                        args.password, args.tags)
+    print("Processing Account update ID=" + args.id)
+    rs = account_update(dct_base_url, args.id, args.client_id, args.first_name, args.last_name, args.email,
+                        args.username)
     print(rs)
 
 if args.command == 'delete':
@@ -128,3 +187,55 @@ if args.command == 'delete':
 if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
     print(rs)
+
+if args.command == 'password_reset':
+    rs = dct_update_by_id(dct_base_url, "Password Reset for Account", args.id, {"old_password": args.old_password,
+                                                                                "new_password": args.new_password},
+                          args.command)
+    print(rs)
+
+if args.command == 'tag_create':
+    payload = {"tags": json.loads(args.tags)}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
+    if rs.status_code == 201:
+        print("Create tags for Account - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'tag_delete':
+    payload = {"key": args.key}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
+    if rs.status_code == 204:
+        print("Delete tag for Account - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'tag_delete_all':
+    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
+    if rs.status_code == 204:
+        print("Deleted all tags for Account - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'list_pwd_policy':
+    print("Retrieving password policies")
+    rs = url_GET(dct_base_url + "/password-policies")
+    if rs.status_code == 200:
+        print(rs.json())
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+
+if args.command == 'update_pwd_policy':
+    print("Processing password policy update")
+    rs = password_policy_update(dct_base_url + "/password-policies", args.enabled, args.min_length,
+                                args.reuse_disallow_limit, args.digit, args.uppercase_letter, args.lowercase_letter,
+                                args.special_character, args.disallow_username_as_password)
+    print(rs)
+
+
+
