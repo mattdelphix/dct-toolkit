@@ -40,6 +40,22 @@ def account_update(base_url, account_id, client_id, first_name, last_name, email
         sys.exit(1)
 
 
+def password_policy_update (base_url, is_enabled, min_length, reuse_disallow_limit, digit, uppercase_letter,
+                            lowercase_letter, special_character, disallow_username_as_password):
+    payload = {"enabled": is_enabled, "min_length": min_length, "reuse_disallow_limit": reuse_disallow_limit,
+               "digit": digit,  "uppercase_letter": uppercase_letter,  "lowercase_letter": lowercase_letter,
+               "special_character": special_character,  "disallow_username_as_password": disallow_username_as_password}
+
+    resp = url_PATCH(base_url, payload)
+    if resp.status_code == 200:
+        rsp = resp.json()
+        print("Password policy updated")
+        return rsp
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+
+
 # Init
 parser = argparse.ArgumentParser(description="Delphix DCT Account operations")
 subparser = parser.add_subparsers(dest='command')
@@ -58,6 +74,8 @@ pwd_reset = subparser.add_parser('password_reset')
 tag_create = subparser.add_parser('tag_create')
 tag_delete = subparser.add_parser('tag_delete')
 tag_delete_all = subparser.add_parser('tag_delete_all')
+lst_pwd_policy = subparser.add_parser('list_pwd_policy')
+updt_pwd_policy = subparser.add_parser('update_pwd_policy')
 
 # define create params
 create.add_argument('--client_id', type=str, required=True, help="Client_id name of the new Account")
@@ -110,6 +128,27 @@ tag_delete.add_argument('--key', type=str, required=True, help="Tags key of exis
 
 # define tag_delete_all params
 tag_delete_all.add_argument('--id', type=str, required=True, help="Account ID to delete tags from")
+
+# define lst_pwd_policy params
+lst_pwd_policy.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+
+# define updt_pwd_policy params
+updt_pwd_policy.add_argument('--enabled', type=str, required=True, help="Status of password policy",
+                             choices=['true', 'false'])
+updt_pwd_policy.add_argument('--min_length', type=int, required=True, help="Minimum lenght password should have",
+                             choices=range(1, 50))
+updt_pwd_policy.add_argument('--reuse_disallow_limit', type=int, required=True, choices=range(1, 50),
+                             help="Times password has to be different in order to be reused")
+updt_pwd_policy.add_argument('--digit', type=str, required=True, help="Has to contain at least one number",
+                             choices=['true', 'false'])
+updt_pwd_policy.add_argument('--uppercase_letter', type=str, required=True,
+                             help="Has to contain at least one Uppercase", choices=['true', 'false'])
+updt_pwd_policy.add_argument('--lowercase_letter', type=str, required=True,
+                             help="Has to contain at least one Lowercase", choices=['true', 'false'])
+updt_pwd_policy.add_argument('--special_character', type=str, required=True,
+                             help="Has to contain at least one special character", choices=['true', 'false'])
+updt_pwd_policy.add_argument('--disallow_username_as_password', type=str, required=True,
+                             help="Username cannot be used as password", choices=['true', 'false'])
 
 # force help if no params
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -180,5 +219,18 @@ if args.command == 'tag_delete_all':
     else:
         print(f"ERROR: Status = {rs.status_code} - {rs.text}")
         sys.exit(1)
+
+if args.command == 'list_pwd_policy':
+    print("Retrieving password policies")
+    rs = url_GET(dct_base_url + "/password-policies")
+    print(rs)
+
+if args.command == 'update_pwd_policy':
+    print("Processing password policy update")
+    rs = password_policy_update(dct_base_url + "/password-policies", args.enabled, args.min_length,
+                                args.reuse_disallow_limit, args.digit, args.uppercase_letter, args.lowercase_letter,
+                                args.special_character, args.disallow_username_as_password)
+    print(rs)
+
 
 
