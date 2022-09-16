@@ -223,7 +223,12 @@ if args.command == 'tag_delete_all':
 if args.command == 'list_pwd_policy':
     print("Retrieving password policies")
     rs = url_GET(dct_base_url + "/password-policies")
-    print(rs)
+    if rs.status_code == 200:
+        print(rs.json())
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
 
 if args.command == 'update_pwd_policy':
     print("Processing password policy update")
