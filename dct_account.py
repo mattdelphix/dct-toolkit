@@ -6,7 +6,6 @@ import argparse
 from helpers import *
 
 
-
 # Account functions
 def account_create(base_url, client_id, first_name, last_name, email, username, password, tags):
     if tags is None:
@@ -27,11 +26,18 @@ def account_create(base_url, client_id, first_name, last_name, email, username, 
         sys.exit(1)
 
 
-def account_update(base_url,account_id, client_id, first_name, last_name, email, username):
-    payload = {"api_client_id": client_id, "first_name": first_name, "last_name": last_name,"email": email,
-                   "username": username}
+def account_update(base_url, account_id, client_id, first_name, last_name, email, username):
+    payload = {"api_client_id": client_id, "first_name": first_name, "last_name": last_name, "email": email,
+               "username": username}
 
-    return dct_update_by_id(base_url, "Updated Account", payload, account_id)
+    resp = url_PUT(base_url + "/" + urllib.parse.quote(account_id), payload)
+    if resp.status_code == 200:
+        rsp = resp.json()
+        print("Updated Account" + " - ID=" + account_id)
+        return rsp
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
 
 
 # Init
@@ -49,7 +55,6 @@ view = subparser.add_parser('view')
 updt = subparser.add_parser('update')
 tags = subparser.add_parser('tag_list')
 pwd_reset = subparser.add_parser('password_reset')
-
 
 # define create parms
 create.add_argument('--client_id', type=str, required=True, help="Client_id name of the new Account")
@@ -69,8 +74,8 @@ updt.add_argument('--last_name', type=str, required=False, help="Last name of th
 updt.add_argument('--email', type=str, required=False, help="E-mail of the Account to be updated")
 updt.add_argument('--username', type=str, required=True, help="Username of the Account to be updated")
 updt.add_argument('--tags', type=str, required=False,
-                    help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1'},"
-                         " {'key': 'key-2','value': 'value-2'}]")
+                  help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1'},"
+                       " {'key': 'key-2','value': 'value-2'}]")
 
 # define delete parms
 delete.add_argument('--id', type=str, required=True, help="Account ID to be deleted")
@@ -91,10 +96,8 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 
 # define password reset params
 pwd_reset.add_argument('--id', type=str, required=True, help="Account ID to have pwd reset")
-pwd_reset.add_argument('--tags', type=str, required=False,
-                    help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1'},"
-                         " {'key': 'key-2','value': 'value-2'}]")
-
+pwd_reset.add_argument('--old_password', type=str, required=False, help="Existing Password of the Account")
+pwd_reset.add_argument('--new_password', type=str, required=False, help="New Password of the Account")
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -107,7 +110,7 @@ if args.command == 'view':
     print(rs)
 
 if args.command == 'search':
-    rs = dct_search("Account List", dct_base_url, args.filter, "No Accounts match the search criteria.",args.format)
+    rs = dct_search("Account List", dct_base_url, args.filter, "No Accounts match the search criteria.", args.format)
     print(rs)
 
 if args.command == 'list':
@@ -116,16 +119,15 @@ if args.command == 'list':
 
 if args.command == 'create':
     print("Processing Accounts create")
-    rs = account_create(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,args.password, args.tags)
+    rs = account_create(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
+                        args.password, args.tags)
     print(rs)
 
 if args.command == 'update':
     print("Processing Account update ID=" + args.id)
-    rs = account_update(dct_base_url, args.id, args.client_id, args.first_name, args.last_name, args.email, args.username)
-    if rs is None:
-        print(dct_view_by_id(dct_base_url, args.id))
-    else:
-        print(rs)
+    rs = account_update(dct_base_url, args.id, args.client_id, args.first_name, args.last_name, args.email,
+                        args.username)
+    print(rs)
 
 if args.command == 'delete':
     print("Processing Account delete ID=" + args.id)
@@ -136,5 +138,7 @@ if args.command == 'tag_list':
     print(rs)
 
 if args.command == 'password_reset':
-    rs = dct_update_by_id(dct_base_url, "Password Reset for Account",  args.tags, args.id)
+    rs = dct_update_by_id(dct_base_url, "Password Reset for Account", args.id, {"old_password": args.old_password,
+                                                                                "new_password": args.new_password},
+                          args.command)
     print(rs)

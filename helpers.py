@@ -144,8 +144,8 @@ def dct_delete_by_id(dct_query, dct_message, delete_id):
         sys.exit(1)
 
 
-def dct_update_by_id(dct_query, dct_message, payload, update_id):
-    resp = url_PUT(dct_query + "/" + urllib.parse.quote(update_id), payload)
+def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
+    resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
     if resp.status_code == 200:
         print(dct_message + " - ID=" + update_id)
         return
