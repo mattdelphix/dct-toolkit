@@ -58,7 +58,7 @@ def url_GET(url_encoded_text):
 
 
 def url_POST(url_encoded_text, json_data):
-    # print(JSON_DATA)
+    # print(json_data)
     if json_data:
         rsp = requests.post(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
                             verify=False)
@@ -116,16 +116,6 @@ def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
 
 def dct_view_by_id(dct_query, view_id, dct_output="json"):
     resp = url_GET(dct_query + "/" + view_id)
-    if resp.status_code == 200:
-        # return resp.json()
-        return json.dumps(resp.json(), indent=4)
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
-
-
-def dct_act_by_id(dct_base_query, view_id, dct_operation):
-    resp = url_POST(dct_base_query + "/" + view_id + dct_operation, "")
     if resp.status_code == 200:
         # return resp.json()
         return json.dumps(resp.json(), indent=4)
