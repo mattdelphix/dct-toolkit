@@ -146,7 +146,7 @@ def dct_list_by_id(dct_base_query, view_id, dct_operation, dct_output="json"):
 
 def dct_delete_by_id(dct_query, dct_message, delete_id):
     resp = url_DELETE(dct_query + "/" + urllib.parse.quote(delete_id))
-    if resp.status_code == 204:
+    if resp.status_code == 200:
         print(dct_message + " - ID=" + delete_id)
         return
     else:
