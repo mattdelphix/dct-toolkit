@@ -1,6 +1,21 @@
 #
-# dct_vdb
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Copyright (c) 2022 by Delphix. All rights reserved.
+#
+# Author  : Matteo Ferrari, Ruben Catarrunas
+# Date    : September 2022
+
 
 import argparse
 from helpers import *
@@ -40,7 +55,7 @@ disable = subparser.add_parser('disable')
 enable = subparser.add_parser('enable')
 stop = subparser.add_parser('stop')
 start = subparser.add_parser('start')
-
+tag_list = subparser.add_parser('tag_list')
 
 # define view parms
 view.add_argument('--id', type=str, required=True, help="VDB ID to be viewed")
@@ -66,6 +81,10 @@ delete.add_argument('--id', type=str, required=True, help="VDB ID to be deleted"
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="VDB search string")
 search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+
+# define tag_list parms
+tag_list.add_argument('--id', type=str, required=True, help="VDB ID for tags list")
+tag_list.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -109,3 +128,8 @@ if args.command == 'start':
     print("Processing VDB start ID="+args.id)
     rs = vdb_operation(dct_base_url, args.id, args.command)
     print(rs)
+
+if args.command == 'tag_list':
+    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
+    print(rs)
+
