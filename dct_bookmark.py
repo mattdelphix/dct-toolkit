@@ -35,6 +35,7 @@ delete = subparser.add_parser('delete')
 search = subparser.add_parser('search')
 view = subparser.add_parser('view')
 vdbgroup_list = subparser.add_parser('vdbgroup_list')
+tag_list = subparser.add_parser('tag_list')
 
 # define create parms
 create.add_argument('--name', type=str, required=True, help="Name of the new Bookmark")
@@ -56,6 +57,10 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 
 # define vdbgroup_list parms
 vdbgroup_list.add_argument('--id', type=str, required=True, help="Bookmark ID for VDBGroup list")
+
+# define tag_list parms
+tag_list.add_argument('--id', type=str, required=True, help="VDB ID for tags list")
+tag_list.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -87,4 +92,8 @@ if args.command == 'delete':
 
 if args.command == 'vdbgroup_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/vdb-groups", args.format)
+    print(rs)
+
+if args.command == 'tag_list':
+    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
     print(rs)

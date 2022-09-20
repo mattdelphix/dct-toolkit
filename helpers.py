@@ -16,6 +16,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 # TODO add -format table/csv/json (default) to output
 # TODO unify by_id API output in one single function
+# TODO Post_by_id needs error checking
 
 # general helpers
 def build_headers():
@@ -167,3 +168,4 @@ def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
 def dct_post_by_id(dct_query, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
     return resp
+
