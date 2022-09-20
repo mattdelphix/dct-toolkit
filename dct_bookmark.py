@@ -1,6 +1,21 @@
 #
-# dc_account
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Copyright (c) 2022 by Delphix. All rights reserved.
+#
+# Author  : Matteo Ferrari, Ruben Catarrunas
+# Date    : September 2022
+
 
 import argparse
 from helpers import *
@@ -20,6 +35,7 @@ def bookmark_create(base_url, name, bookmark_id, retention):
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
+
 
 # Init
 parser = argparse.ArgumentParser(description="Delphix DCT Bookmark operations")
@@ -49,18 +65,18 @@ delete.add_argument('--id', type=str, required=True, help="Bookmark ID to be del
 view.add_argument('--id', type=str, required=True, help="Bookmark ID to be viewed")
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="Bookmark search string")
-search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define vdbgroup_list parms
 vdbgroup_list.add_argument('--id', type=str, required=True, help="Bookmark ID for VDBGroup list")
 
 # define tag_list parms
 tag_list.add_argument('--id', type=str, required=True, help="VDB ID for tags list")
-tag_list.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])

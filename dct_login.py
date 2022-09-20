@@ -5,12 +5,13 @@
 import argparse
 from helpers import *
 
+
 # TODO job cancel not implemented
 
 # Login functions
 def dct_login(dct_query, user, password):
     payload = {"username": user, "password": password}
-    resp = url_POST(dct_query,payload)
+    resp = url_POST(dct_query, payload)
     if resp.status_code == 200:
         return resp.json()
     if resp.status_code == 201:
@@ -20,10 +21,11 @@ def dct_login(dct_query, user, password):
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
 
-def dct_token(dct_query, token, type):
-    tkn = type + ' ' + token
+
+def dct_token(dct_query, dct_tkn, dct_type):
+    tkn = dct_type + ' ' + dct_tkn
     payload = {"token": tkn}
-    resp = url_POST(dct_query,payload)
+    resp = url_POST(dct_query, payload)
     if resp.status_code == 200:
         return resp.json()
     if resp.status_code == 201:
@@ -32,6 +34,7 @@ def dct_token(dct_query, token, type):
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
+
 
 # Init
 parser = argparse.ArgumentParser(description="Delphix Login operations")
@@ -43,7 +46,6 @@ parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
 conn = subparser.add_parser('connect')
 token = subparser.add_parser('token_info')
-
 
 # define connect parms
 conn.add_argument('--user', type=str, required=True, help="Userid for DCT login")
@@ -69,4 +71,3 @@ if args.command == 'token_info':
     dct_base_url = "/token-info"
     rs = dct_token(dct_base_url, args.token, args.type)
     print(rs)
-
