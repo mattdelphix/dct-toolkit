@@ -16,7 +16,7 @@ Please check a [change log](https://github.com/delphix/dct-oolkit/blob/master/CH
 Download a compiled version of dct-toolkit for required platform from a [releases  page](https://github.com/delphix/dct-toolkit/releases).
 Create a configuration file *dct-tools.conf* based on dct-tools.conf.example or a Wiki page.
 
-Check a [documentation](https://github.com/delphix/dct-toolkit/wiki) for more details
+Check [documentation](https://github.com/delphix/dct-toolkit/wiki) for more details
 
 
 
