@@ -210,6 +210,7 @@ if args.command == "create_snapshot":
     else:
         print(f"ERROR: Status = {rs.status_code} - {rs.text}")
         sys.exit(1)
+
 if args.command == 'tag_create':
     payload = {"tags": json.loads(args.tags)}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
