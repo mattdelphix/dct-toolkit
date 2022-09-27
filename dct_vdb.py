@@ -20,23 +20,44 @@
 import argparse
 from helpers import *
 
+
 # VDB functions
 def vdb_operation(base_url, vdb_id, ops):
     ops = ops.lower()
     if not any(x in ops for x in ["enable", "disable", "stop", "start"]):
-        print("Error: Wrong operation on VDB: "+ops)
+        print("Error: Wrong operation on VDB: " + ops)
         sys.exit(1)
-    payload =""
+    payload = ""
     if ops == "enable":
         payload = {"attempt_start": "true"}
     if ops == "disable":
         payload = {"attempt_cleanup": "true"}
-    resp = url_POST(base_url+urllib.parse.quote(vdb_id)+"/"+ops, payload)
+    resp = url_POST(base_url + urllib.parse.quote(vdb_id) + "/" + ops, payload)
     if resp.status_code == 200:
         return json.loads(resp.text)
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
+
+
+def vdb_update(base_url, vdb_id, name, db_username, db_password, validate_db_credentials, auto_restart,
+               environment_user_id, template_id, listener_ids, new_dbid, cdc_on_provision, pre_script, post_script,
+               hooks):
+    payload = {"name": name, "db_username": db_username, "db_password": db_password,
+               "validate_db_credentials": validate_db_credentials, "auto_restart": auto_restart,
+               "environment_user_id": environment_user_id, "template_id": template_id, "listener_ids": listener_ids,
+               "new_dbid": new_dbid, "cdc_on_provision": cdc_on_provision, "pre_script": pre_script,
+               "post_script": post_script, "hooks": hooks}
+
+    resp = url_PATCH(base_url + "/" + urllib.parse.quote(vdb_id), payload)
+    if resp.status_code == 200:
+        rsp = resp.json()
+        print("Updated Account" + " - ID=" + vdb_id)
+        return rsp
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+
 
 # Init
 parser = argparse.ArgumentParser(description='Delphix DCT VDB operations')
@@ -67,7 +88,7 @@ updt = subparser.add_parser('update')
 view.add_argument('--id', type=str, required=True, help="VDB ID to be viewed")
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define enable parms
 enable.add_argument('--id', type=str, required=True, help="VDB ID to be enabled")
@@ -86,11 +107,11 @@ delete.add_argument('--id', type=str, required=True, help="VDB ID to be deleted"
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="VDB search string")
-search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define tag_list parms
 tag_list.add_argument('--id', type=str, required=True, help="VDB ID for tags list")
-tag_list.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define snapshot_list parms
 snapshot_list.add_argument('--id', type=str, required=True, help="DSource ID for snapshot list")
@@ -102,14 +123,34 @@ create_snapshot.add_argument('--id', type=str, required=True, help="DSource ID f
 # define tag_create params
 tag_create.add_argument('--id', type=str, required=True, help="DSource ID to add tags to")
 tag_create.add_argument('--tags', type=str, required=True,
-                         help="Tags of the DSource in this format:  [{'key': 'key-1','value': 'value-1'},"
-                              " {'key': 'key-2','value': 'value-2'}]")
+                        help="Tags of the DSource in this format:  [{'key': 'key-1','value': 'value-1'},"
+                             " {'key': 'key-2','value': 'value-2'}]")
 # define tag_delete params
 tag_delete.add_argument('--id', type=str, required=True, help="DSource ID to delete tags from")
 tag_delete.add_argument('--key', type=str, required=True, help="Tags key of existing tag")
 
 # define tag_delete_all params
 tag_delete_all.add_argument('--id', type=str, required=True, help="DSource ID to delete tags from")
+
+# define update params
+updt.add_argument('--id', type=str, required=True, help="VDB ID to be updated")
+updt.add_argument('--name', type=str, required=True, help="VDB name to be updated")
+updt.add_argument('--db_username', type=str, required=False, help="User name of the VDB to be updated")
+updt.add_argument('--db_password', type=str, required=False, help="Password of the user name to be updated")
+updt.add_argument('--validate_db_credentials', type=str, required=False, help="Whether db_username and db_password "
+                                                                              "must be validated")
+updt.add_argument('--auto_restart', type=str, required=False, help="Whether to enable VDB restart")
+updt.add_argument('--environment_user_id', type=str, required=False, help="The environment user ID to use to connect "
+                                                                          "to the target environment.")
+updt.add_argument('--template_id', type=str, required=False, help="The ID of the target VDB Template (Oracle Only)")
+updt.add_argument('--listener_ids', type=str, required=False, help="The listener IDs for this provision operation ("
+                                                                   "Oracle Only) example: List [ 'listener-123', "
+                                                                   "'listener-456' ]")
+updt.add_argument('--new_dbid', type=str, required=False, help="Whether to enable new DBID for Oracle")
+updt.add_argument('--cdc_on_provision', type=str, required=False, help="Whether to enable CDC on provision for MSSql")
+updt.add_argument('--pre_script', type=str, required=False, help="Pre script for MSSql")
+updt.add_argument('--post_script', type=str, required=False, help="Post script for MSSql")
+updt.add_argument('--hooks', type=str, required=False, help="VDB operation hooks")
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -135,22 +176,22 @@ if args.command == 'search':
     print(rs)
 
 if args.command == 'enable':
-    print("Processing VDB enable ID="+args.id)
+    print("Processing VDB enable ID=" + args.id)
     rs = vdb_operation(dct_base_url, args.id, args.command)
     print(rs)
 
 if args.command == 'disable':
-    print("Processing VDB disable ID="+args.id)
+    print("Processing VDB disable ID=" + args.id)
     rs = vdb_operation(dct_base_url, args.id, args.command)
     print(rs)
 
 if args.command == 'stop':
-    print("Processing VDB stop ID="+args.id)
+    print("Processing VDB stop ID=" + args.id)
     rs = vdb_operation(dct_base_url, args.id, args.command)
     print(rs)
 
 if args.command == 'start':
-    print("Processing VDB start ID="+args.id)
+    print("Processing VDB start ID=" + args.id)
     rs = vdb_operation(dct_base_url, args.id, args.command)
     print(rs)
 
@@ -194,3 +235,10 @@ if args.command == 'tag_delete_all':
     else:
         print(f"ERROR: Status = {rs.status_code} - {rs.text}")
         sys.exit(1)
+
+if args.command == 'update':
+    print("Processing VDB update ID=" + args.id)
+    rs = vdb_update(dct_base_url, args.id, args.name, args.db_username, args.db_password, args.validate_db_credentials,
+                    args.auto_restart, args.environment_user_id, args.template_id, args.listener_ids,
+                    args.new_dbid, args.cdc_on_provision, args.pre_script, args.post_script, args.hooks)
+    print(rs)
