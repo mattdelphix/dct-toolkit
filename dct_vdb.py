@@ -56,6 +56,12 @@ enable = subparser.add_parser('enable')
 stop = subparser.add_parser('stop')
 start = subparser.add_parser('start')
 tag_list = subparser.add_parser('tag_list')
+snapshot_list = subparser.add_parser('snapshot_list')
+create_snapshot = subparser.add_parser("create_snapshot")
+tag_create = subparser.add_parser('tag_create')
+tag_delete = subparser.add_parser('tag_delete')
+tag_delete_all = subparser.add_parser('tag_delete_all')
+updt = subparser.add_parser('update')
 
 # define view parms
 view.add_argument('--id', type=str, required=True, help="VDB ID to be viewed")
@@ -85,6 +91,25 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 # define tag_list parms
 tag_list.add_argument('--id', type=str, required=True, help="VDB ID for tags list")
 tag_list.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+
+# define snapshot_list parms
+snapshot_list.add_argument('--id', type=str, required=True, help="DSource ID for snapshot list")
+snapshot_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+
+# define tag_list parms
+create_snapshot.add_argument('--id', type=str, required=True, help="DSource ID for creating a new snapshot")
+
+# define tag_create params
+tag_create.add_argument('--id', type=str, required=True, help="DSource ID to add tags to")
+tag_create.add_argument('--tags', type=str, required=True,
+                         help="Tags of the DSource in this format:  [{'key': 'key-1','value': 'value-1'},"
+                              " {'key': 'key-2','value': 'value-2'}]")
+# define tag_delete params
+tag_delete.add_argument('--id', type=str, required=True, help="DSource ID to delete tags from")
+tag_delete.add_argument('--key', type=str, required=True, help="Tags key of existing tag")
+
+# define tag_delete_all params
+tag_delete_all.add_argument('--id', type=str, required=True, help="DSource ID to delete tags from")
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -133,3 +158,39 @@ if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
     print(rs)
 
+if args.command == 'snapshot_list':
+    rs = dct_list_by_id(dct_base_url, args.id, "/snapshots", args.format)
+    print(rs)
+
+if args.command == "create_snapshot":
+    rs = dct_post_by_id(dct_base_url, args.id, None, "snapshots")
+    if rs.status_code == 200:
+        print(rs.json())
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+if args.command == 'tag_create':
+    payload = {"tags": json.loads(args.tags)}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
+    if rs.status_code == 201:
+        print("Create tags for dSource - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'tag_delete':
+    payload = {"key": args.key}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
+    if rs.status_code == 204:
+        print("Delete tag for DSourceID - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'tag_delete_all':
+    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
+    if rs.status_code == 204:
+        print("Deleted all tags for DSource - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
