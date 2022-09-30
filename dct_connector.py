@@ -67,5 +67,5 @@ if args.command == 'search':
     print(rs)
 
 if args.command == 'test':
-    rs = dct_act_by_id(dct_base_url, args.id, "/test")
+    rs = dct_post_by_id(dct_base_url, args.id, "/test")
     print(rs)

@@ -55,11 +55,11 @@ def account_update(base_url, account_id, client_id, first_name, last_name, email
         sys.exit(1)
 
 
-def password_policy_update (base_url, is_enabled, min_length, reuse_disallow_limit, digit, uppercase_letter,
-                            lowercase_letter, special_character, disallow_username_as_password):
+def password_policy_update(base_url, is_enabled, min_length, reuse_disallow_limit, digit, uppercase_letter,
+                           lowercase_letter, special_character, disallow_username_as_password):
     payload = {"enabled": is_enabled, "min_length": min_length, "reuse_disallow_limit": reuse_disallow_limit,
-               "digit": digit,  "uppercase_letter": uppercase_letter,  "lowercase_letter": lowercase_letter,
-               "special_character": special_character,  "disallow_username_as_password": disallow_username_as_password}
+               "digit": digit, "uppercase_letter": uppercase_letter, "lowercase_letter": lowercase_letter,
+               "special_character": special_character, "disallow_username_as_password": disallow_username_as_password}
 
     resp = url_PATCH(base_url, payload)
     if resp.status_code == 200:
@@ -135,8 +135,8 @@ pwd_reset.add_argument('--new_password', type=str, required=True, help="New Pass
 # define tag_create params
 tag_create.add_argument('--id', type=str, required=True, help="Account ID to add tags to")
 tag_create.add_argument('--tags', type=str, required=True,
-                         help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1'},"
-                              " {'key': 'key-2','value': 'value-2'}]")
+                        help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1'},"
+                             " {'key': 'key-2','value': 'value-2'}]")
 # define tag_delete params
 tag_delete.add_argument('--id', type=str, required=True, help="Account ID to delete tags from")
 tag_delete.add_argument('--key', type=str, required=True, help="Tags key of existing tag")
@@ -150,7 +150,7 @@ lst_pwd_policy.add_argument('--format', type=str, required=False, help="Type of 
 # define updt_pwd_policy params
 updt_pwd_policy.add_argument('--enabled', type=str, required=True, help="Status of password policy",
                              choices=['true', 'false'])
-updt_pwd_policy.add_argument('--min_length', type=int, required=True, help="Minimum lenght password should have",
+updt_pwd_policy.add_argument('--min_length', type=int, required=True, help="Minimum length password should have",
                              choices=range(1, 50))
 updt_pwd_policy.add_argument('--reuse_disallow_limit', type=int, required=True, choices=range(1, 50),
                              help="Times password has to be different in order to be reused")
@@ -244,13 +244,9 @@ if args.command == 'list_pwd_policy':
         print(f"ERROR: Status = {rs.status_code} - {rs.text}")
         sys.exit(1)
 
-
 if args.command == 'update_pwd_policy':
     print("Processing password policy update")
     rs = password_policy_update(dct_base_url + "/password-policies", args.enabled, args.min_length,
                                 args.reuse_disallow_limit, args.digit, args.uppercase_letter, args.lowercase_letter,
                                 args.special_character, args.disallow_username_as_password)
     print(rs)
-
-
-
