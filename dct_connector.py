@@ -26,6 +26,7 @@ parser = argparse.ArgumentParser(description="Delphix DCT Masking connector oper
 subparser = parser.add_subparsers(dest='command')
 
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--config', type=str, required=False, help="Config file")
 
 # define commands
 lst = subparser.add_parser('list')
@@ -51,6 +52,11 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
+cf = dct_read_config("pippo.txt")
+cfg.apikey = cf['apikey']
+cfg.host = cf['host']
+cfg.level = cf['level']
+
 dct_base_url = "/connectors"
 
 if args.command == 'view':

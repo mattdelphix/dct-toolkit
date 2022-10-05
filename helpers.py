@@ -24,6 +24,9 @@ import tabulate
 import requests
 import urllib.parse
 import pandas as pd
+import cfg
+import ast
+import pathlib
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -35,11 +38,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 # general helpers
 def build_headers():
-    os.environ.setdefault('API_KEY', 'apk 2.YYgpjHxljW7A7gdU1Llu8ZiUacHw84gfbnuaqSXmNFpP8yFxsOxF1xt4urW9D3ZN')
-    api_key = os.environ['API_KEY']
-    if api_key is None:
-        raise Exception("Set environment variable API_KEY with a valid API KEY")
-    headers = {'content-type': "application/json", 'accept': "application/json", 'authorization': api_key}
+    headers = {'content-type': "application/json", 'accept': "application/json", 'authorization': cfg.apikey}
     return headers
 
 
@@ -59,52 +58,43 @@ def tabular_report(title, ldict):
     return
 
 
-def get_host_name():
-    os.environ.setdefault('HOST', 'https://uvo18oz1uisfurv1b4l.vm.cld.sr')
-    # os.environ.setdefault('HOST', 'https://172.16.111.50')
-    host = os.environ['HOST']
-    if host is None:
-        raise Exception("Set environment variable HOST in the form: https://hostname")
-    return host
-
-
 def url_GET(url_encoded_text):
-    rsp = requests.get(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
+    rsp = requests.get(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
     return rsp
 
 
 def url_POST(url_encoded_text, json_data):
     # print(json_data)
     if json_data:
-        rsp = requests.post(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
+        rsp = requests.post(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
                             verify=False)
     else:
-        rsp = requests.post(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
+        rsp = requests.post(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
     return rsp
 
 
 def url_PUT(url_encoded_text, json_data):
     # print(JSON_DATA)
     if json_data:
-        rsp = requests.put(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
+        rsp = requests.put(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
                            verify=False)
     else:
-        rsp = requests.put(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
+        rsp = requests.put(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
     return rsp
 
 
 def url_PATCH(url_encoded_text, json_data):
     # print(JSON_DATA)
     if json_data:
-        rsp = requests.patch(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
+        rsp = requests.patch(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
                            verify=False)
     else:
-        rsp = requests.patch(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
+        rsp = requests.patch(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
     return rsp
 
 
 def url_DELETE(url_encoded_text):
-    rsp = requests.delete(get_host_name() + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
+    rsp = requests.delete(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
     return rsp
 
 
@@ -183,3 +173,24 @@ def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
 def dct_post_by_id(dct_query, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
     return resp
+
+
+def dct_read_config(filename):
+    if filename == "":
+        fnm = "dct-toolkit.conf"
+    else:
+        fnm = filename
+        flex = pathlib.Path("guru99.txt")
+        if not flex.exists():
+            print("Error: Config file " + fnm + " does not exist.")
+            exit(1)
+
+    file = open(fnm, "r")
+    contents = file.read()
+    dictionary = ast.literal_eval(contents)
+    file.close()
+    #TODO add logic to check configuration
+    #print(dictionary['apikey'])
+    #print(dictionary['host'])
+    #print(dictionary['level'])
+    return dictionary

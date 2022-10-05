@@ -18,6 +18,8 @@
 
 
 import argparse
+
+import cfg
 from helpers import *
 
 
@@ -65,8 +67,8 @@ subparser = parser.add_subparsers(dest='command')
 
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
-# define commands
 
+# define commands
 lst = subparser.add_parser('list')
 create = subparser.add_parser('create')
 search = subparser.add_parser('search')
@@ -154,6 +156,7 @@ updt.add_argument('--hooks', type=str, required=False, help="VDB operation hooks
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
+
 
 # Start processing
 dct_base_url = "/vdbs"
