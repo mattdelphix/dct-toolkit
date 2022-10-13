@@ -55,6 +55,9 @@ enable = subparser.add_parser('enable')
 refresh = subparser.add_parser('refresh')
 user_list = subparser.add_parser('user_list')
 tag_list = subparser.add_parser('tag_list')
+tag_create = subparser.add_parser('tag_create')
+tag_delete = subparser.add_parser('tag_delete')
+tag_delete_all = subparser.add_parser('tag_delete_all')
 
 # define list parms
 lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
@@ -85,6 +88,18 @@ user_list.add_argument('--format', type=str, required=False, help="Type of outpu
 # define tag_list parms
 tag_list.add_argument('--id', type=str, required=True, help="Environment ID to be viewed")
 tag_list.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+
+# define tag_create params
+tag_create.add_argument('--id', type=str, required=True, help="Environment ID to add tags to")
+tag_create.add_argument('--tags', type=str, required=True,
+                        help="Tags of the DSource in this format:  [{'key': 'key-1','value': 'value-1'},"
+                             " {'key': 'key-2','value': 'value-2'}]")
+# define tag_delete params
+tag_delete.add_argument('--id', type=str, required=True, help="Environment ID to delete tags from")
+tag_delete.add_argument('--key', type=str, required=True, help="Tags key of existing tag")
+
+# define tag_delete_all params
+tag_delete_all.add_argument('--id', type=str, required=True, help="Environment ID to delete tags from")
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -133,3 +148,31 @@ if args.command == 'disable':
 if args.command == 'delete':
     print("Processing Environment delete ID=" + args.id)
     rs = dct_delete_by_id(dct_base_url, "Deleted Environment", args.id)
+
+
+if args.command == 'tag_create':
+    payload = {"tags": json.loads(args.tags)}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
+    if rs.status_code == 201:
+        print("Create tags for dSource - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'tag_delete':
+    payload = {"key": args.key}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
+    if rs.status_code == 204:
+        print("Delete tag for DSourceID - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'tag_delete_all':
+    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
+    if rs.status_code == 204:
+        print("Deleted all tags for DSource - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
