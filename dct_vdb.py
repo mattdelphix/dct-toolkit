@@ -116,23 +116,23 @@ tag_list.add_argument('--id', type=str, required=True, help="VDB ID for tags lis
 tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define snapshot_list parms
-snapshot_list.add_argument('--id', type=str, required=True, help="DSource ID for snapshot list")
+snapshot_list.add_argument('--id', type=str, required=True, help="VDB ID for snapshot list")
 snapshot_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define tag_list parms
-create_snapshot.add_argument('--id', type=str, required=True, help="DSource ID for creating a new snapshot")
+create_snapshot.add_argument('--id', type=str, required=True, help="VDB ID for creating a new snapshot")
 
 # define tag_create params
-tag_create.add_argument('--id', type=str, required=True, help="DSource ID to add tags to")
+tag_create.add_argument('--id', type=str, required=True, help="VDB ID to add tags to")
 tag_create.add_argument('--tags', type=str, required=True,
                         help="Tags of the DSource in this format:  [{'key': 'key-1','value': 'value-1'},"
                              " {'key': 'key-2','value': 'value-2'}]")
 # define tag_delete params
-tag_delete.add_argument('--id', type=str, required=True, help="DSource ID to delete tags from")
+tag_delete.add_argument('--id', type=str, required=True, help="VDB ID to delete tags from")
 tag_delete.add_argument('--key', type=str, required=True, help="Tags key of existing tag")
 
 # define tag_delete_all params
-tag_delete_all.add_argument('--id', type=str, required=True, help="DSource ID to delete tags from")
+tag_delete_all.add_argument('--id', type=str, required=True, help="VDB ID to delete tags from")
 
 # define update params
 updt.add_argument('--id', type=str, required=True, help="VDB ID to be updated")
