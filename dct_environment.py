@@ -118,7 +118,7 @@ if args.command == 'search':
 if args.command == 'refresh':
     print("Processing Environment refresh ID="+args.id)
     rs = environment_operation(dct_base_url, args.id, args.command)
-    print(rs)
+    dct_job_monitor(rs['job']['id'])
 
 if args.command == 'enable':
     print("Processing Environment enable ID="+args.id)

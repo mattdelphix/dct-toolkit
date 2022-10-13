@@ -16,17 +16,17 @@
 # Author  : Matteo Ferrari, Ruben Catarrunas
 # Date    : September 2022
 
+#TODO need to clarify how to use refresh_by_timestamp
 
 import argparse
 
-import cfg
 from helpers import *
 
 
 # VDB functions
 def vdb_operation(base_url, vdb_id, ops):
     ops = ops.lower()
-    if not any(x in ops for x in ["enable", "disable", "stop", "start"]):
+    if not any(x in ops for x in ["enable", "disable", "stop", "start","snapshot"]):
         print("Error: Wrong operation on VDB: " + ops)
         sys.exit(1)
     payload = ""
@@ -34,11 +34,52 @@ def vdb_operation(base_url, vdb_id, ops):
         payload = {"attempt_start": "true"}
     if ops == "disable":
         payload = {"attempt_cleanup": "true"}
-    resp = url_POST(base_url + urllib.parse.quote(vdb_id) + "/" + ops, payload)
+    if ops == "snapshot":
+        ops = "snapshots"
+    resp = url_POST(base_url + "/" + urllib.parse.quote(vdb_id) + "/" + ops, payload)
     if resp.status_code == 200:
         return json.loads(resp.text)
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        print(f"ERROR: Status = {resp.status_code}")
+        print(f"{resp.text}")
+        sys.exit(1)
+
+def vdb_refresh(base_url, vdb_id, ops, pit_id):
+    ops = ops.lower()
+    if not any(x in ops for x in ["refresh_by_snapshot", "refresh_from_bookmark"]):
+        print("Error: Wrong refresh type on VDB: " + ops)
+        sys.exit(1)
+    payload = ""
+    if ops == "refresh_by_snapshot":
+        payload = {"snapshot_id": pit_id}
+    if ops == "refresh_from_bookmark":
+        payload = {"bookmark_id": pit_id}
+    resp = url_POST(base_url + "/" + urllib.parse.quote(vdb_id) + "/" + ops, payload)
+    if resp.status_code == 200:
+        return json.loads(resp.text)
+    else:
+        print(f"ERROR: Status = {resp.status_code}")
+        print(f"{resp.text}")
+        sys.exit(1)
+
+
+def vdb_rollback(base_url, vdb_id, ops, pit_id):
+    ops = ops.lower()
+    if not any(x in ops for x in ["rollback_by_snapshot", "rollback_from_bookmark"]):
+        print("Error: Wrong rollback type on VDB: " + ops)
+        sys.exit(1)
+    payload = ""
+    if ops == "rollback_by_snapshot":
+        payload = {"snapshot_id": pit_id}
+    if ops == "rollback_from_bookmark":
+        payload = {"bookmark_id": pit_id}
+
+    resp = url_POST(base_url + "/" + urllib.parse.quote(vdb_id) + "/" + ops, payload)
+    if resp.status_code == 200:
+        return json.loads(resp.text)
+    else:
+        print(f"ERROR: Status = {resp.status_code}")
+        print(f"{resp.text}")
         sys.exit(1)
 
 
@@ -80,6 +121,11 @@ stop = subparser.add_parser('stop')
 start = subparser.add_parser('start')
 tag_list = subparser.add_parser('tag_list')
 snapshot_list = subparser.add_parser('snapshot_list')
+refr_by_snap = subparser.add_parser('refresh_by_snapshot')
+refr_by_book = subparser.add_parser('refresh_by_bookmark')
+roll_by_snap = subparser.add_parser('rollback_by_snapshot')
+roll_by_book = subparser.add_parser('rollback_by_bookmark')
+snapshot = subparser.add_parser('snapshot')
 create_snapshot = subparser.add_parser("create_snapshot")
 tag_create = subparser.add_parser('tag_create')
 tag_delete = subparser.add_parser('tag_delete')
@@ -90,6 +136,20 @@ updt = subparser.add_parser('update')
 view.add_argument('--id', type=str, required=True, help="VDB ID to be viewed")
 
 # define list parms
+
+# define enable parms
+roll_by_snap.add_argument('--id', type=str, required=True, help="VDB ID to be rolled back with a snap")
+roll_by_snap.add_argument('--snap_id', type=str, required=True, help="Snapshot ID to be used for rollback")
+
+roll_by_book.add_argument('--id', type=str, required=True, help="VDB ID to be rolled back with a bookmark")
+roll_by_book.add_argument('--book_id', type=str, required=True, help="Bookmark ID to be used for rollback")
+
+refr_by_snap.add_argument('--id', type=str, required=True, help="VDB ID to be refreshed with a snap")
+refr_by_snap.add_argument('--snap_id', type=str, required=True, help="Snapshot ID to be used for refresh")
+
+refr_by_book.add_argument('--id', type=str, required=True, help="VDB ID to be refreshed with a bookmark")
+refr_by_book.add_argument('--book_id', type=str, required=True, help="Bookmark ID to be used for refresh")
+
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define enable parms
@@ -103,6 +163,9 @@ stop.add_argument('--id', type=str, required=True, help="VDB ID to be stopped")
 
 # define start parms
 start.add_argument('--id', type=str, required=True, help="VDB ID to be started")
+
+# define snapshot parms
+snapshot.add_argument('--id', type=str, required=True, help="VDB ID to be snapshot'd")
 
 # define delete parms
 delete.add_argument('--id', type=str, required=True, help="VDB ID to be deleted")
@@ -183,22 +246,27 @@ if args.command == 'search':
 if args.command == 'enable':
     print("Processing VDB enable ID=" + args.id)
     rs = vdb_operation(dct_base_url, args.id, args.command)
-    print(rs)
+    dct_job_monitor(rs['job']['id'])
 
 if args.command == 'disable':
     print("Processing VDB disable ID=" + args.id)
     rs = vdb_operation(dct_base_url, args.id, args.command)
-    print(rs)
+    dct_job_monitor(rs['job']['id'])
 
 if args.command == 'stop':
     print("Processing VDB stop ID=" + args.id)
     rs = vdb_operation(dct_base_url, args.id, args.command)
-    print(rs)
+    dct_job_monitor(rs['job']['id'])
 
 if args.command == 'start':
     print("Processing VDB start ID=" + args.id)
     rs = vdb_operation(dct_base_url, args.id, args.command)
-    print(rs)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'snapshot':
+    print("Processing VDB snapshot ID=" + args.id)
+    rs = vdb_operation(dct_base_url, args.id, args.command)
+    dct_job_monitor(rs['job']['id'])
 
 if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
@@ -248,3 +316,13 @@ if args.command == 'update':
                     args.auto_restart, args.environment_user_id, args.template_id, args.listener_ids,
                     args.new_dbid, args.cdc_on_provision, args.pre_script, args.post_script, args.hooks)
     print(rs)
+
+if args.command == 'refresh_by_snapshot':
+    print("Processing VDB refresh ID=" + args.id + " with spapshot_ID=" + args.snap_id)
+    rs = vdb_refresh(dct_base_url, args.id, args.command, args.snap_id)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'rollback_by_snapshot':
+    print("Processing VDB rollback ID=" + args.id + " with spapshot_ID=" + args.snap_id)
+    rs = vdb_rollback(dct_base_url, args.id, args.command, args.snap_id)
+    dct_job_monitor(rs['job']['id'])

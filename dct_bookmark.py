@@ -22,15 +22,18 @@ from helpers import *
 
 
 # Bookmark functions
-def bookmark_create(base_url, name, bookmark_id, retention):
+def bookmark_create(base_url, name, bookmark_id, retention, tags):
     # create VDB_ID list
     vdb_id_list = bookmark_id.split(",")
     # build payload
     payload = {"name": name, "vdb_ids": vdb_id_list, "retention": retention}
+    if tags is not None:
+        tags_dic = json.loads(tags)
+        payload['tags'] = tags_dic
     resp = url_POST(base_url, payload)
-    if resp.status_code == 200:
+    if resp.status_code == 201:
         bookm = resp.json()
-        print(f"Created Bookmark with ID={name}, Retention={retention}")
+        print(f"Create Bookmark with ID={name}, Retention={retention}, Tags={tags}")
         return bookm
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
@@ -61,6 +64,9 @@ tag_delete_all = subparser.add_parser('tag_delete_all')
 create.add_argument('--name', type=str, required=True, help="Name of the new Bookmark")
 create.add_argument('--vdb_id', type=str, required=True, help="List of VDB IDs separated by commas")
 create.add_argument('--retention', type=int, required=False, help="Bookmark retention period in days", default=365)
+create.add_argument('--tags', type=str, required=False,
+                    help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1'},"
+                         " {'key': 'key-2','value': 'value-2'}]")
 
 # define delete parms
 delete.add_argument('--id', type=str, required=True, help="Bookmark ID to be deleted")
@@ -79,13 +85,13 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 vdbgroup_list.add_argument('--id', type=str, required=True, help="Bookmark ID for VDBGroup list")
 
 # define tag_list parms
-tag_list.add_argument('--id', type=str, required=True, help="VDB ID for tags list")
+tag_list.add_argument('--id', type=str, required=True, help="Bookmark ID for tags list")
 tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define tag_create params
-tag_create.add_argument('--id', type=str, required=True, help="DSource ID to add tags to")
+tag_create.add_argument('--id', type=str, required=True, help="Bookmark ID to add tags to")
 tag_create.add_argument('--tags', type=str, required=True,
-                        help="Tags of the DSource in this format:  [{'key': 'key-1','value': 'value-1'},"
+                        help="Tags of the Bookmark in this format:  [{'key': 'key-1','value': 'value-1'},"
                              " {'key': 'key-2','value': 'value-2'}]")
 # define tag_delete params
 tag_delete.add_argument('--id', type=str, required=True, help="DSource ID to delete tags from")
@@ -116,9 +122,8 @@ if args.command == 'list':
     print(rs)
 
 if args.command == 'create':
-    print("Processing Bookmarks create")
-    rs = bookmark_create(dct_base_url, args.name, args.vdb_id, args.retention)
-    print(rs)
+    rs = bookmark_create(dct_base_url, args.name, args.vdb_id, args.retention, args.tags)
+    dct_job_monitor(rs['job']['id'])
 
 if args.command == 'delete':
     print("Processing Bookmark delete ID=" + args.id)

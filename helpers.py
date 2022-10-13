@@ -65,7 +65,8 @@ def url_GET(url_encoded_text):
 
 
 def url_POST(url_encoded_text, json_data):
-    # print(json_data)
+    #print(url_encoded_text)
+    #print(json_data)
     if json_data:
         rsp = requests.post(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
                             verify=False)
@@ -220,6 +221,7 @@ def dct_read_config(filename):
 
 def dct_job_monitor(job_id):
     job = {"status": "RUNNING"}
+    print(f"Job {job_id} executing...")
     while job['status'] not in ['TIMEDOUT', 'CANCELED', 'FAILED', 'COMPLETED']:
         time.sleep(3)
         job = dct_view_by_id("/jobs", job_id)
