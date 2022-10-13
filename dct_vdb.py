@@ -220,7 +220,6 @@ updt.add_argument('--hooks', type=str, required=False, help="VDB operation hooks
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
-
 # Start processing
 dct_read_config(args.config)
 
