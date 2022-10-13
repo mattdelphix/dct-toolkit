@@ -123,12 +123,12 @@ if args.command == 'refresh':
 if args.command == 'enable':
     print("Processing Environment enable ID="+args.id)
     rs = environment_operation(dct_base_url, args.id, args.command)
-    print(rs)
+    dct_job_monitor(rs['job']['id'])
 
 if args.command == 'disable':
     print("Processing Environment disable ID="+args.id)
     rs = environment_operation(dct_base_url, args.id, args.command)
-    print(rs)
+    dct_job_monitor(rs['job']['id'])
 
 if args.command == 'delete':
     print("Processing Environment delete ID=" + args.id)

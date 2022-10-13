@@ -27,6 +27,7 @@ import pandas as pd
 import cfg
 import ast
 import pathlib
+import time
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -139,8 +140,8 @@ def dct_view_by_id(dct_query, view_id, dct_output="json"):
         dct_print_response(resp)
 
     if resp.status_code == 200:
-        # return resp.json()
-        return json.dumps(resp.json(), indent=4)
+        return resp.json()
+        #return json.dumps(resp.json(), indent=4)
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
@@ -191,9 +192,7 @@ def dct_post_by_id(dct_query, update_id, payload, dct_operation):
     return resp
 
 def dct_print_response(response):
-    print("Status:")
-    print(response.status_code)
-    print("Json response:")
+    print(f"Status: {response.status_code}")
     print(response.json())
 
 def dct_read_config(filename):
@@ -218,3 +217,14 @@ def dct_read_config(filename):
         print(f"Config={fnm} - Host={cfg.host} - Output level={cfg.level}")
 
     return dictionary
+
+def dct_job_monitor(job_id):
+    job = {"status": "RUNNING"}
+    while job['status'] not in ['TIMEDOUT', 'CANCELED', 'FAILED', 'COMPLETED']:
+        time.sleep(3)
+        job = dct_view_by_id("/jobs", job_id)
+
+    if job['status'] != 'COMPLETED':
+        raise RuntimeError(f"Job {job_id} failed {job['error_details']}")
+    else:
+        print(f"Job {job_id} COMPLETED - {job['update_time']}")

@@ -20,6 +20,7 @@
 import argparse
 from helpers import *
 
+
 # VDBGroup functions
 def vdbgroup_create(base_url, name, vdbg_id):
     # create VDB_ID list
@@ -34,6 +35,7 @@ def vdbgroup_create(base_url, name, vdbg_id):
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
+
 
 # Init
 parser = argparse.ArgumentParser(description="Delphix DCT VDBgroup operations")
