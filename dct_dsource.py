@@ -102,6 +102,7 @@ if args.command == 'tag_list':
 
 if args.command == "create_snapshot":
     rs = dct_post_by_id(dct_base_url, args.id, None, "snapshots")
+    dct_job_monitor(rs['job']['id'])
     if rs.status_code == 200:
         print(rs.json())
     else:

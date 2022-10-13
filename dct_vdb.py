@@ -174,6 +174,7 @@ if args.command == 'view':
 if args.command == 'delete':
     print("Processing VDB delete ID=" + args.id)
     rs = dct_delete_by_id(dct_base_url, "Deleted VDB", args.id)
+    dct_job_monitor(rs['job']['id'])
 
 if args.command == 'search':
     rs = dct_search("VDB List ", dct_base_url, args.filter, "No VDBs match the search criteria.",
@@ -183,21 +184,25 @@ if args.command == 'search':
 if args.command == 'enable':
     print("Processing VDB enable ID=" + args.id)
     rs = vdb_operation(dct_base_url, args.id, args.command)
+    dct_job_monitor(rs['job']['id'])
     print(rs)
 
 if args.command == 'disable':
     print("Processing VDB disable ID=" + args.id)
     rs = vdb_operation(dct_base_url, args.id, args.command)
+    dct_job_monitor(rs['job']['id'])
     print(rs)
 
 if args.command == 'stop':
     print("Processing VDB stop ID=" + args.id)
     rs = vdb_operation(dct_base_url, args.id, args.command)
+    dct_job_monitor(rs['job']['id'])
     print(rs)
 
 if args.command == 'start':
     print("Processing VDB start ID=" + args.id)
     rs = vdb_operation(dct_base_url, args.id, args.command)
+    dct_job_monitor(rs['job']['id'])
     print(rs)
 
 if args.command == 'tag_list':
@@ -210,6 +215,7 @@ if args.command == 'snapshot_list':
 
 if args.command == "create_snapshot":
     rs = dct_post_by_id(dct_base_url, args.id, None, "snapshots")
+    dct_job_monitor(rs['job']['id'])
     if rs.status_code == 200:
         print(rs.json())
     else:
