@@ -116,6 +116,7 @@ parser = argparse.ArgumentParser(description = "Delphix DCT Reports")
 subparser = parser.add_subparsers(dest='command')
 
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--config', type=str, required=False, help="Config file")
 
 # define commands
 
@@ -146,6 +147,8 @@ dsource_usage.add_argument('--filter', type=str, required=False, help="DSource U
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
+dct_read_config(args.config)
+
 if args.command == 'api_usage':
     rs = report_api_usage(args.begin, args.end)
 

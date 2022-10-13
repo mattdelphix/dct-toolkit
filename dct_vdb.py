@@ -66,7 +66,7 @@ parser = argparse.ArgumentParser(description='Delphix DCT VDB operations')
 subparser = parser.add_subparsers(dest='command')
 
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
-
+parser.add_argument('--config', type=str, required=False, help="Config file")
 
 # define commands
 lst = subparser.add_parser('list')
@@ -159,6 +159,8 @@ args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 
 # Start processing
+dct_read_config(args.config)
+
 dct_base_url = "/vdbs"
 
 if args.command == 'list':

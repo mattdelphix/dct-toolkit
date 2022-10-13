@@ -56,6 +56,7 @@ parser = argparse.ArgumentParser(description="Delphix DCT Engine operations")
 subparser = parser.add_subparsers(dest='command')
 
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--config', type=str, required=False, help="Config file")
 
 # define commands
 
@@ -101,6 +102,8 @@ register_mask.add_argument('--unsafe_ssl_hostname_check', required=False, type=s
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
+dct_read_config(args.config)
+
 dct_base_url = "/management/engines"
 
 if args.command == 'list':

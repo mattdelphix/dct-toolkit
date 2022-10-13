@@ -41,6 +41,7 @@ parser = argparse.ArgumentParser(description="Delphix Login operations")
 subparser = parser.add_subparsers(dest='command')
 
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--config', type=str, required=False, help="Config file")
 
 # define commands
 
@@ -59,7 +60,7 @@ token.add_argument('--type', type=str, required=False, help="DCT Token Type (def
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
-dct_base_url = "/jobs"
+dct_read_config(args.config)
 
 if args.command == 'connect':
     dct_base_url = "/login"

@@ -52,10 +52,7 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
-cf = dct_read_config("pippo.txt")
-cfg.apikey = cf['apikey']
-cfg.host = cf['host']
-cfg.level = cf['level']
+dct_read_config(args.config)
 
 dct_base_url = "/connectors"
 

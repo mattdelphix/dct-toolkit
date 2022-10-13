@@ -106,13 +106,16 @@ def content_formatter(dct):
 
 
 def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
-    # this function satisifes both list and search AP calls
+    # this function satisfies both list and search AP calls
 
     if dct_filter is not None:
         payload = {"filter_expression": dct_filter}
         resp = url_POST(dct_query + "/search", payload)
     else:
         resp = url_GET(dct_query)
+    if cfg.level == 2:
+        dct_print_response(resp)
+
     if resp.status_code == 200:
         report_data = resp.json()['items']
         if report_data:
@@ -132,6 +135,9 @@ def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
 
 def dct_view_by_id(dct_query, view_id, dct_output="json"):
     resp = url_GET(dct_query + "/" + view_id)
+    if cfg.level == 2:
+        dct_print_response(resp)
+
     if resp.status_code == 200:
         # return resp.json()
         return json.dumps(resp.json(), indent=4)
@@ -142,6 +148,9 @@ def dct_view_by_id(dct_query, view_id, dct_output="json"):
 
 def dct_list_by_id(dct_base_query, view_id, dct_operation, dct_output="json"):
     resp = url_GET(dct_base_query + "/" + view_id + dct_operation)
+    if cfg.level == 2:
+        dct_print_response(resp)
+
     if resp.status_code == 200:
         # return resp.json()
         return json.dumps(resp.json(), indent=4)
@@ -152,6 +161,9 @@ def dct_list_by_id(dct_base_query, view_id, dct_operation, dct_output="json"):
 
 def dct_delete_by_id(dct_query, dct_message, delete_id):
     resp = url_DELETE(dct_query + "/" + urllib.parse.quote(delete_id))
+    if cfg.level == 2:
+        dct_print_response(resp)
+
     if resp.status_code == 200:
         print(dct_message + " - ID=" + delete_id)
         return
@@ -162,6 +174,10 @@ def dct_delete_by_id(dct_query, dct_message, delete_id):
 
 def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
+    if cfg.level == 2:
+        print(resp)
+        print(resp.json())
+
     if resp.status_code == 200:
         print(dct_message + " - ID=" + update_id)
         return
@@ -174,13 +190,18 @@ def dct_post_by_id(dct_query, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
     return resp
 
+def dct_print_response(response):
+    print("Status:")
+    print(response.status_code)
+    print("Json response:")
+    print(response.json())
 
 def dct_read_config(filename):
-    if filename == "":
+    if filename == None:
         fnm = "dct-toolkit.conf"
     else:
         fnm = filename
-        flex = pathlib.Path("guru99.txt")
+        flex = pathlib.Path(fnm)
         if not flex.exists():
             print("Error: Config file " + fnm + " does not exist.")
             exit(1)
@@ -190,7 +211,10 @@ def dct_read_config(filename):
     dictionary = ast.literal_eval(contents)
     file.close()
     #TODO add logic to check configuration
-    #print(dictionary['apikey'])
-    #print(dictionary['host'])
-    #print(dictionary['level'])
+    cfg.apikey = dictionary['apikey']
+    cfg.host = dictionary['host']
+    cfg.level = dictionary['level']
+    if cfg.level == 2:
+        print(f"Config={fnm} - Host={cfg.host} - Output level={cfg.level}")
+
     return dictionary
