@@ -156,4 +156,4 @@ if args.command == 'refresh':
 
 if args.command == 'update':
     print("Processing VDBGroup update ")
-    rs = vdbgroup_update(dct_base_url, args.name, args.vdb_id)
+    vdbgroup_update(dct_base_url, args.name, args.vdb_id)
