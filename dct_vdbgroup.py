@@ -37,6 +37,34 @@ def vdbgroup_create(base_url, name, vdbg_id):
         sys.exit(1)
 
 
+def vdbgroup_refresh(base_url, vdbgroup_id, vdbgroup_name, bookmark_id):
+    if vdbgroup_id:
+        input_param = vdbgroup_id
+    if vdbgroup_name:
+        input_param = vdbgroup_name
+    payload = {"bookmark_id": bookmark_id}
+    resp = url_POST(base_url + "/" + urllib.parse.quote(input_param) + "/refresh", payload)
+    if resp.status_code == 200:
+        return json.loads(resp.text)
+    else:
+        print(f"ERROR: Status = {resp.status_code}")
+        print(f"{resp.text}")
+        sys.exit(1)
+
+
+def vdbgroup_update(base_url, vdbgroup_name, vdb_list):
+    # create VDB_ID list
+    vdb_id_list = vdb_list.split(",")
+    # build payload
+    payload = {"name": vdbgroup_name, "vdb_ids": vdb_id_list}
+    resp = url_PATCH(base_url + "/" + urllib.parse.quote(vdbgroup_name), payload)
+    if resp.status_code == 200:
+        print("Updated VDBGroup: " + resp.text)
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+
+
 # Init
 parser = argparse.ArgumentParser(description="Delphix DCT VDBgroup operations")
 subparser = parser.add_subparsers(dest='command')
@@ -52,6 +80,8 @@ delete = subparser.add_parser('delete')
 create = subparser.add_parser('create')
 view = subparser.add_parser('view')
 bookmarks = subparser.add_parser('bookmarks')
+refresh = subparser.add_parser('refresh')
+update = subparser.add_parser('update')
 
 # define view parms
 view.add_argument('--id', type=str, required=True, help="VDBGroup full name or ID to be viewed")
@@ -73,6 +103,17 @@ create.add_argument('--vdb_id', type=str, required=True, help="List of VDB IDs s
 # define view parms
 bookmarks.add_argument('--id', type=str, required=True, help="VDBGroup full name or ID to be viewed")
 bookmarks.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+
+# refresh view parms
+refresh.add_argument('--bookmark_id', type=str, help="ID of the bookmark to be refreshed")
+refresh = refresh.add_mutually_exclusive_group(required=True)
+refresh.add_argument('--name', type=str, help="Name of the VDBGroup to refresh ")
+refresh.add_argument('--vdbgroup_id', type=str, help="ID of the VDBGroup to be refreshed")
+
+# update create parms
+update.add_argument('--name', type=str, required=True, help="Name of the VDBgroup to update")
+# update.add_argument('--vdbgroup_id', type=str, help="ID of the VDBGroup to be refreshed")
+update.add_argument('--vdb_id', type=str, required=True, help="List of VDB IDs separated by commas")
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -107,3 +148,12 @@ if args.command == 'create':
 if args.command == 'bookmarks':
     rs = dct_list_by_id(dct_base_url, args.id, "/bookmarks", args.format)
     print(rs)
+
+if args.command == 'refresh':
+    print("Processing VDBGroup refresh ")
+    rs = vdbgroup_refresh(dct_base_url, args.vdbgroup_id, args.name, args.bookmark_id)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'update':
+    print("Processing VDBGroup update ")
+    rs = vdbgroup_update(dct_base_url, args.name, args.vdb_id)
