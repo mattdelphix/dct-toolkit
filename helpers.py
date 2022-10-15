@@ -28,6 +28,7 @@ import cfg
 import ast
 import pathlib
 import time
+import argparse
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -230,3 +231,13 @@ def dct_job_monitor(job_id):
         raise RuntimeError(f"Job {job_id} failed {job['error_details']}")
     else:
         print(f"Job {job_id} COMPLETED - {job['update_time']}")
+
+class dct_parsetags(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, dict())
+        tgs = None
+        for value in values:
+            key, value = value.split('=')
+            getattr(namespace, self.dest)[key] = value
+            tgs = [{"key": k, "value": v} for (k, v) in namespace.tags.items()]
+        namespace.tags = tgs
