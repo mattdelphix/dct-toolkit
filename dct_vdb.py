@@ -122,9 +122,9 @@ start = subparser.add_parser('start')
 tag_list = subparser.add_parser('tag_list')
 snapshot_list = subparser.add_parser('snapshot_list')
 refr_by_snap = subparser.add_parser('refresh_by_snapshot')
-refr_by_book = subparser.add_parser('refresh_by_bookmark')
+refr_by_book = subparser.add_parser('refresh_from_bookmark')
 roll_by_snap = subparser.add_parser('rollback_by_snapshot')
-roll_by_book = subparser.add_parser('rollback_by_bookmark')
+roll_by_book = subparser.add_parser('rollback_from_bookmark')
 snapshot = subparser.add_parser('snapshot')
 create_snapshot = subparser.add_parser("create_snapshot")
 tag_create = subparser.add_parser('tag_create')
@@ -321,7 +321,17 @@ if args.command == 'refresh_by_snapshot':
     rs = vdb_refresh(dct_base_url, args.id, args.command, args.snap_id)
     dct_job_monitor(rs['job']['id'])
 
+if args.command == 'refresh_from_bookmark':
+    print("Processing VDB refresh ID=" + args.id + " with Bookmark_ID=" + args.book_id)
+    rs = vdb_refresh(dct_base_url, args.id, args.command, args.book_id)
+    dct_job_monitor(rs['job']['id'])
+
 if args.command == 'rollback_by_snapshot':
     print("Processing VDB rollback ID=" + args.id + " with spapshot_ID=" + args.snap_id)
     rs = vdb_rollback(dct_base_url, args.id, args.command, args.snap_id)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'rollback_from_bookmark':
+    print("Processing VDB rollback ID " + args.id + " with Bookmark_ID=" + args.book_id)
+    rs = vdb_rollback(dct_base_url, args.id, args.command, args.book_id)
     dct_job_monitor(rs['job']['id'])
