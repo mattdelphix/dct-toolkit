@@ -17,7 +17,6 @@
 # Date    : September 2022
 
 
-import argparse
 from helpers import *
 
 
@@ -27,9 +26,8 @@ def account_create(base_url, client_id, first_name, last_name, email, username, 
         payload = {"generate_api_key": 'true', "api_client_id": client_id, "first_name": first_name,
                    "last_name": last_name, "email": email, "username": username, "password": password}
     else:
-        tags_dic = json.loads(tags)
         payload = {"generate_api_key": 'true', "api_client_id": client_id, "first_name": first_name,
-                   "last_name": last_name, "email": email, "username": username, "password": password, "tags": tags_dic}
+                   "last_name": last_name, "email": email, "username": username, "password": password, "tags": tags}
 
     resp = url_POST(base_url, payload)
     if resp.status_code == 201:
@@ -135,9 +133,9 @@ pwd_reset.add_argument('--new_password', type=str, required=True, help="New Pass
 
 # define tag_create params
 tag_create.add_argument('--id', type=str, required=True, help="Account ID to add tags to")
-tag_create.add_argument('--tags', type=str, required=True,
-                        help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1'},"
-                             " {'key': 'key-2','value': 'value-2'}]")
+tag_create.add_argument('--tags', nargs='*', type=str, required=True, action=dct_parsetags,
+                        help="Tags of the DSource in this format:  key=value key=value")
+
 # define tag_delete params
 tag_delete.add_argument('--id', type=str, required=True, help="Account ID to delete tags from")
 tag_delete.add_argument('--key', type=str, required=True, help="Tags key of existing tag")
@@ -213,7 +211,7 @@ if args.command == 'password_reset':
     print(rs)
 
 if args.command == 'tag_create':
-    payload = {"tags": json.loads(args.tags)}
+    payload = {"tags": args.tags}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
     if rs.status_code == 201:
         print("Create tags for Account - ID=" + args.id)
