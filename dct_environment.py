@@ -60,11 +60,21 @@ tag_delete = subparser.add_parser('tag_delete')
 tag_delete_all = subparser.add_parser('tag_delete_all')
 
 user_list = subparser.add_parser('user_list')
+
 user_create = subparser.add_parser('user_create')
 user_create_pubkey = subparser.add_parser('user_create_pubkey')
 user_create_kerb = subparser.add_parser('user_create_kerb')
 user_create_cyark = subparser.add_parser('user_create_cyark')
 user_create_hcorp = subparser.add_parser('user_create_hcorp')
+
+user_update = subparser.add_parser('user_update')
+user_update_pubkey = subparser.add_parser('user_update_pubkey')
+user_update_kerb = subparser.add_parser('user_update_kerb')
+user_update_cyark = subparser.add_parser('user_update_cyark')
+user_update_hcorp = subparser.add_parser('user_update_hcorp')
+
+user_delete = subparser.add_parser('user_delete')
+user_setprimary = subparser.add_parser('user_setprimary')
 
 # define list parms
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
@@ -134,6 +144,48 @@ user_create_hcorp.add_argument('--vault_user_key', type=str, required=True, help
 user_create_hcorp.add_argument('--vault_secret_key', type=str, required=True,
                                help="Hashicorp Vault Secret key to be added")
 
+# define user_update parms
+user_update.add_argument('--id', type=str, required=True, help="Environment ID to be updated")
+user_update.add_argument('--user_ref_id', type=str, required=True, help="User ref ID to update in environment")
+user_update.add_argument('--username', type=str, required=True, help="Username to be added")
+user_update.add_argument('--password', type=str, required=True, help="Password for the user")
+
+# define user_update_pubkey parms
+user_update_pubkey.add_argument('--id', type=str, required=True, help="Environment ID to be updated")
+user_update_pubkey.add_argument('--user_ref_id', type=str, required=True, help="User ref ID to update in environment")
+user_update_pubkey.add_argument('--username', type=str, required=True, help="Username to be added")
+
+# define user_update_kerb parms
+user_update_kerb.add_argument('--id', type=str, required=True, help="Environment ID to be updated")
+user_update_kerb.add_argument('--user_ref_id', type=str, required=True, help="User ref ID to update in environment")
+
+# define user_update_cyark parms
+user_update_cyark.add_argument('--id', type=str, required=True, help="Environment ID to be updated")
+user_update_cyark.add_argument('--user_ref_id', type=str, required=True, help="User ref ID to update in environment")
+user_update_cyark.add_argument('--vault', type=str, required=True, help="Vault to be added")
+user_update_cyark.add_argument('--username', type=str, required=True, help="Username to be added")
+
+# define user_update_hcorp parms
+user_update_hcorp.add_argument('--id', type=str, required=True, help="Environment ID to be updated")
+user_update_hcorp.add_argument('--user_ref_id', type=str, required=True, help="User ref ID to update in environment")
+user_update_hcorp.add_argument('--vault', type=str, required=True, help="Hashicorp Vault to be added")
+user_update_hcorp.add_argument('--vault_username', type=str, required=True, help="Hashicorp Vault Username to be added")
+user_update_hcorp.add_argument('--vault_engine', type=str, required=True, help="Hashicorp Vault engine to be added")
+user_update_hcorp.add_argument('--vault_secret_path', type=str, required=True,
+                               help="Hashicorp Vault Secret Path to be added")
+user_update_hcorp.add_argument('--vault_user_key', type=str, required=True, help="Hashicorp Vault engine to be added")
+user_update_hcorp.add_argument('--vault_secret_key', type=str, required=True,
+                               help="Hashicorp Vault Secret key to be added")
+
+# define user_delete params
+user_delete.add_argument('--id', type=str, required=True, help="Environment ID to delete user from")
+user_delete.add_argument('--user_ref_id', type=str, required=True, help="User ref ID to delete from environment")
+
+# define user_setprimary parms
+user_setprimary.add_argument('--id', type=str, required=True, help="Environment ID to be updated")
+user_setprimary.add_argument('--user_ref_id', type=str, required=True, help="User ref ID to be set primary in environment")
+
+
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
@@ -193,7 +245,55 @@ if args.command == 'user_create_hcorp':
                "hashicorp_vault_username_key": args.vault_user_key, "hashicorp_vault_secret_key": args.vault_secret_key}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "users")
     if rs.status_code == 204:
-        print("Set CyberArk '" + args.username + "' for Environment - ID=" + args.id)
+        print("Set Hashicorp '" + args.username + "' for Environment - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+        
+if args.command == 'user_update':
+    payload = {"username": args.username, "password": args.password}
+    rs = dct_update_ref_by_id(dct_base_url, args.id, payload, "users", args.user_ref_id)
+    if rs.status_code == 204:
+        print("Updated user '" + args.user_ref_id + "' for Environment - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'user_update_pubkey':
+    payload = {"use_engine_public_key": "true", "username": args.username}
+    rs = dct_update_ref_by_id(dct_base_url, args.id, payload, "users", args.user_ref_id)
+    if rs.status_code == 204:
+        print("Updated user '" + args.user_ref_id + "' for Environment - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'user_update_kerb':
+    payload = {"use_kerberos_authentication": "true"}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "users", args.user_ref_id)
+    if rs.status_code == 204:
+        print("Updated Kerberos for Environment - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'user_update_cyark':
+    payload = {"vault": args.vault, "vault_username": args.username,
+               "cyberark_vault_query_string": "Safe=Test;Folder=Test;Object=Test"}
+    rs = dct_update_ref_by_id(dct_base_url, args.id, payload, "users", args.user_ref_id)
+    if rs.status_code == 204:
+        print("Updated CyberArk '" + args.user_ref_id + "' for Environment - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'user_update_hcorp':
+    payload = {"vault": args.vault, "vault_username": args.username, "hashicorp_vault_engine": args.vault_engine,
+               "hashicorp_vault_secret_path": args.vault_secret_path,
+               "hashicorp_vault_username_key": args.vault_user_key, "hashicorp_vault_secret_key": args.vault_secret_key}
+    rs = dct_update_ref_by_id(dct_base_url, args.id, payload, "users", args.user_ref_id)
+    if rs.status_code == 204:
+        print("Updated Hashicorp '" + args.user_ref_id + "' for Environment - ID=" + args.id)
     else:
         print(f"ERROR: Status = {rs.status_code} - {rs.text}")
         sys.exit(1)
@@ -229,10 +329,10 @@ if args.command == 'disable':
 if args.command == 'delete':
     print("Processing Environment delete ID=" + args.id)
     rs = dct_delete_by_id(dct_base_url, "Deleted Environment", args.id)
+    dct_job_monitor(rs['job']['id'])
 
 if args.command == 'tag_create':
     payload = {"tags": args.tags}
-    # payload = {"tags": json.loads(args.tags)}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
     if rs.status_code == 201:
         print("Created tags for Environment - ID=" + args.id)
@@ -256,3 +356,13 @@ if args.command == 'tag_delete_all':
     else:
         print(f"ERROR: Status = {rs.status_code} - {rs.text}")
         sys.exit(1)
+
+if args.command == 'user_delete':
+    print("Processing user'" + args.user_ref_id + "' delete for Environment ID=" + args.id)
+    rs = dct_delete_ref_by_id(dct_base_url, "Deleted Environment", args.id, "users", args.user_ref_id)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'user_setprimary':
+    print("Setting primary user'" + args.user_ref_id + "' delete for Environment ID=" + args.id)
+    rs = dct_update_ref_by_id(dct_base_url, "Set Primary user", args.id, "users", args.user_ref_id)
+    dct_job_monitor(rs['job']['id'])

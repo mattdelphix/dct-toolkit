@@ -66,8 +66,8 @@ def url_GET(url_encoded_text):
 
 
 def url_POST(url_encoded_text, json_data):
-    #print(url_encoded_text)
-    #print(json_data)
+    # print(url_encoded_text)
+    # print(json_data)
     if json_data:
         rsp = requests.post(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
                             verify=False)
@@ -90,7 +90,7 @@ def url_PATCH(url_encoded_text, json_data):
     # print(JSON_DATA)
     if json_data:
         rsp = requests.patch(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
-                           verify=False)
+                             verify=False)
     else:
         rsp = requests.patch(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
     return rsp
@@ -109,7 +109,7 @@ def content_formatter(dct):
 
 
 def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
-    # this function satisfies both list and search AP calls
+    # this function satisfies both list and search API calls
 
     if dct_filter is not None:
         payload = {"filter_expression": dct_filter}
@@ -143,7 +143,7 @@ def dct_view_by_id(dct_query, view_id, dct_output="json"):
 
     if resp.status_code == 200:
         return resp.json()
-        #return json.dumps(resp.json(), indent=4)
+        # return json.dumps(resp.json(), indent=4)
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
@@ -175,11 +175,41 @@ def dct_delete_by_id(dct_query, dct_message, delete_id):
         sys.exit(1)
 
 
+def dct_delete_ref_by_id(dct_query, dct_message, delete_id, dct_operation, ref_id):
+    # this function deletes a ref_id from a primary object
+    resp = url_DELETE(
+        dct_query + "/" + urllib.parse.quote(delete_id) + "/" + dct_operation + "/" + urllib.parse.quote(ref_id))
+    if cfg.level == 2:
+        dct_print_response(resp)
+
+    if resp.status_code == 200:
+        print(dct_message + " - ID=" + delete_id + "/" + ref_id)
+        return
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+
+
+def dct_update_ref_by_id(dct_query, dct_message, update_id, payload, dct_operation, ref_id):
+    # this function updates a ref_id from a primary object
+    resp = url_POST(
+        dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation + "/" + urllib.parse.quote(ref_id),
+        payload)
+    if cfg.level == 2:
+        dct_print_response(resp)
+
+    if resp.status_code == 200:
+        print(dct_message + " - ID=" + update_id + "/" + ref_id)
+        return
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+
+
 def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
     if cfg.level == 2:
-        print(resp)
-        print(resp.json())
+        dct_print_response(resp)
 
     if resp.status_code == 200:
         print(dct_message + " - ID=" + update_id)
@@ -193,9 +223,15 @@ def dct_post_by_id(dct_query, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
     return resp
 
+def dct_post_ref_by_id(dct_query, update_id, payload, dct_operation, ref_id, post_operation):
+    resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation + "/" + urllib.parse.quote(ref_id) + "/" + urllib.parse.quote(post_operation), payload)
+    return resp
+
+
 def dct_print_response(response):
     print(f"Status: {response.status_code}")
     print(response.json())
+
 
 def dct_read_config(filename):
     if filename == None:
@@ -211,7 +247,7 @@ def dct_read_config(filename):
     contents = file.read()
     dictionary = ast.literal_eval(contents)
     file.close()
-    #TODO add logic to check configuration
+    # TODO add logic to check configuration
     cfg.apikey = dictionary['apikey']
     cfg.host = dictionary['host']
     cfg.level = dictionary['level']
@@ -219,6 +255,7 @@ def dct_read_config(filename):
         print(f"Config={fnm} - Host={cfg.host} - Output level={cfg.level}")
 
     return dictionary
+
 
 def dct_job_monitor(job_id):
     job = {"status": "RUNNING"}
@@ -231,6 +268,7 @@ def dct_job_monitor(job_id):
         raise RuntimeError(f"Job {job_id} failed {job['error_details']}")
     else:
         print(f"Job {job_id} COMPLETED - {job['update_time']}")
+
 
 class dct_parsetags(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
