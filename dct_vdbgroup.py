@@ -109,13 +109,13 @@ bookmarks.add_argument('--format', type=str, required=False, help="Type of outpu
 refresh.add_argument('--bookmark_id', type=str, help="ID of the bookmark to be refreshed")
 refresh = refresh.add_mutually_exclusive_group(required=True)
 refresh.add_argument('--name', type=str, help="Name of the VDBGroup to refresh ")
-refresh.add_argument('--vdbgroup_id', type=str, help="ID of the VDBGroup to be refreshed")
+refresh.add_argument('--id', type=str, help="ID of the VDBGroup to be refreshed")
 
 # rollback view parms
 rollback.add_argument('--bookmark_id', type=str, help="ID of the bookmark to be rollback")
 rollback = rollback.add_mutually_exclusive_group(required=True)
 rollback.add_argument('--name', type=str, help="Name of the VDBGroup to rollback ")
-rollback.add_argument('--vdbgroup_id', type=str, help="ID of the VDBGroup to be rollback")
+rollback.add_argument('--id', type=str, help="ID of the VDBGroup to be rollback")
 
 # update create parms
 update.add_argument('--name', type=str, required=True, help="Name of the VDBgroup to update")
@@ -158,12 +158,12 @@ if args.command == 'bookmarks':
 
 if args.command == 'refresh':
     print("Processing VDBGroup refresh ")
-    rs = vdbgroup_refresh(dct_base_url, args.vdbgroup_id, args.name, args.bookmark_id)
+    rs = vdbgroup_refresh(dct_base_url, args.id, args.name, args.bookmark_id)
     dct_job_monitor(rs['job']['id'])
 
 if args.command == 'rollback':
     print("Processing VDBGroup rollback ")
-    rs = vdbgroup_refresh(dct_base_url, args.vdbgroup_id, args.name, args.bookmark_id)
+    rs = vdbgroup_refresh(dct_base_url, args.id, args.name, args.bookmark_id)
     dct_job_monitor(rs['job']['id'])
 
 if args.command == 'update':
