@@ -52,12 +52,19 @@ def vdbgroup_refresh(base_url, vdbgroup_id, vdbgroup_name, bookmark_id):
         sys.exit(1)
 
 
-def vdbgroup_update(base_url, vdbgroup_name, vdb_list):
+def vdbgroup_update(base_url, vdbgroup_id, vdbgroup_name, vdb_list):
     # create VDB_ID list
     vdb_id_list = vdb_list.split(",")
-    # build payload
-    payload = {"name": vdbgroup_name, "vdb_ids": vdb_id_list}
-    resp = url_PATCH(base_url + "/" + urllib.parse.quote(vdbgroup_name), payload)
+    if vdbgroup_id:
+        # build payload
+        input_param = vdbgroup_id
+        payload = {"id": vdbgroup_id, "vdb_ids": vdb_id_list}
+    if vdbgroup_name:
+        input_param = vdbgroup_name
+        # build payload
+        payload = {"name": vdbgroup_name, "vdb_ids": vdb_id_list}
+
+    resp = url_PATCH(base_url + "/" + urllib.parse.quote(input_param), payload)
     if resp.status_code == 200:
         print("Updated VDBGroup: " + resp.text)
     else:
@@ -112,15 +119,17 @@ refresh.add_argument('--name', type=str, help="Name of the VDBGroup to refresh "
 refresh.add_argument('--id', type=str, help="ID of the VDBGroup to be refreshed")
 
 # rollback view parms
-rollback.add_argument('--bookmark_id', type=str, help="ID of the bookmark to be rollback")
+rollback.add_argument('--bookmark_id', type=str, required=True, help="ID of the bookmark to be rollback")
 rollback = rollback.add_mutually_exclusive_group(required=True)
 rollback.add_argument('--name', type=str, help="Name of the VDBGroup to rollback ")
 rollback.add_argument('--id', type=str, help="ID of the VDBGroup to be rollback")
 
 # update create parms
-update.add_argument('--name', type=str, required=True, help="Name of the VDBgroup to update")
-# update.add_argument('--vdbgroup_id', type=str, help="ID of the VDBGroup to be refreshed")
 update.add_argument('--vdb_id', type=str, required=True, help="List of VDB IDs separated by commas")
+update = rollback.add_mutually_exclusive_group(required=True)
+update.add_argument('--name', type=str, help="Name of the VDBgroup to update")
+update.add_argument('--vdbgroup_id', type=str, help="ID of the VDBGroup to be refreshed")
+
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -168,4 +177,4 @@ if args.command == 'rollback':
 
 if args.command == 'update':
     print("Processing VDBGroup update ")
-    vdbgroup_update(dct_base_url, args.name, args.vdb_id)
+    vdbgroup_update(dct_base_url, args.id, args.name, args.vdb_id)
