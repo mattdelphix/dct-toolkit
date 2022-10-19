@@ -83,6 +83,7 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 
 # define vdbgroup_list parms
 vdbgroup_list.add_argument('--id', type=str, required=True, help="Bookmark ID for VDBGroup list")
+vdbgroup_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define tag_list parms
 tag_list.add_argument('--id', type=str, required=True, help="Bookmark ID for tags list")
