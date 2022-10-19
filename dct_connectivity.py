@@ -43,6 +43,7 @@ parser.add_argument('--config', type=str, required=False, help="Config file")
 # define commands
 check = subparser.add_parser('check')
 
+
 # define check parms
 check.add_argument('--id', type=str, required=True, help="Engine ID to test connectivity with")
 check.add_argument('--host', type=str, required=True, help="Host or IP of Engine to be tested")
