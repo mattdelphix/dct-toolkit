@@ -21,27 +21,21 @@ from helpers import *
 
 
 # Api-client functions
-def api_client_create(base_url, client_id, first_name, last_name, email, username, password, tags):
-    tags_dic = json.loads(tags)
-    payload = {"generate_api_key": 'true', "api_client_id": client_id, "first_name": first_name, "last_name": last_name,
-               "email": email,
-               "username": username, "password": password, "tags": tags_dic}
+def api_client_create(base_url, api_client_id, name):
+    payload = {"generate_api_key": 'true', "api_client_id": api_client_id, "name": name}
     resp = url_POST(base_url, payload)
     if resp.status_code == 201:
         rsp = resp.json()
-        print(f"Registered API-client with ID={rsp['id']}")
+        print(f"Registered API-client with ID={rsp['api_client_entity_id']}")
         return rsp
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
 
 
-def api_client_update(base_url, client_id, first_name, last_name, email, username, password, tags):
-    tags_dic = json.loads(tags)
-    payload = {"generate_api_key": 'true', "api_client_id": client_id, "first_name": first_name, "last_name": last_name,
-               "email": email,
-               "username": username, "password": password, "tags": tags_dic}
-    resp = url_POST(base_url, payload)
+def api_client_update(base_url, id, api_client_id, name):
+    payload = {"api_client_id": api_client_id, "name": name}
+    resp = url_PUT(base_url + "/" + id, payload)
     if resp.status_code == 200:
         rsp = resp.json()
         print(f"Updated API-client with ID={rsp['id']}")
@@ -66,22 +60,13 @@ view = subparser.add_parser('view')
 updt = subparser.add_parser('update')
 
 # define create parms
-create.add_argument('--client_id', type=str, required=True, help="Client_id name of the new API-clint")
-create.add_argument('--first_name', type=str, required=True, help="First name of the new API-client")
-create.add_argument('--last_name', type=str, required=True, help="Last name of the new API-client")
-create.add_argument('--email', type=str, required=True, help="E-mail of the new API-client")
-create.add_argument('--username', type=str, required=True, help="Username of the new API-client")
-create.add_argument('--password', type=str, required=True, help="Password of the new API-client")
-create.add_argument('--tags', type=str, required=False,
-                    help="Tags of the new API-client in this format:  [{'key': 'key-1','value': 'value-1''},"
-                         " {'key': 'key-2','value': 'value-2'}]")
+create.add_argument('--name', type=str, required=True, help="Client name of the new API-client")
+create.add_argument('--api_client_id', type=str, required=True, help="API client ID of the new API-client")
+
 # define update parms
-updt.add_argument('--client_id', type=str, required=False, help="Client_id name of the new API-client")
-updt.add_argument('--first_name', type=str, required=False, help="First name of the new API-client")
-updt.add_argument('--last_name', type=str, required=False, help="Last name of the new API-client")
-updt.add_argument('--email', type=str, required=False, help="E-mail of the new API-client")
-updt.add_argument('--username', type=str, required=False, help="Username of the new API-client")
-updt.add_argument('--password', type=str, required=False, help="Password of the new API-client")
+updt.add_argument('--id', type=str, required=True, help="Client_id name of the new API-client")
+updt.add_argument('--name', type=str, required=True, help="Client name of the new API-client")
+updt.add_argument('--api_client_id', type=str, required=True, help="API client ID of the new API-client")
 
 # define delete parms
 delete.add_argument('--id', type=str, required=True, help="API-client ID to be deleted")
@@ -110,14 +95,12 @@ if args.command == 'list':
 
 if args.command == 'create':
     print("Processing API-clients create")
-    rs = api_client_create(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
-                           args.password, args.tags)
+    rs = api_client_create(dct_base_url, args.api_client_id, args.name)
     print(rs)
 
 if args.command == 'update':
     print("Processing API-client update")
-    rs = api_client_update(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
-                           args.password, args.tags)
+    rs = api_client_update(dct_base_url, args.id, args.api_client_id, args.name)
     print(rs)
 
 if args.command == 'delete':
