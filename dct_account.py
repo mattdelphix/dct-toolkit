@@ -103,11 +103,11 @@ create.add_argument('--tags', type=str, required=False,
                          " {'key': 'key-2','value': 'value-2'}]")
 # define update params
 updt.add_argument('--id', type=str, required=True, help="Account ID to be updated")
-updt.add_argument('--client_id', type=str, required=True, help="Client_id name of the Account to be updated")
+updt.add_argument('--client_id', type=str, required=False, help="Client_id name of the Account to be updated")
 updt.add_argument('--first_name', type=str, required=False, help="First name of the Account to be updated")
 updt.add_argument('--last_name', type=str, required=False, help="Last name of the Account to be updated")
 updt.add_argument('--email', type=str, required=False, help="E-mail of the Account to be updated")
-updt.add_argument('--username', type=str, required=True, help="Username of the Account to be updated")
+updt.add_argument('--username', type=str, required=False, help="Username of the Account to be updated")
 
 # define delete params
 delete.add_argument('--id', type=str, required=True, help="Account ID to be deleted")
