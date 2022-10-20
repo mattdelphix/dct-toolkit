@@ -66,6 +66,7 @@ tag_delete_all.add_argument('--id', type=str, required=True, help="Account ID to
 
 # define connector_list parms
 connector_list.add_argument('--id', type=str, required=True, help="Masking Job Set ID to be viewed")
+connector_list.add_argument('--engine_id', type=str, required=True, help="Continuous Compliance engine ID to be viewed")
 connector_list.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
 
 # force help if no parms
@@ -123,5 +124,5 @@ if args.command == 'tag_delete_all':
         sys.exit(1)
 
 if args.command == 'connector_list':
-    rs = dct_list_by_id(dct_base_url, args.id, "/users", args.format)
+    rs = dct_list_by_id(dct_base_url, args.id, "/connectors?engine_id="+args.engine_id, args.format)
     print(rs)
