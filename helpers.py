@@ -221,7 +221,8 @@ def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
 
 def dct_post_by_id(dct_query, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
-    return resp
+    dct_print_response(resp)
+    return
 
 def dct_post_ref_by_id(dct_query, update_id, payload, dct_operation, ref_id, post_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation + "/" + urllib.parse.quote(ref_id) + "/" + urllib.parse.quote(post_operation), payload)
