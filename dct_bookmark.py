@@ -91,9 +91,8 @@ tag_list.add_argument('--format', type=str, required=False, help="Type of output
 
 # define tag_create params
 tag_create.add_argument('--id', type=str, required=True, help="Bookmark ID to add tags to")
-tag_create.add_argument('--tags', type=str, required=True,
-                        help="Tags of the Bookmark in this format:  [{'key': 'key-1','value': 'value-1'},"
-                             " {'key': 'key-2','value': 'value-2'}]")
+tag_create.add_argument('--tags', nargs='*', type=str, required=True, action=dct_parsetags,
+                        help="Tags of the DSource in this format:  key=value key=value")
 # define tag_delete params
 tag_delete.add_argument('--id', type=str, required=True, help="DSource ID to delete tags from")
 tag_delete.add_argument('--key', type=str, required=True, help="Tags key of existing tag")
