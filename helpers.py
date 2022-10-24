@@ -260,7 +260,7 @@ def dct_read_config(filename):
 
 def dct_job_monitor(job_id):
     job = {"status": "RUNNING"}
-    print(f"Job {job_id} executing...")
+    print(f"Checking Job {job_id} ...")
     while job['status'] not in ['TIMEDOUT', 'CANCELED', 'FAILED', 'COMPLETED']:
         time.sleep(3)
         job = dct_view_by_id("/jobs", job_id)

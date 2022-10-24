@@ -34,7 +34,7 @@ view = subparser.add_parser('view')
 
 
 # define view parms
-view.add_argument('--id', type=str, required=True, help="job ID to be viewed")
+view.add_argument('--id', type=str, required=True, help="snapshot ID to be viewed")
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
