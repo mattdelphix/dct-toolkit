@@ -17,7 +17,6 @@
 # Date    : September 2022
 
 
-import argparse
 from helpers import *
 
 
@@ -129,7 +128,6 @@ update.add_argument('--vdb_id', type=str, required=True, help="List of VDB IDs s
 update = update.add_mutually_exclusive_group(required=True)
 update.add_argument('--name', type=str, help="Name of the VDBgroup to update")
 update.add_argument('--id', type=str, help="ID of the VDBGroup to be refreshed")
-
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])

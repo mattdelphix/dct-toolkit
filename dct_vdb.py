@@ -16,9 +16,8 @@
 # Author  : Matteo Ferrari, Ruben Catarrunas
 # Date    : September 2022
 
-#TODO need to clarify how to use refresh_by_timestamp
+# TODO need to clarify how to use refresh_by_timestamp
 
-import argparse
 
 from helpers import *
 
@@ -26,7 +25,7 @@ from helpers import *
 # VDB functions
 def vdb_operation(base_url, vdb_id, ops):
     ops = ops.lower()
-    if not any(x in ops for x in ["enable", "disable", "stop", "start","snapshot"]):
+    if not any(x in ops for x in ["enable", "disable", "stop", "start", "snapshot"]):
         print("Error: Wrong operation on VDB: " + ops)
         sys.exit(1)
     payload = ""
@@ -44,9 +43,10 @@ def vdb_operation(base_url, vdb_id, ops):
         print(f"{resp.text}")
         sys.exit(1)
 
+
 def vdb_refresh(base_url, vdb_id, ops, pit_id):
     ops = ops.lower()
-    if not any(x in ops for x in ["refresh_by_snapshot", "refresh_from_bookmark","refresh_by_timestamp"]):
+    if not any(x in ops for x in ["refresh_by_snapshot", "refresh_from_bookmark", "refresh_by_timestamp"]):
         print("Error: Wrong refresh type on VDB: " + ops)
         sys.exit(1)
     payload = ""
@@ -68,7 +68,7 @@ def vdb_refresh(base_url, vdb_id, ops, pit_id):
 
 def vdb_rollback(base_url, vdb_id, ops, pit_id):
     ops = ops.lower()
-    if not any(x in ops for x in ["rollback_by_snapshot", "rollback_from_bookmark","rollback_by_timestamp"]):
+    if not any(x in ops for x in ["rollback_by_snapshot", "rollback_from_bookmark", "rollback_by_timestamp"]):
         print("Error: Wrong rollback type on VDB: " + ops)
         sys.exit(1)
     payload = ""
@@ -248,7 +248,7 @@ if args.command == 'view':
 if args.command == 'delete':
     print("Processing VDB delete ID=" + args.id)
     rs = dct_post_by_id(dct_base_url, args.id, {"force": "false"}, "delete")
-    #dct_job_monitor(rs['job']['id'])
+    # dct_job_monitor(rs['job']['id'])
 
 if args.command == 'search':
     rs = dct_search("VDB List ", dct_base_url, args.filter, "No VDBs match the search criteria.",

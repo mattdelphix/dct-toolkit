@@ -17,7 +17,6 @@
 # Date    : September 2022
 
 
-import os
 import sys
 import json
 import tabulate
@@ -149,6 +148,18 @@ def dct_view_by_id(dct_query, view_id, dct_output="json"):
         sys.exit(1)
 
 
+def dct_create(dct_base_query, payload, dct_output="json"):
+    resp = url_POST(dct_base_query, payload)
+    if cfg.level == 2:
+        dct_print_response(resp)
+
+    if resp.status_code == 200:
+        return resp.json()
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+
+
 def dct_list_by_id(dct_base_query, view_id, dct_operation, dct_output="json"):
     resp = url_GET(dct_base_query + "/" + view_id + dct_operation)
     if cfg.level == 2:
@@ -169,7 +180,7 @@ def dct_delete_by_id(dct_query, dct_message, delete_id):
 
     if resp.status_code == 200:
         print(dct_message + " - ID=" + delete_id)
-        return
+        return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
@@ -184,7 +195,7 @@ def dct_delete_ref_by_id(dct_query, dct_message, delete_id, dct_operation, ref_i
 
     if resp.status_code == 200:
         print(dct_message + " - ID=" + delete_id + "/" + ref_id)
-        return
+        return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
@@ -200,7 +211,7 @@ def dct_update_ref_by_id(dct_query, dct_message, update_id, payload, dct_operati
 
     if resp.status_code == 200:
         print(dct_message + " - ID=" + update_id + "/" + ref_id)
-        return
+        return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
@@ -213,7 +224,7 @@ def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
 
     if resp.status_code == 200:
         print(dct_message + " - ID=" + update_id)
-        return
+        return resp.json()
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
@@ -224,8 +235,10 @@ def dct_post_by_id(dct_query, update_id, payload, dct_operation):
     dct_print_response(resp)
     return
 
+
 def dct_post_ref_by_id(dct_query, update_id, payload, dct_operation, ref_id, post_operation):
-    resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation + "/" + urllib.parse.quote(ref_id) + "/" + urllib.parse.quote(post_operation), payload)
+    resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation + "/" + urllib.parse.quote(
+        ref_id) + "/" + urllib.parse.quote(post_operation), payload)
     return resp
 
 
@@ -235,7 +248,7 @@ def dct_print_response(response):
 
 
 def dct_read_config(filename):
-    if filename == None:
+    if filename is None:
         fnm = "dct-toolkit.conf"
     else:
         fnm = filename
@@ -260,13 +273,17 @@ def dct_read_config(filename):
 
 def dct_job_monitor(job_id):
     job = {"status": "RUNNING"}
-    print(f"Checking Job {job_id} ...")
+    print(f"Job {job_id} check...")
     while job['status'] not in ['TIMEDOUT', 'CANCELED', 'FAILED', 'COMPLETED']:
-        time.sleep(3)
         job = dct_view_by_id("/jobs", job_id)
+        time.sleep(3)
 
     if job['status'] != 'COMPLETED':
-        raise RuntimeError(f"Job {job_id} failed {job['error_details']}")
+        if 'error_details' in job:
+            print(f"Job {job_id} {job['status']} - {job['error_details']}")
+        else:
+            print(f"Job {job_id} {job['status']} - {job['update_time']}")
+        exit(1)
     else:
         print(f"Job {job_id} COMPLETED - {job['update_time']}")
 

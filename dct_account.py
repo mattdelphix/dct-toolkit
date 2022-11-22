@@ -99,7 +99,7 @@ create.add_argument('--email', type=str, required=False, help="E-mail of the new
 create.add_argument('--username', type=str, required=True, help="Username of the new Account")
 create.add_argument('--password', type=str, required=False, help="Password of the new Account")
 create.add_argument('--tags', nargs='*', type=str, required=True, action=dct_parsetags,
-                        help="Tags of the DSource in this format:  key=value key=value")
+                    help="Tags of the DSource in this format:  key=value key=value")
 
 # define update params
 updt.add_argument('--id', type=str, required=True, help="Account ID to be updated")

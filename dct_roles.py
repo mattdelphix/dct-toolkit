@@ -17,7 +17,6 @@
 # Date    : October 2022
 
 
-import argparse
 from helpers import *
 
 def connectivity_check (base_url, id, host, port):
