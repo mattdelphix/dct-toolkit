@@ -17,8 +17,20 @@
 # Date    : September 2022
 
 
-import argparse
 from helpers import *
+
+# Connector functions
+def connector_update(base_url, conn_id, name, hostname, port, username, password):
+    payload = {"name": name, "username": username, "password": password,
+               "hostname": hostname, "port": port}
+    resp = url_PATCH(base_url + "/" + urllib.parse.quote(conn_id), payload)
+    if resp.status_code == 200:
+        rsp = resp.json()
+        print("Updated Connector" + " - ID=" + conn_id)
+        return rsp
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
 
 
 # Init
@@ -33,6 +45,7 @@ lst = subparser.add_parser('list')
 tst = subparser.add_parser('test')
 search = subparser.add_parser('search')
 view = subparser.add_parser('view')
+updt = subparser.add_parser('update')
 
 # define list parms
 lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
@@ -47,6 +60,14 @@ view.add_argument('--id', type=str, required=True, help="Masking connector ID to
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="Masking connector search string")
 search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+
+# define update parms
+updt.add_argument('--id', type=str, required=True, help="Masking connector ID to be updated")
+updt.add_argument('--name', type=str, required=False, help="Masking connector name to be updated")
+updt.add_argument('--hostname', type=str, required=False, help="Masking connector hostname to be updated")
+updt.add_argument('--port', type=str, required=False, help="Masking connector port to be updated")
+updt.add_argument('--username', type=str, required=False, help="User name of the Masking connector to be updated")
+updt.add_argument('--password', type=str, required=False, help="Password of the Masking connector to be updated")
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -72,3 +93,8 @@ if args.command == 'search':
 if args.command == 'test':
     rs = dct_post_by_id(dct_base_url, args.id, "/test")
     print(rs)
+
+if args.command == 'update':
+    print("Processing Connector update ID=" + args.id)
+    rs = connector_update(dct_base_url, args.id, args.name, args.hostname, args.port, args.username, args.password)
+    dct_job_monitor(rs['job']['id'])

@@ -53,6 +53,9 @@ delete = subparser.add_parser('delete')
 disable = subparser.add_parser('disable')
 enable = subparser.add_parser('enable')
 refresh = subparser.add_parser('refresh')
+create_unix = subparser.add_parser('create_unix')
+create_win_src = subparser.add_parser('create_win_src')
+update = subparser.add_parser('update_unix')
 
 tag_list = subparser.add_parser('tag_list')
 tag_create = subparser.add_parser('tag_create')
@@ -109,7 +112,7 @@ tag_list.add_argument('--format', type=str, required=False, help="Type of output
 # define tag_create params
 tag_create.add_argument('--id', type=str, required=True, help="Environment ID to add tags to")
 tag_create.add_argument('--tags', nargs='*', type=str, required=True, action=dct_parsetags,
-                        help="Tags of the DSource in this format:  key=value key=value")
+                        help="Tags of the Environment in this format:  key=value key=value")
 tag_delete.add_argument('--id', type=str, required=True, help="Environment ID to delete tags from")
 tag_delete.add_argument('--key', type=str, required=True, help="Tags key of existing tag")
 
@@ -183,8 +186,44 @@ user_delete.add_argument('--user_ref_id', type=str, required=True, help="User re
 
 # define user_setprimary parms
 user_setprimary.add_argument('--id', type=str, required=True, help="Environment ID to be updated")
-user_setprimary.add_argument('--user_ref_id', type=str, required=True, help="User ref ID to be set primary in environment")
+user_setprimary.add_argument('--user_ref_id', type=str, required=True,
+                             help="User ref ID to be set primary in environment")
 
+# define create_unix parms
+create_unix.add_argument('--name', type=str, required=True, help="Name of the environment")
+create_unix.add_argument('--engine', type=str, required=True, help="ID of the engine")
+create_unix.add_argument('--description', type=str, required=True, help="Description of the environment")
+create_unix.add_argument('--hostname', type=str, required=True, help="Hostname of the environment")
+create_unix.add_argument('--port', type=str, required=False, help="SSH port of the environment", default='22')
+create_unix.add_argument('--toolkit', type=str, required=True, help="Toolkit path of the environment")
+create_unix.add_argument('--nfs_addresses', type=str, required=False, help="NFS addresses for the environment")
+create_unix.add_argument('--username', type=str, required=False, help="Username for the environment")
+create_unix.add_argument('--password', type=str, required=False, help="Password for the user")
+create_unix.add_argument('--kerberos', type=str, required=False, help="Kerberos Authentication",
+                         choices=('True', 'False'), default='False')
+create_unix.add_argument('--use_public_key', type=str, required=False, help="Use public key", choices=('True', 'False'),
+                         default='False')
+create_unix.add_argument('--vault', type=str, required=False, help="Name of Cyberark or Hashicorp Vault")
+create_unix.add_argument('--cyark_username', type=str, required=False, help="Cyberark Vault Username")
+create_unix.add_argument('--hcorp_engine', type=str, required=False, help="Hashicorp Vault engine")
+create_unix.add_argument('--hcorp_username', type=str, required=False, help="Hashicorp Vault Username")
+create_unix.add_argument('--hcorp_secret_path', type=str, required=False,
+                         help="Hashicorp Vault Secret path")
+create_unix.add_argument('--hcorp_secret_key', type=str, required=False,
+                         help="Hashicorp Vault Secret key")
+create_unix.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
+                         help="Tags of the Environment in this format:  key=value key=value")
+
+# define create_win_src parms
+create_win_src.add_argument('--name', type=str, required=True, help="Name of the environment")
+create_win_src.add_argument('--engine', type=str, required=True, help="ID of the engine")
+create_win_src.add_argument('--description', type=str, required=True, help="Description of the environment")
+create_win_src.add_argument('--hostname', type=str, required=True, help="Hostname of the environment")
+create_win_src.add_argument('--staging', type=str, required=True, help="ID of the staging environment")
+create_win_src.add_argument('--username', type=str, required=False, help="Username for the environment")
+create_win_src.add_argument('--password', type=str, required=False, help="Password for the user")
+create_win_src.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
+                            help="Tags of the Environment in this format:  key=value key=value")
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -249,7 +288,7 @@ if args.command == 'user_create_hcorp':
     else:
         print(f"ERROR: Status = {rs.status_code} - {rs.text}")
         sys.exit(1)
-        
+
 if args.command == 'user_update':
     payload = {"username": args.username, "password": args.password}
     rs = dct_update_ref_by_id(dct_base_url, args.id, payload, "users", args.user_ref_id)
@@ -270,7 +309,7 @@ if args.command == 'user_update_pubkey':
 
 if args.command == 'user_update_kerb':
     payload = {"use_kerberos_authentication": "true"}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "users", args.user_ref_id)
+    rs = dct_update_ref_by_id(dct_base_url, args.id, payload, "users", args.user_ref_id)
     if rs.status_code == 204:
         print("Updated Kerberos for Environment - ID=" + args.id)
     else:
@@ -366,3 +405,45 @@ if args.command == 'user_setprimary':
     print("Setting primary user'" + args.user_ref_id + "' delete for Environment ID=" + args.id)
     rs = dct_update_ref_by_id(dct_base_url, "Set Primary user", args.id, "users", args.user_ref_id)
     dct_job_monitor(rs['job']['id'])
+
+if args.command == 'create_unix':
+    payload = {
+        "name": args.name,
+        "engine_id": args.engine,
+        "os_name": "UNIX",
+        "hostname": args.hostname,
+        "ssh_port": args.port,
+        "toolkit_path": args.toolkit,
+        "username": args.username,
+        "password": args.password,
+        "use_kerberos_authentication": args.kerberos,
+        "use_engine_public_key": args.use_public_key,
+        "nfs_addresses": args.nfs_addresses,
+        "description": args.description,
+        "tags": args.tags
+    }
+    rs = dct_create(dct_base_url, payload)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'create_win_src':
+    payload = {
+        "name": args.name,
+        "engine_id": args.engine,
+        "description": args.description,
+        "os_name": "WINDOWS",
+        "hostname": args.hostname,
+        "staging_environment": args.staging,
+        "username": args.username,
+        "password": args.password,
+        "tags": args.tags
+    }
+    rs = dct_create(dct_base_url, payload)
+    dct_job_monitor(rs['job']['id'])
+
+# TODO manage additional parms for environment create
+# "vault": args.vault,
+# "hashicorp_vault_engine": args.hcorp_engine,
+# "hashicorp_vault_secret_path": args.hcorp_secret_path,
+# "hashicorp_vault_username_key": args.hcorp_username,
+# "hashicorp_vault_secret_key": args.hcorp_secret_key,
+# "cyberark_vault_query_string": "Safe=Test;Folder=Test;Object=Test",

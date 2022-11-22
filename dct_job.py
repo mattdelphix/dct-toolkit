@@ -17,8 +17,6 @@
 # Date    : September 2022
 
 
-import argparse
-import time
 from helpers import *
 
 # TODO job cancel not implemented
@@ -68,9 +66,7 @@ dct_read_config(args.config)
 dct_base_url = "/jobs"
 
 if args.command == 'monitor':
-    print("Monitor Job ID=" + args.id)
     rs = dct_job_monitor(args.id)
-    print(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
