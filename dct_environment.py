@@ -441,9 +441,11 @@ if args.command == 'create_win_src':
     dct_job_monitor(rs['job']['id'])
 
 # TODO manage additional parms for environment create
+#
 # "vault": args.vault,
 # "hashicorp_vault_engine": args.hcorp_engine,
 # "hashicorp_vault_secret_path": args.hcorp_secret_path,
 # "hashicorp_vault_username_key": args.hcorp_username,
 # "hashicorp_vault_secret_key": args.hcorp_secret_key,
 # "cyberark_vault_query_string": "Safe=Test;Folder=Test;Object=Test",
+#TODO all remaining env type creation + update
