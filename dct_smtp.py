@@ -62,9 +62,9 @@ validate.add_argument('--address', type=str, required=True, help="Address of Smt
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define update params
-update.add_argument('--enabled', type=str, required=False, help="Set or unset SAML, default is false",
+update.add_argument('--enabled', type=str, required=False, help="Set or unset LDAP, default is false",
                     choices=['true', 'false'])
-update.add_argument('--server', type=str, required=False, help="IP address or hostname of SMTP relay server")
+update.add_argument('--server', type=str, required=False, help="IP address or hostname of SMTP relay server.")
 update.add_argument('--port', type=str, required=False, help="Port number to use.")
 update.add_argument('--authentication_enabled', type=str, required=False,
                     help="True if username/password authentication should be used", choices=['true', 'false'])
