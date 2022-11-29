@@ -40,6 +40,7 @@ def update_saml_config(base_url, enabled, auto_create_users, metadata_url, metad
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
 
+
 # Init
 parser = argparse.ArgumentParser(description='Delphix DCT CDBs operations')
 subparser = parser.add_subparsers(dest='command')
@@ -53,7 +54,7 @@ lst = subparser.add_parser('list')
 update = subparser.add_parser('update')
 
 # define check params
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+check.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define list params
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
@@ -62,7 +63,7 @@ lst.add_argument('--format', type=str, required=False, help="Type of output", ch
 update.add_argument('--enabled', type=str, required=False, help="Set or unset SAML, default is false",
                     choices=['true', 'false'])
 update.add_argument('--auto_create_users', type=str, required=False,
-                             help="system will automatically create new Accounts for those who have logged in using "
+                             help="System will automatically create new Accounts for those who have logged in using "
                                   "SAML", choices=['true', 'false'])
 update.add_argument('--metadata_url', type=str, required=False,
                              help="IdP metadata URL for this service provider")
@@ -91,6 +92,7 @@ dct_base_url = "/managment/saml-config"
 
 if args.command == 'is_enabled':
     resp = url_GET("/is-saml-enabled")
+    print(resp)
     if resp.status_code == 200:
         print("SAML is enabled")
         # return json.dumps(resp.json(), indent=4)
