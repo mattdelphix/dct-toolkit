@@ -19,6 +19,27 @@
 
 from helpers import *
 
+def update_saml_config(base_url, enabled, auto_create_users, metadata_url, metadata, entity_id,
+                           response_skew, group_attr, first_name_attr,last_name_attr):
+    payload = {"enabled: " + enabled,
+               "auto_create_users: " + auto_create_users,
+               "metadata_url: " + metadata_url,
+               "metadata: " + metadata,
+               "entity_id: " + entity_id,
+               "response_skew: " + response_skew,
+               "group_attr: " + group_attr,
+               "first_name_attr: " + first_name_attr,
+               "last_name_attr: " + last_name_attr}
+
+    resp = url_PATCH(base_url, payload)
+    if resp.status_code == 200:
+        rsp = resp.json()
+        print("Password policy updated")
+        return rsp
+    else:
+        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        sys.exit(1)
+
 # Init
 parser = argparse.ArgumentParser(description='Delphix DCT CDBs operations')
 subparser = parser.add_subparsers(dest='command')
@@ -27,26 +48,62 @@ parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 parser.add_argument('--config', type=str, required=False, help="Config file")
 
 # define commands
-
 check = subparser.add_parser('is_enabled')
+lst = subparser.add_parser('list')
+update = subparser.add_parser('update')
 
+# define check params
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+
+# define list params
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+
+# define update params
+update.add_argument('--enabled', type=str, required=False, help="Set or unset SAML, default is false",
+                    choices=['true', 'false'])
+update.add_argument('--auto_create_users', type=str, required=False,
+                             help="system will automatically create new Accounts for those who have logged in using "
+                                  "SAML", choices=['true', 'false'])
+update.add_argument('--metadata_url', type=str, required=False,
+                             help="IdP metadata URL for this service provider")
+update.add_argument('--metadata', type=str, required=False,
+                             help="IdP metadata for this service provider.This is mutually exclusive to other field "
+                                  "'metadata_url'")
+update.add_argument('--entity_id', type=str, required=False,
+                             help="Unique identifier of this instance as a SAML/SSO service provider.")
+update.add_argument('--response_skew', type=str, required=False,
+                             help="Maximum time difference allowed between a SAML response and the DCT's current "
+                                  "time, in seconds. If not set, it defaults to 120 seconds")
+update.add_argument('--group_attr', type=str, required=False,
+                             help="Group mapped attribute on SAML to create account tags in DCT")
+update.add_argument('--first_name_attr', type=str, required=False,
+                             help="First name attribute mapped on SAML used for mapping on DCT account")
+update.add_argument('--last_name_attr', type=str, required=False,
+                             help="Last name attribute mapped on SAML used for mapping on DCT account")
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
 dct_read_config(args.config)
 
-dct_base_url = "/is-saml-enabled"
+# dct_base_url = "/is-saml-enabled"
+dct_base_url = "/managment/saml-config"
 
 if args.command == 'is_enabled':
     resp = url_GET("/is-saml-enabled")
     if resp.status_code == 200:
         print("SAML is enabled")
         # return json.dumps(resp.json(), indent=4)
-
     if resp.status_code == 400:
         print("SAML is NOT enabled")
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
 
+if args.command == 'list':
+    resp = dct_search("Saml List", dct_base_url, None, "No SAML defined.", args.format)
+    print(resp)
+
+if args.command == 'update':
+    update_saml_config(dct_base_url, args.enabled, args.auto_create_users, args.metadata_url, args.metadata,
+                       args.entity_id, args.response_skew, args.group_attr, args.first_name_attr, args.last_name_attr)
