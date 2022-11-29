@@ -19,22 +19,23 @@
 
 from helpers import *
 
-def update_saml_config(base_url, enabled, auto_create_users, metadata_url, metadata, entity_id,
-                           response_skew, group_attr, first_name_attr,last_name_attr):
-    payload = {"enabled: " + enabled,
-               "auto_create_users: " + auto_create_users,
-               "metadata_url: " + metadata_url,
-               "metadata: " + metadata,
-               "entity_id: " + entity_id,
-               "response_skew: " + response_skew,
-               "group_attr: " + group_attr,
-               "first_name_attr: " + first_name_attr,
-               "last_name_attr: " + last_name_attr}
+
+def update_saml_config(base_url, enabled, auto_create_users, metadata_url, metadata, entity_id, response_skew,
+                       group_attr, first_name_attr,last_name_attr):
+    payload = {"enabled": enabled,
+               "auto_create_users": auto_create_users,
+               "metadata_url": metadata_url,
+               "metadata:": metadata,
+               "entity_id": entity_id,
+               "response_skew": response_skew,
+               "group_attr": group_attr,
+               "first_name_attr:": first_name_attr,
+               "last_name_attr": last_name_attr}
 
     resp = url_PATCH(base_url, payload)
     if resp.status_code == 200:
         rsp = resp.json()
-        print("Password policy updated")
+        print("SAML config updated")
         return rsp
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
@@ -88,7 +89,7 @@ args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 dct_read_config(args.config)
 
 # dct_base_url = "/is-saml-enabled"
-dct_base_url = "/managment/saml-config"
+dct_base_url = "/management/saml-config"
 
 if args.command == 'is_enabled':
     resp = url_GET("/is-saml-enabled")
