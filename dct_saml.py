@@ -104,8 +104,7 @@ if args.command == 'is_enabled':
         sys.exit(1)
 
 if args.command == 'list':
-    resp = dct_search("Saml List", dct_base_url, None, "No SAML defined.", args.format)
-    print(resp)
+    dct_search("Saml List", dct_base_url, None, "No SAML defined.")
 
 if args.command == 'update':
     update_saml_config(dct_base_url, args.enabled, args.auto_create_users, args.metadata_url, args.metadata,

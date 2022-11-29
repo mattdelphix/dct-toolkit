@@ -119,14 +119,15 @@ def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
         dct_print_response(resp)
 
     if resp.status_code == 200:
-        report_data = resp.json()['items']
+        report_data = resp.json()
         if report_data:
             if dct_output == "report":
                 return tabular_report("DELPHIX Data Control Tower - " + dct_title + " - Filter = " + str(dct_filter),
                                       report_data)
             else:
                 # return report_data
-                return json.dumps(report_data, indent=4)
+                print(json.dumps(report_data, indent=4))
+                return
         else:
             print(f"\n" + dct_error)
             return
