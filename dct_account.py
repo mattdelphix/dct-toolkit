@@ -84,7 +84,8 @@ search = subparser.add_parser('search')
 view = subparser.add_parser('view')
 updt = subparser.add_parser('update')
 tags = subparser.add_parser('tag_list')
-pwd_reset = subparser.add_parser('password_reset')
+pwd_reset = subparser.add_parser('reset_password')
+chg_pwd = subparser.add_parser('change_password')
 tag_create = subparser.add_parser('tag_create')
 tag_delete = subparser.add_parser('tag_delete')
 tag_delete_all = subparser.add_parser('tag_delete_all')
@@ -128,8 +129,12 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 
 # define password_reset params
 pwd_reset.add_argument('--id', type=str, required=True, help="Account ID to have pwd reset")
-pwd_reset.add_argument('--old_password', type=str, required=True, help="Existing Password of the Account")
-pwd_reset.add_argument('--new_password', type=str, required=True, help="New Password of the Account")
+pwd_reset.add_argument('--new_password', type=str, required=True, help="New Password for the Account")
+
+# define change_password params
+chg_pwd.add_argument('--id', type=str, required=True, help="Account ID to have pwd reset")
+chg_pwd.add_argument('--old_password', type=str, required=True, help="Existing Password of the Account")
+chg_pwd.add_argument('--new_password', type=str, required=True, help="New Password of the Account")
 
 # define tag_create params
 tag_create.add_argument('--id', type=str, required=True, help="Account ID to add tags to")
@@ -204,7 +209,12 @@ if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
     print(rs)
 
-if args.command == 'password_reset':
+if args.command == 'reset_password':
+    rs = dct_update_by_id(dct_base_url, "Password Reset for Account", args.id, {"new_password": args.new_password},
+                          args.command)
+    print(rs)
+
+if args.command == 'change_password':
     rs = dct_update_by_id(dct_base_url, "Password Reset for Account", args.id, {"old_password": args.old_password,
                                                                                 "new_password": args.new_password},
                           args.command)
@@ -251,3 +261,4 @@ if args.command == 'update_pwd_policy':
                                 args.reuse_disallow_limit, args.digit, args.uppercase_letter, args.lowercase_letter,
                                 args.special_character, args.disallow_username_as_password)
     print(rs)
+
