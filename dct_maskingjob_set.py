@@ -95,8 +95,8 @@ connector_list.add_argument('--format', type=str, required=False, help="Type of 
 copy.add_argument('--id', type=str, required=True, help="Masking Job Set ID to be viewed")
 copy.add_argument('--source_engine_id', type=str, required=True, help="Continuous Compliance engine ID to be copied from")
 copy.add_argument('--target_engine_id', type=str, required=True, help="Continuous Compliance engine ID to receive job")
-copy.add_argument('--source_environment_id', type=str, required=False, help="Continuous Compliance environment ID or Name to be copied from")
-copy.add_argument('--target_environment_id', type=str, required=True, help="Continuous Compliance environment ID or Name receive job")
+#copy.add_argument('--source_environment_id', type=str, required=False, help="Continuous Compliance environment ID or Name to be copied from")
+#copy.add_argument('--target_environment_id', type=str, required=True, help="Continuous Compliance environment ID or Name receive job")
 
 # define remove-job params
 remove_job.add_argument('--id', type=str, required=True, help="Masking Job Set ID to delete tags from")
@@ -161,19 +161,11 @@ if args.command == 'connector_list':
     print(rs)
 
 if args.command == 'copy':
-    if args.source_environment_id is not None:
-        payload = {"target_engine_id":  args.target_engine_id,
-                   "source_engine_id":  args.source_engine_id,
-                   "environment_id":  args.target_environment_id}
-    else:
-        payload = {"target_engine_id":  args.target_engine_id,
-                   "source_engine_id":  args.source_engine_id,
-                   "environment_id":  args.target_environment_id,
-                   "source_environment_id":  args.source_environment_id}
-
+    payload = {"target_engine_id":  args.target_engine_id, "source_engine_id":  args.source_engine_id}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "copy")
 
 
 if args.command == 'remove_job':
     payload = {"engine_id": args.engine_id}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "remove-job")
+    print(rs)

@@ -137,7 +137,7 @@ if args.command == 'tag_list':
     print(rs)
 
 if args.command == 'tag_create':
-    payload = {"tags": json.loads(args.tags)}
+    payload = {"tags": args.tags}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
     if rs.status_code == 201:
         print("Create tags for dSource - ID=" + args.id)
