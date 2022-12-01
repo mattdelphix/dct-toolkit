@@ -174,14 +174,18 @@ def dct_list_by_id(dct_base_query, view_id, dct_operation, dct_output="json"):
         sys.exit(1)
 
 
-def dct_delete_by_id(dct_query, dct_message, delete_id):
+def dct_delete_by_id(dct_query, dct_message, delete_id, response_code=200):
     resp = url_DELETE(dct_query + "/" + urllib.parse.quote(delete_id))
     if cfg.level == 2:
         dct_print_response(resp)
 
-    if resp.status_code == 200:
+    if resp.status_code == response_code:
         print(dct_message + " - ID=" + delete_id)
-        return resp.json()
+        try:
+            report_data = resp.json()
+            return resp.json()
+        except json.decoder.JSONDecodeError:
+            return ""  # or return or whatever you want to do on a failed decode.
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
