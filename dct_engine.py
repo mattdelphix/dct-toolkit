@@ -65,15 +65,18 @@ delete = subparser.add_parser('delete')
 register_mask = subparser.add_parser('register_mask')
 register_virt = subparser.add_parser('register_virt')
 view = subparser.add_parser('view')
+tag_create = subparser.add_parser('tag_create')
+tag_delete = subparser.add_parser('tag_delete')
+tag_delete_all = subparser.add_parser('tag_delete_all')
 
 # define view parms
-view.add_argument('--id', type=str, required=True, help="engine UUID to be viewed")
+view.add_argument('--id', type=str, required=True, help="Engine UUID to be viewed")
 
 # define list parms
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define delete parms
-delete.add_argument('--id', type=str, required=True, help="engine UUID to be deleted")
+delete.add_argument('--id', type=str, required=True, help="Engine UUID to be deleted")
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="Engine search string")
@@ -81,11 +84,11 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 
 # define register_virt parms
 register_virt.add_argument('--name', type=str, required=True, help="Name used to refer to the engine in DCT")
-register_virt.add_argument('--hostname', type=str, required=True, help="hostname or ip address")
-register_virt.add_argument('--user', type=str, required=True, help="admin user")
-register_virt.add_argument('--password', type=str, required=True, help="admin password")
-register_virt.add_argument('--insecure_ssl', type=str, required=False, help="is SSL secure?", default=True)
-register_virt.add_argument('--unsafe_ssl_hostname_check', required=False, type=str, help="check SSL connection",
+register_virt.add_argument('--hostname', type=str, required=True, help="Hostname or ip address")
+register_virt.add_argument('--user', type=str, required=True, help="Admin user")
+register_virt.add_argument('--password', type=str, required=True, help="Admin password")
+register_virt.add_argument('--insecure_ssl', type=str, required=False, help="Is SSL secure?", default=True)
+register_virt.add_argument('--unsafe_ssl_hostname_check', required=False, type=str, help="Check SSL connection",
                            default=True)
 
 # define register_mask parms
@@ -96,6 +99,17 @@ register_mask.add_argument('--password', type=str, required=True, help="masking 
 register_mask.add_argument('--insecure_ssl', type=str, required=False, help="is SSL secure?", default=True)
 register_mask.add_argument('--unsafe_ssl_hostname_check', required=False, type=str, help="check SSL connection",
                            default=True)
+
+# define tag_create params
+tag_create.add_argument('--id', type=str, required=True, help="Engine UUID to add tags to")
+tag_create.add_argument('--tags', nargs='*', type=str, required=True, action=dct_parsetags,
+                        help="Tags of the Engine in this format:  key=value key=value")
+# define tag_delete params
+tag_delete.add_argument('--id', type=str, required=True, help="Engine UUID to delete tags from")
+tag_delete.add_argument('--key', type=str, required=True, help="Tags key of existing tag")
+
+# define tag_delete_all params
+tag_delete_all.add_argument('--id', type=str, required=True, help="Engine UUID to delete tags from")
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -133,3 +147,29 @@ if args.command == 'register_mask':
     rs = mask_engine_register(dct_base_url, args.name, args.hostname, args.user, args.password, args.insecure_ssl,
                               args.unsafe_ssl_hostname_check)
     print(rs)
+
+if args.command == 'tag_create':
+    payload = {"tags": json.loads(args.tags)}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
+    if rs.status_code == 201:
+        print("Create tags for dSource - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'tag_delete':
+    payload = {"key": args.key}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
+    if rs.status_code == 204:
+        print("Delete tag for DSourceID - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'tag_delete_all':
+    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
+    if rs.status_code == 204:
+        print("Deleted all tags for DSource - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)

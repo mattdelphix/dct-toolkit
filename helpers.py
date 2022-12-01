@@ -233,7 +233,6 @@ def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
 
 def dct_post_by_id(dct_query, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
-    #dct_print_response(resp)
     return resp
 
 
