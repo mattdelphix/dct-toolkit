@@ -35,9 +35,9 @@ def update_smtp_config(base_url, enabled, server, port, authentication_enabled, 
 
     resp = url_PATCH(base_url, payload)
     if resp.status_code == 200:
-        rsp = resp.json()
         print("SAML config updated")
-        return rsp
+        print(resp.json())
+        return
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)

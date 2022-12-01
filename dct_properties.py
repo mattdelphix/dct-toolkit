@@ -21,23 +21,14 @@ from helpers import *
 
 
 # NOT OK
-def update_smtp_config(base_url, enabled, server, port, authentication_enabled, tls_enabled, username, password,
-                       from_address, send_timeout):
-    payload = {"enabled": enabled,
-               "server": server,
-               "port": port,
-               "authentication_enabled:": authentication_enabled,
-               "tls_enabled": tls_enabled,
-               "username": username,
-               "password": password,
-               "from_address:": from_address,
-               "send_timeout": send_timeout}
+def update_properties_config(base_url,disable_username_password):
+    payload = {"disable_username_password": disable_username_password}
 
     resp = url_PATCH(base_url, payload)
     if resp.status_code == 200:
-        rsp = resp.json()
-        print("SAML config updated")
-        return rsp
+        print("Properties config updated")
+        print(resp.json())
+        return
     else:
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
@@ -74,5 +65,4 @@ if args.command == 'list':
     dct_search("Properties List", dct_base_url, None, "No Properties defined.")
 
 if args.command == 'update':
-    update_smtp_config(dct_base_url, args.enabled, args.server, args.port, args.authentication_enabled, args.tls_enabled
-                       , args.username, args.password, args.from_address, args.send_timeout)
+    update_properties_config(dct_base_url, args.disable_username_password)
