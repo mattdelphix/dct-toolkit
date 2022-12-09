@@ -65,6 +65,7 @@ delete = subparser.add_parser('delete')
 register_mask = subparser.add_parser('register_mask')
 register_virt = subparser.add_parser('register_virt')
 view = subparser.add_parser('view')
+tags = subparser.add_parser('tag_list')
 tag_create = subparser.add_parser('tag_create')
 tag_delete = subparser.add_parser('tag_delete')
 tag_delete_all = subparser.add_parser('tag_delete_all')
@@ -81,6 +82,10 @@ delete.add_argument('--id', type=str, required=True, help="Engine UUID to be del
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="Engine search string")
 search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+
+# define tag_list params
+tags.add_argument('--id', type=str, required=True, help="Account ID to be viewed")
+tags.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define register_virt parms
 register_virt.add_argument('--name', type=str, required=True, help="Name used to refer to the engine in DCT")
@@ -156,6 +161,10 @@ if args.command == 'tag_create':
     else:
         print(f"ERROR: Status = {rs.status_code} - {rs.text}")
         sys.exit(1)
+
+if args.command == 'tag_list':
+    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
+    print(rs)
 
 if args.command == 'tag_delete':
     payload = {"key": args.key}
