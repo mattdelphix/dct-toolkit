@@ -19,26 +19,6 @@ def access_group_update(base_url, name, role_id):
         print(f"ERROR: Status = {resp.status_code} - {resp.text}")
         sys.exit(1)
 
-def maskingjob_set_copy(base_url, name, maskingjob_set_id, target_engine_id, source_engine_id, source_environment_id, target_environment_id):
-    if source_environment_id is not None:
-        payload = {"target_engine_id": target_engine_id,
-                   "source_engine_id": source_engine_id,
-                   "environment_id": target_environment_id}
-    else:
-        payload = {"target_engine_id": target_engine_id,
-                   "source_engine_id": source_engine_id,
-                   "environment_id": target_environment_id,
-                   "source_environment_id": source_environment_id}
-
-    resp = url_POST(base_url + "/" + urllib.parse.quote(maskingjob_set_id) + "/copy", payload)
-    if resp.status_code == 200:
-        rsp = resp.json()
-        print("Masking Job copied " + maskingjob_set_id + " - ID to Engine " + target_engine_id + " for environment " + target_environment_id)
-        return rsp
-    else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
-        sys.exit(1)
-
 # Init
 parser = argparse.ArgumentParser(description="Delphix DCT Masking job set operations")
 subparser = parser.add_subparsers(dest='command')
@@ -57,7 +37,10 @@ tag_create = subparser.add_parser('tag_create')
 tag_list = subparser.add_parser('tag_list')
 tag_delete = subparser.add_parser('tag_delete')
 tag_delete_all = subparser.add_parser('tag_delete_all')
-
+add_account = subparser.add_parser('add_account')
+delete_account = subparser.add_parser('delete_account')
+add_policy = subparser.add_parser('add_policy')
+delete_policy = subparser.add_parser('delete_policy')
 
 # define list parms
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
@@ -108,6 +91,22 @@ tag_delete.add_argument('--key', type=str, required=True, help="Tags key of exis
 # define tag_delete_all params
 tag_delete_all.add_argument('--id', type=str, required=True, help="Access Group ID to delete tags from")
 
+# define add_account params
+add_account.add_argument('--id', type=str, required=True, help="Access Group ID to add the accounts to")
+add_account.add_argument('--account_id', type=str, required=True, help="Account ID to be added")
+
+# define add_account params
+delete_account.add_argument('--id', type=str, required=True, help="Access Group ID to delete the account from")
+delete_account.add_argument('--account_id', type=str, required=True, help="Account ID to be deleted")
+
+# define add_policy params
+add_policy.add_argument('--id', type=str, required=True, help="Access Group ID to add the policy to")
+add_policy.add_argument('--policy_name', type=str, required=True, help="Policy name to be added to the Access Group")
+add_policy.add_argument('--role_id', type=str, required=True, help="Role ID to be added to the Access Group policy")
+
+# define delete_policy params
+delete_policy.add_argument('--id', type=str, required=True, help="Access Group ID to delete the account from")
+delete_policy.add_argument('--policy_id', type=str, required=True, help="Policy ID to be deleted")
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -134,7 +133,13 @@ if args.command == "create":
     access_group_update(dct_base_url, args.name, args.role_id)
 
 if args.command == "update":
-    maskingjob_set_update (dct_base_url,args.id ,args.name)
+    payload = {"name": args.name}
+    rs = url_PATCH(dct_base_url + "/" + urllib.parse.quote(args.id), payload)
+    if rs.status_code == 200:
+        print("Access Group " + args.id + " Name has been updated with new name " + args.name)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
 
 if args.command == "delete":
     rs = dct_delete_by_id(dct_base_url, "Access Group Deleted", args.id, 204)
@@ -170,3 +175,32 @@ if args.command == 'tag_delete_all':
     else:
         print(f"ERROR: Status = {rs.status_code} - {rs.text}")
         sys.exit(1)
+
+if args.command == 'add_account':
+    payload = {"account_ids": [args.account_id]}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "account-ids")
+    if rs.status_code == 200:
+        print("Added account(s) with ID " + args.account_id + " to Access Group ID " + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == "delete_account":
+    dct_delete_ref_by_id(dct_base_url, "Account ID " + args.account_id + " deleted from Access Group ID" + args.id,
+                         args.id, "account-ids", args.account_id)
+
+if args.command == 'add_policy':
+    payload = {"policies": [{
+        "name": args.policy_name,
+        "role_id": args.role_id
+    }]}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "policies")
+    if rs.status_code == 200:
+        print("Added Policy " + args.policy_name + " with role " + args.role_id + " to Access Group ID " + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
+
+if args.command == 'delete_policy':
+    dct_delete_ref_by_id(dct_base_url, "Policy ID " + args.policy_id + " deleted from Access Group ID" + args.id,
+                         args.id, "policies", args.policy_id)
