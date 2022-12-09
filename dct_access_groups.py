@@ -34,7 +34,6 @@ create = subparser.add_parser('create')
 update = subparser.add_parser('update')
 delete = subparser.add_parser('delete')
 tag_create = subparser.add_parser('tag_create')
-tag_list = subparser.add_parser('tag_list')
 tag_delete = subparser.add_parser('tag_delete')
 tag_delete_all = subparser.add_parser('tag_delete_all')
 add_account = subparser.add_parser('add_account')
@@ -80,9 +79,6 @@ delete.add_argument('--id', type=str, required=True, help="Access Group ID or na
 tag_create.add_argument('--id', type=str, required=True, help="Access Group ID to add tags to")
 tag_create.add_argument('--tags', nargs='*', type=str, required=True, action=dct_parsetags,
                         help="Tags in this format:  key=value key=value")
-# define tag_list parms
-tag_list.add_argument('--id', type=str, required=True, help="Access Group ID for tags list")
-tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define tag_delete params
 tag_delete.add_argument('--id', type=str, required=True, help="Access Group ID to delete tags from")
@@ -153,10 +149,6 @@ if args.command == 'tag_create':
     else:
         print(f"ERROR: Status = {rs.status_code} - {rs.text}")
         sys.exit(1)
-
-if args.command == 'tag_list':
-    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
-    print(rs)
 
 if args.command == 'tag_delete':
     payload = {"key": args.key}
