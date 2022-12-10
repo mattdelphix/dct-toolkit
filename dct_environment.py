@@ -21,7 +21,6 @@ from helpers import *
 
 
 # TODO Environment delete to be tested
-# TODO add job monitoring where needed
 
 # Environment functions
 def environment_operation(base_url, env_id, ops):
@@ -53,8 +52,14 @@ delete = subparser.add_parser('delete')
 disable = subparser.add_parser('disable')
 enable = subparser.add_parser('enable')
 refresh = subparser.add_parser('refresh')
+
 create_unix = subparser.add_parser('create_unix')
+create_unix_cls = subparser.add_parser('create_unix_cls')
 create_win_src = subparser.add_parser('create_win_src')
+create_win_tgt = subparser.add_parser('create_win_tgt')
+create_win_src_cls = subparser.add_parser('create_win_src_cls')
+create_win_tgt_cls = subparser.add_parser('create_win_tgt_cls')
+
 update = subparser.add_parser('update_unix')
 
 tag_list = subparser.add_parser('tag_list')
@@ -189,40 +194,173 @@ user_setprimary.add_argument('--id', type=str, required=True, help="Environment 
 user_setprimary.add_argument('--user_ref_id', type=str, required=True,
                              help="User ref ID to be set primary in environment")
 
-# define create_unix parms
+# define create_unix.parms
 create_unix.add_argument('--name', type=str, required=True, help="Name of the environment")
 create_unix.add_argument('--engine', type=str, required=True, help="ID of the engine")
-create_unix.add_argument('--description', type=str, required=True, help="Description of the environment")
 create_unix.add_argument('--hostname', type=str, required=True, help="Hostname of the environment")
 create_unix.add_argument('--port', type=str, required=False, help="SSH port of the environment", default='22')
 create_unix.add_argument('--toolkit', type=str, required=True, help="Toolkit path of the environment")
-create_unix.add_argument('--nfs_addresses', type=str, required=False, help="NFS addresses for the environment")
 create_unix.add_argument('--username', type=str, required=False, help="Username for the environment")
 create_unix.add_argument('--password', type=str, required=False, help="Password for the user")
-create_unix.add_argument('--kerberos', type=str, required=False, help="Kerberos Authentication",
-                         choices=('True', 'False'), default='False')
-create_unix.add_argument('--use_public_key', type=str, required=False, help="Use public key", choices=('True', 'False'),
-                         default='False')
+#--
 create_unix.add_argument('--vault', type=str, required=False, help="Name of Cyberark or Hashicorp Vault")
-create_unix.add_argument('--cyark_username', type=str, required=False, help="Cyberark Vault Username")
 create_unix.add_argument('--hcorp_engine', type=str, required=False, help="Hashicorp Vault engine")
-create_unix.add_argument('--hcorp_username', type=str, required=False, help="Hashicorp Vault Username")
 create_unix.add_argument('--hcorp_secret_path', type=str, required=False,
                          help="Hashicorp Vault Secret path")
+create_unix.add_argument('--hcorp_username', type=str, required=False, help="Hashicorp Vault Username")
 create_unix.add_argument('--hcorp_secret_key', type=str, required=False,
                          help="Hashicorp Vault Secret key")
+create_unix.add_argument('--cyark_query', type=str, required=False, help="Cyberark Vault Query String")
+create_unix.add_argument('--kerberos', type=str, required=False, help="Kerberos Authentication",
+                         choices=('True', 'False'), default='False')
+create_unix.add_argument('--public_key', type=str, required=False, help="Use public key", choices=('True', 'False'),
+                         default='False')
+create_unix.add_argument('--nfs_addresses', type=str, required=False, help="NFS addresses for the environment separated by commas")
+#--
+create_unix.add_argument('--ase_username', type=str, required=False, help="ASE DB Username")
+create_unix.add_argument('--ase_password', type=str, required=False, help="ASEW DB Password")
+create_unix.add_argument('--ase_vault', type=str, required=False, help="ASE Name of Cyberark or Hashicorp Vault")
+create_unix.add_argument('--ase_hcorp_engine', type=str, required=False, help="ASE Hashicorp Vault engine")
+create_unix.add_argument('--ase_hcorp_secret_path', type=str, required=False,
+                         help="ASE Hashicorp Vault Secret path")
+create_unix.add_argument('--ase_hcorp_username', type=str, required=False, help="ASE Hashicorp Vault Username")
+create_unix.add_argument('--ase_hcorp_secret_key', type=str, required=False,
+                         help="ASE Hashicorp Vault Secret key")
+create_unix.add_argument('--ase_cyark_query', type=str, required=False, help="ASE Cyberark Vault Query String")
+create_unix.add_argument('--ase_kerberos', type=str, required=False, help="ASE Kerberos Authentication",
+                         choices=('True', 'False'), default='False')
+#--
+create_unix.add_argument('--java', type=str, required=False, help="Java home")
+create_unix.add_argument('--dsp_k_path', type=str, required=False, help="DSP Keystore path")
+create_unix.add_argument('--dsp_k_password', type=str, required=False, help="DSP Keystore password")
+create_unix.add_argument('--dsp_k_alias', type=str, required=False, help="DSP Keystore alias")
+create_unix.add_argument('--dsp_t_path', type=str, required=False, help="DSP Truststore path")
+create_unix.add_argument('--dsp_t_password', type=str, required=False, help="DSP Truststore password")
+#--
+create_unix.add_argument('--description', type=str, required=True, help="Description of the environment")
 create_unix.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
                          help="Tags of the Environment in this format:  key=value key=value")
+
+# define create_unix_cls.parms
+create_unix_cls.add_argument('--name', type=str, required=True, help="Name of the environment")
+create_unix_cls.add_argument('--engine', type=str, required=True, help="ID of the engine")
+create_unix_cls.add_argument('--cluster_home', type=str, required=True, help="Cluster Home")
+create_unix_cls.add_argument('--hostname', type=str, required=True, help="Hostname of the environment")
+create_unix_cls.add_argument('--port', type=str, required=False, help="SSH port of the environment", default='22')
+create_unix_cls.add_argument('--toolkit', type=str, required=True, help="Toolkit path of the environment")
+create_unix_cls.add_argument('--username', type=str, required=False, help="Username for the environment")
+create_unix_cls.add_argument('--password', type=str, required=False, help="Password for the user")
+#--
+create_unix_cls.add_argument('--vault', type=str, required=False, help="Name of Cyberark or Hashicorp Vault")
+create_unix_cls.add_argument('--hcorp_engine', type=str, required=False, help="Hashicorp Vault engine")
+create_unix_cls.add_argument('--hcorp_secret_path', type=str, required=False,
+                         help="Hashicorp Vault Secret path")
+create_unix_cls.add_argument('--hcorp_username', type=str, required=False, help="Hashicorp Vault Username")
+create_unix_cls.add_argument('--hcorp_secret_key', type=str, required=False,
+                         help="Hashicorp Vault Secret key")
+create_unix_cls.add_argument('--cyark_query', type=str, required=False, help="Cyberark Vault Query String")
+create_unix_cls.add_argument('--kerberos', type=str, required=False, help="Kerberos Authentication",
+                         choices=('True', 'False'), default='False')
+create_unix_cls.add_argument('--public_key', type=str, required=False, help="Use public key", choices=('True', 'False'),
+                         default='False')
+create_unix_cls.add_argument('--nfs_addresses', type=str, required=False, help="NFS addresses for the environment separated by commas")
+#--
+create_unix_cls.add_argument('--java', type=str, required=False, help="Java home")
+create_unix_cls.add_argument('--dsp_k_path', type=str, required=False, help="DSP Keystore path")
+create_unix_cls.add_argument('--dsp_k_password', type=str, required=False, help="DSP Keystore password")
+create_unix_cls.add_argument('--dsp_k_alias', type=str, required=False, help="DSP Keystore alias")
+create_unix_cls.add_argument('--dsp_t_path', type=str, required=False, help="DSP Truststore path")
+create_unix_cls.add_argument('--dsp_t_password', type=str, required=False, help="DSP Truststore password")
+#--
+create_unix_cls.add_argument('--description', type=str, required=True, help="Description of the environment")
+create_unix_cls.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
+                         help="Tags of the Environment in this format:  key=value key=value")
+
 
 # define create_win_src parms
 create_win_src.add_argument('--name', type=str, required=True, help="Name of the environment")
 create_win_src.add_argument('--engine', type=str, required=True, help="ID of the engine")
-create_win_src.add_argument('--description', type=str, required=True, help="Description of the environment")
 create_win_src.add_argument('--hostname', type=str, required=True, help="Hostname of the environment")
 create_win_src.add_argument('--staging', type=str, required=True, help="ID of the staging environment")
 create_win_src.add_argument('--username', type=str, required=False, help="Username for the environment")
 create_win_src.add_argument('--password', type=str, required=False, help="Password for the user")
+create_win_src.add_argument('--vault', type=str, required=False, help="Name of Cyberark or Hashicorp Vault")
+create_win_src.add_argument('--hcorp_engine', type=str, required=False, help="Hashicorp Vault engine")
+create_win_src.add_argument('--hcorp_secret_path', type=str, required=False,
+                         help="Hashicorp Vault Secret path")
+create_win_src.add_argument('--hcorp_username', type=str, required=False, help="Hashicorp Vault Username")
+create_win_src.add_argument('--hcorp_secret_key', type=str, required=False,
+                         help="Hashicorp Vault Secret key")
+create_win_src.add_argument('--cyark_query', type=str, required=False, help="Cyberark Vault Query String")
+create_win_src.add_argument('--description', type=str, required=True, help="Description of the environment")
 create_win_src.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
+                            help="Tags of the Environment in this format:  key=value key=value")
+
+# define create_win_tgt parms
+create_win_tgt.add_argument('--name', type=str, required=True, help="Name of the environment")
+create_win_tgt.add_argument('--engine', type=str, required=True, help="ID of the engine")
+create_win_tgt.add_argument('--hostname', type=str, required=True, help="Hostname of the environment")
+create_win_tgt.add_argument('--connport', type=str, required=False, help="Connection port - default 9100", default="9100")
+create_win_tgt.add_argument('--connauthkey', type=str, required=False, help="Connection auth key")
+create_win_tgt.add_argument('--username', type=str, required=False, help="Username for the environment")
+create_win_tgt.add_argument('--password', type=str, required=False, help="Password for the user")
+#--
+create_win_tgt.add_argument('--vault', type=str, required=False, help="Name of Cyberark or Hashicorp Vault")
+create_win_tgt.add_argument('--hcorp_engine', type=str, required=False, help="Hashicorp Vault engine")
+create_win_tgt.add_argument('--hcorp_secret_path', type=str, required=False,
+                         help="Hashicorp Vault Secret path")
+create_win_tgt.add_argument('--hcorp_username', type=str, required=False, help="Hashicorp Vault Username")
+create_win_tgt.add_argument('--hcorp_secret_key', type=str, required=False,
+                         help="Hashicorp Vault Secret key")
+create_win_tgt.add_argument('--cyark_query', type=str, required=False, help="Cyberark Vault Query String")
+create_win_tgt.add_argument('--java', type=str, required=False, help="Java home")
+create_win_tgt.add_argument('--dsp_k_path', type=str, required=False, help="DSP Keystore path")
+create_win_tgt.add_argument('--dsp_k_password', type=str, required=False, help="DSP Keystore password")
+create_win_tgt.add_argument('--dsp_k_alias', type=str, required=False, help="DSP Keystore alias")
+create_win_tgt.add_argument('--dsp_t_path', type=str, required=False, help="DSP Truststore path")
+create_win_tgt.add_argument('--dsp_t_password', type=str, required=False, help="DSP Truststore password")
+#--
+create_win_tgt.add_argument('--description', type=str, required=True, help="Description of the environment")
+create_win_tgt.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
+                            help="Tags of the Environment in this format:  key=value key=value")
+
+# define create_win_src_cls parms
+create_win_src_cls.add_argument('--name', type=str, required=True, help="Name of the environment")
+create_win_src_cls.add_argument('--engine', type=str, required=True, help="ID of the engine")
+create_win_src_cls.add_argument('--hostname', type=str, required=True, help="Hostname of the environment")
+create_win_src_cls.add_argument('--staging', type=str, required=True, help="ID of the staging environment")
+create_win_src_cls.add_argument('--username', type=str, required=False, help="Username for the environment")
+create_win_src_cls.add_argument('--password', type=str, required=False, help="Password for the user")
+create_win_src_cls.add_argument('--vault', type=str, required=False, help="Name of Cyberark or Hashicorp Vault")
+create_win_src_cls.add_argument('--hcorp_engine', type=str, required=False, help="Hashicorp Vault engine")
+create_win_src_cls.add_argument('--hcorp_secret_path', type=str, required=False,
+                         help="Hashicorp Vault Secret path")
+create_win_src_cls.add_argument('--hcorp_username', type=str, required=False, help="Hashicorp Vault Username")
+create_win_src_cls.add_argument('--hcorp_secret_key', type=str, required=False,
+                         help="Hashicorp Vault Secret key")
+create_win_src_cls.add_argument('--cyark_query', type=str, required=False, help="Cyberark Vault Query String")
+create_win_src_cls.add_argument('--description', type=str, required=True, help="Description of the environment")
+create_win_src_cls.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
+                            help="Tags of the Environment in this format:  key=value key=value")
+
+# define create_win_tgt_cls parms
+create_win_tgt_cls.add_argument('--name', type=str, required=True, help="Name of the environment")
+create_win_tgt_cls.add_argument('--engine', type=str, required=True, help="ID of the engine")
+create_win_tgt_cls.add_argument('--hostname', type=str, required=True, help="Hostname of the environment")
+create_win_tgt_cls.add_argument('--staging', type=str, required=True, help="ID of the staging environment")
+create_win_tgt_cls.add_argument('--username', type=str, required=False, help="Username for the environment")
+create_win_tgt_cls.add_argument('--password', type=str, required=False, help="Password for the user")
+#--
+create_win_tgt_cls.add_argument('--vault', type=str, required=False, help="Name of Cyberark or Hashicorp Vault")
+create_win_tgt_cls.add_argument('--hcorp_engine', type=str, required=False, help="Hashicorp Vault engine")
+create_win_tgt_cls.add_argument('--hcorp_secret_path', type=str, required=False,
+                         help="Hashicorp Vault Secret path")
+create_win_tgt_cls.add_argument('--hcorp_username', type=str, required=False, help="Hashicorp Vault Username")
+create_win_tgt_cls.add_argument('--hcorp_secret_key', type=str, required=False,
+                         help="Hashicorp Vault Secret key")
+create_win_tgt_cls.add_argument('--cyark_query', type=str, required=False, help="Cyberark Vault Query String")
+create_win_tgt_cls.add_argument('--description', type=str, required=True, help="Description of the environment")
+create_win_tgt_cls.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
                             help="Tags of the Environment in this format:  key=value key=value")
 
 # force help if no parms
@@ -407,6 +545,8 @@ if args.command == 'user_setprimary':
     dct_job_monitor(rs['job']['id'])
 
 if args.command == 'create_unix':
+    # build list of NFS addresses
+    nfs_list = args.nfs_addresses.split(",")
     payload = {
         "name": args.name,
         "engine_id": args.engine,
@@ -416,9 +556,65 @@ if args.command == 'create_unix':
         "toolkit_path": args.toolkit,
         "username": args.username,
         "password": args.password,
+        "vault": args.vault,
+        "hashicorp_vault_engine": args.hcorp_engine,
+        "hashicorp_vault_secret_path": args.hcorp_path,
+        "hashicorp_vault_username_key": args.hcorp_username,
+        "hashicorp_vault_secret_key": args.hcorp_secret_key,
+        "cyberark_vault_query_string": args.cyark_query,
         "use_kerberos_authentication": args.kerberos,
-        "use_engine_public_key": args.use_public_key,
-        "nfs_addresses": args.nfs_addresses,
+        "use_engine_public_key": args.public_key,
+        "nfs_addresses": nfs_list,
+        "ase_db_username": args.ase_username,
+        "ase_db_password": args.ase_password,
+        "ase_db_vault": args.ase_vault,
+        "ase_db_hashicorp_vault_engine": args.ase_hcorp_engine,
+        "ase_db_hashicorp_vault_secret_path": args.ase_hcorp_path,
+        "ase_db_hashicorp_vault_username_key": args.ase_hcorp_username,
+        "ase_db_hashicorp_vault_secret_key": args.ase_hcorp_secret_key,
+        "ase_db_cyberark_vault_query_string": args.ase_cyark_query,
+        "ase_db_use_kerberos_authentication": args.ase_kerberos,
+        "java_home": args.java,
+        "dsp_keystore_path": args.dsp_k_path,
+        "dsp_keystore_password": args.dsp_k_password,
+        "dsp_keystore_alias": args.dsp_k_alias,
+        "dsp_truststore_path": args.dsp_t_path,
+        "dsp_truststore_password": args.dsp_t_password,
+        "description": args.description,
+        "tags": args.tags
+    }
+    rs = dct_create(dct_base_url, payload)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'create_unix_cls':
+    # build list of NFS addresses
+    nfs_list = args.nfs_addresses.split(",")
+    payload = {
+        "name": args.name,
+        "engine_id": args.engine,
+        "os_name": "UNIX",
+        "is_cluster": True,
+        "cluster_home": args.cluster_home,
+        "hostname": args.hostname,
+        "ssh_port": args.port,
+        "toolkit_path": args.toolkit,
+        "username": args.username,
+        "password": args.password,
+        "vault": args.vault,
+        "hashicorp_vault_engine": args.hcorp_engine,
+        "hashicorp_vault_secret_path": args.hcorp_path,
+        "hashicorp_vault_username_key": args.hcorp_username,
+        "hashicorp_vault_secret_key": args.hcorp_secret_key,
+        "cyberark_vault_query_string": args.cyark_query,
+        "use_kerberos_authentication": args.kerberos,
+        "use_engine_public_key": args.public_key,
+        "nfs_addresses": nfs_list,
+        "java_home": args.java,
+        "dsp_keystore_path": args.dsp_k_path,
+        "dsp_keystore_password": args.dsp_k_password,
+        "dsp_keystore_alias": args.dsp_k_alias,
+        "dsp_truststore_path": args.dsp_t_path,
+        "dsp_truststore_password": args.dsp_t_password,
         "description": args.description,
         "tags": args.tags
     }
@@ -429,23 +625,93 @@ if args.command == 'create_win_src':
     payload = {
         "name": args.name,
         "engine_id": args.engine,
-        "description": args.description,
         "os_name": "WINDOWS",
         "hostname": args.hostname,
         "staging_environment": args.staging,
         "username": args.username,
         "password": args.password,
+        "vault": args.vault,
+        "hashicorp_vault_engine": args.hcorp_engine,
+        "hashicorp_vault_secret_path": args.hcorp_path,
+        "hashicorp_vault_username_key": args.hcorp_username,
+        "hashicorp_vault_secret_key": args.hcorp_secret_key,
+        "cyberark_vault_query_string": args.cyark_query,
+        "description": args.description,
         "tags": args.tags
     }
     rs = dct_create(dct_base_url, payload)
     dct_job_monitor(rs['job']['id'])
 
-# TODO manage additional parms for environment create
-#
-# "vault": args.vault,
-# "hashicorp_vault_engine": args.hcorp_engine,
-# "hashicorp_vault_secret_path": args.hcorp_secret_path,
-# "hashicorp_vault_username_key": args.hcorp_username,
-# "hashicorp_vault_secret_key": args.hcorp_secret_key,
-# "cyberark_vault_query_string": "Safe=Test;Folder=Test;Object=Test",
-#TODO all remaining env type creation + update
+if args.command == 'create_win_tgt':
+    payload = {
+        "name": args.name,
+        "engine_id": args.engine,
+        "os_name": "WINDOWS",
+        "hostname": args.hostname,
+        "connector_port": args.connport,
+        "connector_authentication_key": args.connauthkey,
+        "username": args.username,
+        "password": args.password,
+        "vault": args.vault,
+        "hashicorp_vault_engine": args.hcorp_engine,
+        "hashicorp_vault_secret_path": args.hcorp_path,
+        "hashicorp_vault_username_key": args.hcorp_username,
+        "hashicorp_vault_secret_key": args.hcorp_secret_key,
+        "cyberark_vault_query_string": args.cyark_query,
+        "java_home": args.java,
+        "dsp_keystore_path": args.dsp_k_path,
+        "dsp_keystore_password": args.dsp_k_password,
+        "dsp_keystore_alias": args.dsp_k_alias,
+        "dsp_truststore_path": args.dsp_t_path,
+        "dsp_truststore_password": args.dsp_t_password,
+        "description": args.description,
+        "tags": args.tags
+    }
+    rs = dct_create(dct_base_url, payload)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'create_win_src_cls':
+    payload = {
+        "name": args.name,
+        "engine_id": args.engine,
+        "os_name": "WINDOWS",
+        "is_cluster": True,
+        "hostname": args.hostname,
+        "staging_environment": args.staging_env,
+        "username": args.username,
+        "password": args.password,
+        "vault": args.vault,
+        "hashicorp_vault_engine": args.hcorp_engine,
+        "hashicorp_vault_secret_path": args.hcorp_path,
+        "hashicorp_vault_username_key": args.hcorp_username,
+        "hashicorp_vault_secret_key": args.hcorp_secret_key,
+        "cyberark_vault_query_string": args.cyark_query,
+        "is_target": False,
+        "description": args.description,
+        "tags": args.tags
+    }
+    rs = dct_create(dct_base_url, payload)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'create_win_tgt_cls':
+    payload = {
+        "name": args.name,
+        "engine_id": args.engine,
+        "os_name": "WINDOWS",
+        "is_cluster": True,
+        "hostname": args.hostname,
+        "staging_environment": args.staging_env,
+        "username": args.username,
+        "password": args.password,
+        "vault": args.vault,
+        "hashicorp_vault_engine": args.hcorp_engine,
+        "hashicorp_vault_secret_path": args.hcorp_path,
+        "hashicorp_vault_username_key": args.hcorp_username,
+        "hashicorp_vault_secret_key": args.hcorp_secret_key,
+        "cyberark_vault_query_string": args.cyark_query,
+        "is_target": True,
+        "description": args.description,
+        "tags": args.tags
+    }
+    rs = dct_create(dct_base_url, payload)
+    dct_job_monitor(rs['job']['id'])
