@@ -60,43 +60,73 @@ def tabular_report(title, ldict):
 
 
 def url_GET(url_encoded_text):
+    if cfg.level == 2:
+        dct_print_url('GET',url_encoded_text,None)
+
     rsp = requests.get(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
+    if cfg.level == 2:
+        dct_print_response(rsp)
+
     return rsp
 
 
 def url_POST(url_encoded_text, json_data):
-    # print(url_encoded_text)
-    # print(json_data)
+    if cfg.level == 2:
+        dct_print_url('POST',url_encoded_text,json_data)
+
     if json_data:
         rsp = requests.post(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
                             verify=False)
     else:
         rsp = requests.post(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
+
+    if cfg.level == 2:
+        dct_print_response(rsp)
+
     return rsp
 
 
 def url_PUT(url_encoded_text, json_data):
-    # print(JSON_DATA)
+    if cfg.level == 2:
+        dct_print_url('PUT',url_encoded_text,json_data)
+
     if json_data:
         rsp = requests.put(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
                            verify=False)
     else:
         rsp = requests.put(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
+
+    if cfg.level == 2:
+        dct_print_response(rsp)
+
     return rsp
 
 
 def url_PATCH(url_encoded_text, json_data):
-    # print(JSON_DATA)
+    if cfg.level == 2:
+        dct_print_url('PATCH',url_encoded_text,json_data)
+
     if json_data:
         rsp = requests.patch(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
                              verify=False)
     else:
         rsp = requests.patch(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
+
+    if cfg.level == 2:
+        dct_print_response(rsp)
+
     return rsp
 
 
 def url_DELETE(url_encoded_text):
+    if cfg.level == 2:
+        dct_print_url('DELETE',url_encoded_text,None)
+
     rsp = requests.delete(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
+
+    if cfg.level == 2:
+        dct_print_response(rsp)
+
     return rsp
 
 
@@ -115,8 +145,6 @@ def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
         resp = url_POST(dct_query + "/search", payload)
     else:
         resp = url_GET(dct_query)
-    if cfg.level == 2:
-        dct_print_response(resp)
 
     if resp.status_code == 200:
         report_data = resp.json()['items']
@@ -131,73 +159,65 @@ def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
             print(f"\n" + dct_error)
             return
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
 def dct_view_by_id(dct_query, view_id, dct_output="json"):
     resp = url_GET(dct_query + "/" + view_id)
-    if cfg.level == 2:
-        dct_print_response(resp)
 
     if resp.status_code == 200:
         return resp.json()
         # return json.dumps(resp.json(), indent=4)
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
 def dct_create(dct_base_query, payload, dct_output="json"):
     resp = url_POST(dct_base_query, payload)
-    if cfg.level == 2:
-        dct_print_response(resp)
 
     if resp.status_code == 200:
         return resp.json()
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
 def dct_list_by_id(dct_base_query, view_id, dct_operation, dct_output="json"):
     resp = url_GET(dct_base_query + "/" + view_id + dct_operation)
-    if cfg.level == 2:
-        dct_print_response(resp)
 
     if resp.status_code == 200:
         # return resp.json()
         return json.dumps(resp.json(), indent=4)
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
 def dct_delete_by_id(dct_query, dct_message, delete_id):
     resp = url_DELETE(dct_query + "/" + urllib.parse.quote(delete_id))
-    if cfg.level == 2:
-        dct_print_response(resp)
 
     if resp.status_code == 200:
         print(dct_message + " - ID=" + delete_id)
         return resp.json()
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
 def dct_delete_ref_by_id(dct_query, dct_message, delete_id, dct_operation, ref_id):
     # this function deletes a ref_id from a primary object
-    resp = url_DELETE(
-        dct_query + "/" + urllib.parse.quote(delete_id) + "/" + dct_operation + "/" + urllib.parse.quote(ref_id))
-    if cfg.level == 2:
-        dct_print_response(resp)
+    resp = url_DELETE(dct_query + "/" + urllib.parse.quote(delete_id) + "/" + dct_operation + "/" + urllib.parse.quote(ref_id))
 
     if resp.status_code == 200:
         print(dct_message + " - ID=" + delete_id + "/" + ref_id)
         return resp.json()
+    if resp.status_code == 202:
+        print(dct_message + " - ID=" + delete_id + "/" + ref_id)
+        return resp.json()
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -206,33 +226,28 @@ def dct_update_ref_by_id(dct_query, dct_message, update_id, payload, dct_operati
     resp = url_POST(
         dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation + "/" + urllib.parse.quote(ref_id),
         payload)
-    if cfg.level == 2:
-        dct_print_response(resp)
 
     if resp.status_code == 200:
         print(dct_message + " - ID=" + update_id + "/" + ref_id)
         return resp.json()
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
 def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
-    if cfg.level == 2:
-        dct_print_response(resp)
 
     if resp.status_code == 200:
         print(dct_message + " - ID=" + update_id)
         return resp.json()
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
 def dct_post_by_id(dct_query, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
-    #dct_print_response(resp)
     return resp
 
 
@@ -243,8 +258,24 @@ def dct_post_ref_by_id(dct_query, update_id, payload, dct_operation, ref_id, pos
 
 
 def dct_print_response(response):
+    print("-(debug)-------------------------------------------------------------------")
     print(f"Status: {response.status_code}")
-    print(response.json())
+    dct_print_json(response.json())
+
+def dct_print_url(method, query, payload):
+    print("-(debug)--------------------------------------------------------------------")
+    print(f"Query: '{method}' {query}")
+    if payload is not None:
+        dct_print_json(payload)
+
+def dct_print_error(response):
+    print(f"ERROR: {response.status_code}")
+    dct_print_json(response.json())
+
+
+def dct_print_json(jsontext):
+    print("-(debug)--------------------------------------------------------------------")
+    print(json.dumps(jsontext, indent=2))
 
 
 def dct_read_config(filename):

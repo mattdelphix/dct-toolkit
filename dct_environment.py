@@ -16,9 +16,7 @@
 # Author  : Matteo Ferrari, Ruben Catarrunas
 # Date    : September 2022
 
-
 from helpers import *
-
 
 # TODO Environment delete to be tested
 
@@ -42,9 +40,11 @@ subparser = parser.add_subparsers(dest='command')
 
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 parser.add_argument('--config', type=str, required=False, help="Config file")
+parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]",choices=[0,1,2])
 
 # define commands
 
+# environment base commands
 lst = subparser.add_parser('list')
 search = subparser.add_parser('search')
 view = subparser.add_parser('view')
@@ -52,37 +52,38 @@ delete = subparser.add_parser('delete')
 disable = subparser.add_parser('disable')
 enable = subparser.add_parser('enable')
 refresh = subparser.add_parser('refresh')
-
+# create environment commands
 create_unix = subparser.add_parser('create_unix')
 create_unix_cls = subparser.add_parser('create_unix_cls')
 create_win_src = subparser.add_parser('create_win_src')
 create_win_tgt = subparser.add_parser('create_win_tgt')
 create_win_src_cls = subparser.add_parser('create_win_src_cls')
 create_win_tgt_cls = subparser.add_parser('create_win_tgt_cls')
-
+# update environment commands
 update = subparser.add_parser('update_unix')
-
+# tag command
 tag_list = subparser.add_parser('tag_list')
 tag_create = subparser.add_parser('tag_create')
 tag_delete = subparser.add_parser('tag_delete')
 tag_delete_all = subparser.add_parser('tag_delete_all')
-
+# user command
 user_list = subparser.add_parser('user_list')
-
 user_create = subparser.add_parser('user_create')
 user_create_pubkey = subparser.add_parser('user_create_pubkey')
 user_create_kerb = subparser.add_parser('user_create_kerb')
 user_create_cyark = subparser.add_parser('user_create_cyark')
 user_create_hcorp = subparser.add_parser('user_create_hcorp')
-
 user_update = subparser.add_parser('user_update')
 user_update_pubkey = subparser.add_parser('user_update_pubkey')
 user_update_kerb = subparser.add_parser('user_update_kerb')
 user_update_cyark = subparser.add_parser('user_update_cyark')
 user_update_hcorp = subparser.add_parser('user_update_hcorp')
-
 user_delete = subparser.add_parser('user_delete')
 user_setprimary = subparser.add_parser('user_setprimary')
+# host command
+host_delete = subparser.add_parser('host_delete')
+host_create = subparser.add_parser('host_create')
+
 
 # define list parms
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
@@ -276,7 +277,6 @@ create_unix_cls.add_argument('--description', type=str, required=True, help="Des
 create_unix_cls.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
                          help="Tags of the Environment in this format:  key=value key=value")
 
-
 # define create_win_src parms
 create_win_src.add_argument('--name', type=str, required=True, help="Name of the environment")
 create_win_src.add_argument('--engine', type=str, required=True, help="ID of the engine")
@@ -363,11 +363,39 @@ create_win_tgt_cls.add_argument('--description', type=str, required=True, help="
 create_win_tgt_cls.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
                             help="Tags of the Environment in this format:  key=value key=value")
 
+# define host_delete parms
+host_delete.add_argument('--id', type=str, required=True, help="Environment ID where host is to be deleted")
+host_delete.add_argument('--hostid', type=str, required=True, help="Host ID to be deleted")
+
+# define host_create.parms
+host_create.add_argument('--name', type=str, required=True, help="Name of the environment")
+host_create.add_argument('--address', type=str, required=True, help="Host IP address or hostname")
+host_create.add_argument('--nfs_addresses', type=str, required=False, help="NFS addresses for the environment separated by commas")
+host_create.add_argument('--port', type=str, required=False, help="SSH port of the environment", default='22')
+host_create.add_argument('--privilege', type=str, required=False, help="Privilege elevation profile reference")
+host_create.add_argument('--dsp_k_alias', type=str, required=False, help="DSP Keystore alias")
+host_create.add_argument('--dsp_k_password', type=str, required=False, help="DSP Keystore password")
+host_create.add_argument('--dsp_k_path', type=str, required=False, help="DSP Keystore path")
+host_create.add_argument('--dsp_t_password', type=str, required=False, help="DSP Truststore password")
+host_create.add_argument('--dsp_t_path', type=str, required=False, help="DSP Truststore path")
+host_create.add_argument('--java', type=str, required=False, help="Java home")
+host_create.add_argument('--toolkit', type=str, required=False, help="Toolkit path of the environment")
+host_create.add_argument('--ora_jdbc_pwd', type=str, required=False, help="Oracle jdbc keystore password")
+host_create.add_argument('--ora_tde_path', type=str, required=False, help="Oracle tde keystores root path")
+# ssh verif
+host_create.add_argument('--ssh_name', type=str, required=False, help="Ssh verification name")
+host_create.add_argument('--ssh_type', type=str, required=False, help="Ssh verification type")
+host_create.add_argument('--ssh_rawkey', type=str, required=False, help="Ssh verification raw key")
+host_create.add_argument('--ssh_fp_type', type=str, required=False, help="Ssh verification fingeprint type")
+host_create.add_argument('--ssh_fp', type=str, required=False, help="Ssh verification fingeprint type")
+
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
 dct_read_config(args.config)
+if args.debug:
+    cfg.level = args.debug
 
 dct_base_url = "/environments"
 
@@ -715,3 +743,45 @@ if args.command == 'create_win_tgt_cls':
     }
     rs = dct_create(dct_base_url, payload)
     dct_job_monitor(rs['job']['id'])
+
+if args.command == 'host_create':
+    # build list of NFS addresses
+    nfs_list = args.nfs_addresses.split(",")
+    payload = {
+        "name": args.name,
+        "nfs_addresses": nfs_list,
+        "ssh_port": args.port,
+        "privilege_elevation_profile_reference": args.privilege,
+        "java_home": args.java,
+        "dsp_keystore_alias": args.dsp_k_alias,
+        "dsp_keystore_password": args.dsp_k_password,
+        "dsp_keystore_path": args.dsp_k_path,
+        "dsp_truststore_password": args.dsp_t_password,
+        "dsp_truststore_path": args.dsp_t_path,
+        "toolkit_path": args.toolkit,
+        "oracle_jdbc_keystore_password": args.ora_jdbc_pwd,
+        "oracle_tde_keystores_root_path": args.ora_tde_path,
+        "ssh_verification_strategy": {
+            "name": args.ssh_name,
+            "key_type": args.ssh_type,
+            "raw_key": args.ssh_rawkey,
+            "fingerprint_type": args.ssh_fp_type,
+            "fingerprint": args.ssh_fp
+        },
+        "virtual_ips": [
+            {
+                "ip": args.vip_address,
+                "domain_name": args.vip_domain
+            }
+        ]
+    }
+    rs = dct_create(dct_base_url, payload)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'host_delete':
+    rs = dct_delete_ref_by_id(dct_base_url, "Delete host", args.id, "hosts", args.hostid)
+    if rs.status_code == 202:
+        print("Deleted host '" + args.hostid + "' for Environment - ID=" + args.id)
+    else:
+        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        sys.exit(1)
