@@ -91,6 +91,7 @@ subparser = parser.add_subparsers(dest='command')
 
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 parser.add_argument('--config', type=str, required=False, help="Config file")
+parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]",choices=[0,1,2])
 
 # define commands
 
@@ -157,6 +158,8 @@ args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
 dct_read_config(args.config)
+if args.debug:
+    cfg.level = args.debug
 
 dct_base_url = "/vdb-groups"
 
