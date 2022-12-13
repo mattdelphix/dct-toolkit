@@ -29,7 +29,7 @@ def connector_update(base_url, conn_id, name, hostname, port, username, password
         print("Updated Connector" + " - ID=" + conn_id)
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -82,20 +82,20 @@ dct_base_url = "/connectors"
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'list':
     rs = dct_search("Masking connector List", dct_base_url, None, "No Masking connectors defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("Masking connector List", dct_base_url, args.filter, "No Masking connectors match the search criteria.",
                     args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'test':
     rs = dct_post_by_id(dct_base_url, args.id, "/test")
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'update':
     print("Processing Connector update ID=" + args.id)

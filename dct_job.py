@@ -73,22 +73,22 @@ if args.command == 'monitor':
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'cancel':
     print("Cancel Job ID=" + args.id)
     rs = dct_post_by_id(dct_base_url, args.id, None, "abandon")
     if rs is not None:
         rs = dct_job_monitor(args.id)
-        print(rs)
+        dct_print_json(rs)
     else:
         exit(1)
 
 if args.command == 'search':
     rs = dct_search("Job List ", dct_base_url, args.filter, "No Jobs match the search criteria.",
                     args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'list':
     rs = dct_search("Job List ", dct_base_url, None, "No Jobs defined.", args.format)
-    print(rs)
+    dct_print_json(rs)

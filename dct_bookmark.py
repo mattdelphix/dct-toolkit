@@ -112,16 +112,16 @@ dct_base_url = "/bookmarks"
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("Bookmark List", dct_base_url, args.filter, "No Bookmarks match the search criteria.",
                     args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'list':
     rs = dct_search("Bookmarks List", dct_base_url, None, "No Bookmarks defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'create':
     rs = bookmark_create(dct_base_url, args.name, args.vdb_id, args.retention, args.tags)
@@ -133,11 +133,11 @@ if args.command == 'delete':
 
 if args.command == 'vdbgroup_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/vdb-groups", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'tag_create':
     payload = {"tags": args.tags}
@@ -145,7 +145,7 @@ if args.command == 'tag_create':
     if rs.status_code == 201:
         print("Create tags for dSource - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_delete':
@@ -154,7 +154,7 @@ if args.command == 'tag_delete':
     if rs.status_code == 204:
         print("Delete tag for DSourceID - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_delete_all':
@@ -162,5 +162,5 @@ if args.command == 'tag_delete_all':
     if rs.status_code == 204:
         print("Deleted all tags for DSource - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)

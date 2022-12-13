@@ -28,9 +28,8 @@ def connectivity_check (base_url, id, host, port):
         #print("Updated Account" + " - ID=" + vdb_id)
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
-
 
 # Init
 parser = argparse.ArgumentParser(description="Delphix DCT Roles")
@@ -62,9 +61,9 @@ dct_base_url = "/roles"
 
 if args.command == 'list':
     rs = dct_search("Bookmarks List", dct_base_url, None, "No Bookmarks defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 

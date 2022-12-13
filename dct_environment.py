@@ -30,7 +30,7 @@ def environment_operation(base_url, env_id, ops):
     if resp.status_code == 200:
         return json.loads(resp.text)
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -401,11 +401,11 @@ dct_base_url = "/environments"
 
 if args.command == 'list':
     rs = dct_search("Environment List", dct_base_url, None, "No Environments defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'user_create':
     payload = {"username": args.username, "password": args.password}
@@ -413,8 +413,9 @@ if args.command == 'user_create':
     if rs.status_code == 204:
         print("Created '" + args.username + "' for Environment - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
+
 
 if args.command == 'user_create_pubkey':
     payload = {"use_engine_public_key": "true", "username": args.username}
@@ -422,8 +423,9 @@ if args.command == 'user_create_pubkey':
     if rs.status_code == 204:
         print("Set '" + args.username + "' for Environment - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
+
 
 if args.command == 'user_create_kerb':
     payload = {"use_kerberos_authentication": "true"}
@@ -431,8 +433,9 @@ if args.command == 'user_create_kerb':
     if rs.status_code == 204:
         print("Set Kerberos for Environment - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
+
 
 if args.command == 'user_create_cyark':
     payload = {"vault": args.vault, "vault_username": args.username,
@@ -441,8 +444,9 @@ if args.command == 'user_create_cyark':
     if rs.status_code == 204:
         print("Set CyberArk '" + args.username + "' for Environment - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
+
 
 if args.command == 'user_create_hcorp':
     payload = {"vault": args.vault, "vault_username": args.username, "hashicorp_vault_engine": args.vault_engine,
@@ -452,8 +456,9 @@ if args.command == 'user_create_hcorp':
     if rs.status_code == 204:
         print("Set Hashicorp '" + args.username + "' for Environment - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
+
 
 if args.command == 'user_update':
     payload = {"username": args.username, "password": args.password}
@@ -461,8 +466,9 @@ if args.command == 'user_update':
     if rs.status_code == 204:
         print("Updated user '" + args.user_ref_id + "' for Environment - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
+
 
 if args.command == 'user_update_pubkey':
     payload = {"use_engine_public_key": "true", "username": args.username}
@@ -470,8 +476,9 @@ if args.command == 'user_update_pubkey':
     if rs.status_code == 204:
         print("Updated user '" + args.user_ref_id + "' for Environment - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
+
 
 if args.command == 'user_update_kerb':
     payload = {"use_kerberos_authentication": "true"}
@@ -479,8 +486,9 @@ if args.command == 'user_update_kerb':
     if rs.status_code == 204:
         print("Updated Kerberos for Environment - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
+
 
 if args.command == 'user_update_cyark':
     payload = {"vault": args.vault, "vault_username": args.username,
@@ -489,8 +497,9 @@ if args.command == 'user_update_cyark':
     if rs.status_code == 204:
         print("Updated CyberArk '" + args.user_ref_id + "' for Environment - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
+
 
 if args.command == 'user_update_hcorp':
     payload = {"vault": args.vault, "vault_username": args.username, "hashicorp_vault_engine": args.vault_engine,
@@ -500,21 +509,22 @@ if args.command == 'user_update_hcorp':
     if rs.status_code == 204:
         print("Updated Hashicorp '" + args.user_ref_id + "' for Environment - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
+
 
 if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'user_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/users", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("Environment List", dct_base_url, args.filter, "No Environments match the search criteria.",
                     args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'refresh':
     print("Processing Environment refresh ID=" + args.id)
@@ -542,8 +552,9 @@ if args.command == 'tag_create':
     if rs.status_code == 201:
         print("Created tags for Environment - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
+
 
 if args.command == 'tag_delete':
     payload = {"key": args.key}
@@ -551,16 +562,18 @@ if args.command == 'tag_delete':
     if rs.status_code == 204:
         print("Deleted tag '" + args.key + "' for Environment - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
+
 
 if args.command == 'tag_delete_all':
     rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
     if rs.status_code == 204:
         print("Deleted all tags for Environment - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
+
 
 if args.command == 'user_delete':
     print("Processing user'" + args.user_ref_id + "' delete for Environment ID=" + args.id)
@@ -783,5 +796,5 @@ if args.command == 'host_delete':
     if rs.status_code == 202:
         print("Deleted host '" + args.hostid + "' for Environment - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)

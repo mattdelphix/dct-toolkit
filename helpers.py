@@ -258,25 +258,27 @@ def dct_post_ref_by_id(dct_query, update_id, payload, dct_operation, ref_id, pos
 
 
 def dct_print_response(response):
-    print("-(debug)-------------------------------------------------------------------")
+    print("-(debug)--------------------------------------------------------------------")
     print(f"Status: {response.status_code}")
-    dct_print_json(response.json())
+    dct_print_json_formatted(response.json())
 
 def dct_print_url(method, query, payload):
     print("-(debug)--------------------------------------------------------------------")
     print(f"Query: '{method}' {query}")
     if payload is not None:
-        dct_print_json(payload)
+        dct_print_json_formatted(payload)
 
 def dct_print_error(response):
     print(f"ERROR: {response.status_code}")
-    dct_print_json(response.json())
+    print(f"TEXT : {response.text}")
 
 
 def dct_print_json(jsontext):
-    print("-(debug)--------------------------------------------------------------------")
-    print(json.dumps(jsontext, indent=2))
+    print(jsontext)
+    #print(json.dumps(jsontext, indent=2))
 
+def dct_print_json_formatted(jsontext):
+    print(json.dumps(jsontext, indent=2))
 
 def dct_read_config(filename):
     if filename is None:

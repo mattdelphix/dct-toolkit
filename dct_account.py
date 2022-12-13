@@ -35,7 +35,7 @@ def account_create(base_url, client_id, first_name, last_name, email, username, 
         print(f"Registered account with ID={rsp['id']}")
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -49,7 +49,7 @@ def account_update(base_url, account_id, client_id, first_name, last_name, email
         print("Updated Account" + " - ID=" + account_id)
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -65,7 +65,7 @@ def password_policy_update(base_url, is_enabled, min_length, reuse_disallow_limi
         print("Password policy updated")
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -177,41 +177,41 @@ dct_base_url = "/management/accounts"
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("Account List", dct_base_url, args.filter, "No Accounts match the search criteria.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'list':
     rs = dct_search("Accounts List", dct_base_url, None, "No Accounts defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'create':
-    print("Processing Accounts create")
+    #print("Processing Accounts create")
     rs = account_create(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
                         args.password, args.tags)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'update':
-    print("Processing Account update ID=" + args.id)
+    #print("Processing Account update ID=" + args.id)
     rs = account_update(dct_base_url, args.id, args.client_id, args.first_name, args.last_name, args.email,
                         args.username)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'delete':
-    print("Processing Account delete ID=" + args.id)
+    #print("Processing Account delete ID=" + args.id)
     rs = dct_delete_by_id(dct_base_url, "Deleted Account", args.id)
 
 if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'password_reset':
     rs = dct_update_by_id(dct_base_url, "Password Reset for Account", args.id, {"old_password": args.old_password,
                                                                                 "new_password": args.new_password},
                           args.command)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'tag_create':
     payload = {"tags": args.tags}
@@ -219,7 +219,7 @@ if args.command == 'tag_create':
     if rs.status_code == 201:
         print("Create tags for Account - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_delete':
@@ -228,7 +228,7 @@ if args.command == 'tag_delete':
     if rs.status_code == 204:
         print("Delete tag for Account - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_delete_all':
@@ -236,7 +236,7 @@ if args.command == 'tag_delete_all':
     if rs.status_code == 204:
         print("Deleted all tags for Account - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'list_pwd_policy':
@@ -245,7 +245,7 @@ if args.command == 'list_pwd_policy':
     if rs.status_code == 200:
         print(rs.json())
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'update_pwd_policy':
@@ -253,4 +253,4 @@ if args.command == 'update_pwd_policy':
     rs = password_policy_update(dct_base_url + "/password-policies", args.enabled, args.min_length,
                                 args.reuse_disallow_limit, args.digit, args.uppercase_letter, args.lowercase_letter,
                                 args.special_character, args.disallow_username_as_password)
-    print(rs)
+    dct_print_json(rs)

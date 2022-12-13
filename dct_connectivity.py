@@ -28,7 +28,7 @@ def connectivity_check (base_url, id, host, port):
         #print("Updated Account" + " - ID=" + vdb_id)
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -64,5 +64,5 @@ if args.command == 'check':
     if args.port is None:
         args.port = 22
     rs = connectivity_check(dct_base_url, args.id, args.host, args.port)
-    print(rs)
+    dct_print_json(rs)
 

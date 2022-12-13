@@ -29,7 +29,7 @@ def api_client_create(base_url, api_client_id, name):
         print(f"Registered API-client with ID={rsp['api_client_entity_id']}")
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -41,7 +41,7 @@ def api_client_update(base_url, id, api_client_id, name):
         print(f"Updated API-client with ID={rsp['id']}")
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -90,22 +90,22 @@ dct_base_url = "/management/api-clients"
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'list':
     rs = dct_search("API-clients List", dct_base_url, None, "No API-clients defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'create':
-    print("Processing API-clients create")
+    #print("Processing API-clients create")
     rs = api_client_create(dct_base_url, args.api_client_id, args.name)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'update':
-    print("Processing API-client update")
+    #print("Processing API-client update")
     rs = api_client_update(dct_base_url, args.id, args.api_client_id, args.name)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'delete':
-    print("Processing API-client delete ID=" + args.id)
+    #print("Processing API-client delete ID=" + args.id)
     rs = dct_delete_by_id(dct_base_url, "Deleted API-client", args.id)

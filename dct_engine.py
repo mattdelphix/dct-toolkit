@@ -110,11 +110,11 @@ dct_base_url = "/management/engines"
 
 if args.command == 'list':
     rs = dct_search("Engine List", dct_base_url, None, "No Engines defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'delete':
     print("Processing Engine delete ID=" + args.id)
@@ -123,16 +123,16 @@ if args.command == 'delete':
 if args.command == 'search':
     rs = dct_search("Engine List", dct_base_url, args.filter, "No Engines match the search criteria.",
                     args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'register_virt':
     print("Registering Virtualization Engine " + args.hostname)
     rs = virt_engine_register(dct_base_url, args.name, args.hostname, args.user, args.password, args.insecure_ssl,
                               args.unsafe_ssl_hostname_check)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'register_mask':
     print("Registering Masking Engine " + args.hostname)
     rs = mask_engine_register(dct_base_url, args.name, args.hostname, args.user, args.password, args.insecure_ssl,
                               args.unsafe_ssl_hostname_check)
-    print(rs)
+    dct_print_json(rs)

@@ -242,11 +242,11 @@ dct_base_url = "/vdbs"
 
 if args.command == 'list':
     rs = dct_search("VDB List ", dct_base_url, None, "No VDBs defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'delete':
     print("Processing VDB delete ID=" + args.id)
@@ -256,7 +256,7 @@ if args.command == 'delete':
 if args.command == 'search':
     rs = dct_search("VDB List ", dct_base_url, args.filter, "No VDBs match the search criteria.",
                     args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'enable':
     print("Processing VDB enable ID=" + args.id)
@@ -285,18 +285,18 @@ if args.command == 'snapshot':
 
 if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'snapshot_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/snapshots", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == "create_snapshot":
     rs = dct_post_by_id(dct_base_url, args.id, None, "snapshots")
     if rs.status_code == 200:
         print(rs.json())
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_create':
@@ -305,7 +305,7 @@ if args.command == 'tag_create':
     if rs.status_code == 201:
         print("Create tags for dSource - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_delete':
@@ -314,7 +314,7 @@ if args.command == 'tag_delete':
     if rs.status_code == 204:
         print("Delete tag for DSourceID - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_delete_all':
@@ -322,7 +322,7 @@ if args.command == 'tag_delete_all':
     if rs.status_code == 204:
         print("Deleted all tags for DSource - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'update':
@@ -330,7 +330,7 @@ if args.command == 'update':
     rs = vdb_update(dct_base_url, args.id, args.name, args.db_username, args.db_password, args.validate_db_credentials,
                     args.auto_restart, args.environment_user_id, args.template_id, args.listener_ids,
                     args.new_dbid, args.cdc_on_provision, args.pre_script, args.post_script, args.hooks)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'refresh_by_snapshot':
     print("Processing VDB refresh ID=" + args.id + " with snapshot_ID=" + args.snap_id)

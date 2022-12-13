@@ -32,9 +32,8 @@ def vdbgroup_create(base_url, name, vdbg_id):
         print(f"Created VDBGroup with ID={vdbg['id']}")
         return vdbg
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
-
 
 def vdbgroup_refresh(base_url, vdbgroup_id, vdbgroup_name, bookmark_id):
     if vdbgroup_id:
@@ -46,8 +45,7 @@ def vdbgroup_refresh(base_url, vdbgroup_id, vdbgroup_name, bookmark_id):
     if resp.status_code == 200:
         return json.loads(resp.text)
     else:
-        print(f"ERROR: Status = {resp.status_code}")
-        print(f"{resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -67,9 +65,8 @@ def vdbgroup_update(base_url, vdbgroup_id, vdbgroup_name, vdb_list):
     if resp.status_code == 200:
         print("Updated VDBGroup: " + resp.text)
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
-
 
 # Init
 parser = argparse.ArgumentParser(description="Delphix DCT VDBgroup operations")
@@ -142,11 +139,11 @@ dct_base_url = "/vdb-groups"
 
 if args.command == 'list':
     rs = dct_search("VDBGroup List ", dct_base_url, None, "No VDBGroups defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'delete':
     print("Processing VDBGroup delete ID=" + args.id)
@@ -155,16 +152,16 @@ if args.command == 'delete':
 if args.command == 'search':
     rs = dct_search("VDBGroups List ", dct_base_url, args.filter, "No VDBGroups match the search criteria.",
                     args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'create':
     print("Processing VDBGroup create ")
     rs = vdbgroup_create(dct_base_url, args.name, args.vdb_id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'bookmarks':
     rs = dct_list_by_id(dct_base_url, args.id, "/bookmarks", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'refresh':
     print("Processing VDBGroup refresh ")
