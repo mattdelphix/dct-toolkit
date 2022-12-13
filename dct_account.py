@@ -35,7 +35,7 @@ def account_create(base_url, client_id, first_name, last_name, email, username, 
         print(f"Registered account with ID={rsp['id']}")
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -49,7 +49,7 @@ def account_update(base_url, account_id, client_id, first_name, last_name, email
         print("Updated Account" + " - ID=" + account_id)
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -65,7 +65,7 @@ def password_policy_update(base_url, is_enabled, min_length, reuse_disallow_limi
         print("Password policy updated")
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -85,8 +85,7 @@ search = subparser.add_parser('search')
 view = subparser.add_parser('view')
 updt = subparser.add_parser('update')
 tags = subparser.add_parser('tag_list')
-pwd_reset = subparser.add_parser('reset_password')
-chg_pwd = subparser.add_parser('change_password')
+pwd_reset = subparser.add_parser('password_reset')
 tag_create = subparser.add_parser('tag_create')
 tag_delete = subparser.add_parser('tag_delete')
 tag_delete_all = subparser.add_parser('tag_delete_all')
@@ -130,12 +129,8 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 
 # define password_reset params
 pwd_reset.add_argument('--id', type=str, required=True, help="Account ID to have pwd reset")
-pwd_reset.add_argument('--new_password', type=str, required=True, help="New Password for the Account")
-
-# define change_password params
-chg_pwd.add_argument('--id', type=str, required=True, help="Account ID to have pwd reset")
-chg_pwd.add_argument('--old_password', type=str, required=True, help="Existing Password of the Account")
-chg_pwd.add_argument('--new_password', type=str, required=True, help="New Password of the Account")
+pwd_reset.add_argument('--old_password', type=str, required=True, help="Existing Password of the Account")
+pwd_reset.add_argument('--new_password', type=str, required=True, help="New Password of the Account")
 
 # define tag_create params
 tag_create.add_argument('--id', type=str, required=True, help="Account ID to add tags to")
@@ -182,46 +177,41 @@ dct_base_url = "/management/accounts"
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("Account List", dct_base_url, args.filter, "No Accounts match the search criteria.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'list':
     rs = dct_search("Accounts List", dct_base_url, None, "No Accounts defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'create':
-    print("Processing Accounts create")
+    #print("Processing Accounts create")
     rs = account_create(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
                         args.password, args.tags)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'update':
-    print("Processing Account update ID=" + args.id)
+    #print("Processing Account update ID=" + args.id)
     rs = account_update(dct_base_url, args.id, args.client_id, args.first_name, args.last_name, args.email,
                         args.username)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'delete':
-    print("Processing Account delete ID=" + args.id)
+    #print("Processing Account delete ID=" + args.id)
     rs = dct_delete_by_id(dct_base_url, "Deleted Account", args.id)
 
 if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
-    print(rs)
+    dct_print_json(rs)
 
-if args.command == 'reset_password':
-    rs = dct_update_by_id(dct_base_url, "Password Reset for Account", args.id, {"new_password": args.new_password},
-                          args.command)
-    print(rs)
-
-if args.command == 'change_password':
+if args.command == 'password_reset':
     rs = dct_update_by_id(dct_base_url, "Password Reset for Account", args.id, {"old_password": args.old_password,
                                                                                 "new_password": args.new_password},
                           args.command)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'tag_create':
     payload = {"tags": args.tags}
@@ -229,7 +219,7 @@ if args.command == 'tag_create':
     if rs.status_code == 201:
         print("Create tags for Account - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_delete':
@@ -238,7 +228,7 @@ if args.command == 'tag_delete':
     if rs.status_code == 204:
         print("Delete tag for Account - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_delete_all':
@@ -246,7 +236,7 @@ if args.command == 'tag_delete_all':
     if rs.status_code == 204:
         print("Deleted all tags for Account - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'list_pwd_policy':
@@ -255,7 +245,7 @@ if args.command == 'list_pwd_policy':
     if rs.status_code == 200:
         print(rs.json())
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'update_pwd_policy':
@@ -263,5 +253,4 @@ if args.command == 'update_pwd_policy':
     rs = password_policy_update(dct_base_url + "/password-policies", args.enabled, args.min_length,
                                 args.reuse_disallow_limit, args.digit, args.uppercase_letter, args.lowercase_letter,
                                 args.special_character, args.disallow_username_as_password)
-    print(rs)
-
+    dct_print_json(rs)

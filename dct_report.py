@@ -35,18 +35,16 @@ def report_api_usage(begin, end):
             print(f"\nNo API Usage Report for this interval - {begin} to {end}")
             return
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
-
 
 def report_product_info():
     resp = url_GET("/reporting/product_info")
     if resp.status_code == 200:
         tabular_report("DELPHIX Data Control Tower - PRODUCT INFO", resp.json())
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
-
 
 def report_vdb_inventory(report_filter):
     display_filter = ""
@@ -65,9 +63,8 @@ def report_vdb_inventory(report_filter):
             print(f"\nNo DSources match search criteria.")
             return
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
-
 
 def report_dsource_usage(report_filter):
     display_filter = ""
@@ -86,9 +83,8 @@ def report_dsource_usage(report_filter):
             print(f"\nNo DSources match search criteria.")
             return
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
-
 
 def report_storage_summary(report_filter):
     display_filter = ""
@@ -107,9 +103,8 @@ def report_storage_summary(report_filter):
             print(f"\nNo Delphix Engines match search criteria.")
             return
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
-
 # Init
 parser = argparse.ArgumentParser(description = "Delphix DCT Reports")
 subparser = parser.add_subparsers(dest='command')

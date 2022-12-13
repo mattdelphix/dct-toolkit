@@ -59,7 +59,7 @@ dct_base_url = "/reporting/schedule"
 
 if args.command == 'list':
     rs = dct_search("Report Schedule List ", dct_base_url, None, "No Report Schedules defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'delete':
     print("Processing Report Schedule delete ID=" + args.id)
@@ -67,4 +67,4 @@ if args.command == 'delete':
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)

@@ -115,16 +115,16 @@ dct_base_url = "/masking-job-sets"
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'list':
     rs = dct_search("Masking job set List", dct_base_url, None, "No Masking Job Sets defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("Masking job set List", dct_base_url, args.filter, "No Masking Job Sets match the search criteria.",
                     args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == "update":
     maskingjob_set_update (dct_base_url,args.id ,args.name)
@@ -135,12 +135,12 @@ if args.command == 'tag_create':
     if rs.status_code == 200:
         print("Create tags for Account - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'tag_delete':
     payload = {"key": args.key}
@@ -148,7 +148,7 @@ if args.command == 'tag_delete':
     if rs.status_code == 204:
         print("Delete tag for Masking Job Set - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_delete_all':
@@ -156,12 +156,12 @@ if args.command == 'tag_delete_all':
     if rs.status_code == 204:
         print("Deleted all tags for Masking Job Set - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'connector_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/connectors?engine_id="+args.engine_id, args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'copy':
     payload = {"target_engine_id":  args.target_engine_id, "source_engine_id":  args.source_engine_id}
@@ -171,4 +171,4 @@ if args.command == 'copy':
 if args.command == 'remove_job':
     payload = {"engine_id": args.engine_id}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "remove-job")
-    print(rs)
+    dct_print_json(rs)

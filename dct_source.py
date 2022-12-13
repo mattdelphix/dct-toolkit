@@ -55,13 +55,13 @@ dct_base_url = "/sources"
 
 if args.command == 'list':
     rs = dct_search("Source List ", dct_base_url, None, "No Sources defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("Source List ", dct_base_url, args.filter, "No Sources match the search criteria.",
                     args.format)
-    print(rs)
+    dct_print_json(rs)

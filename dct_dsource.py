@@ -83,24 +83,24 @@ dct_base_url = "/dsources"
 
 if args.command == 'list':
     rs = dct_search("DSource List ", dct_base_url, None, "No DSources defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("DSource List ", dct_base_url, args.filter, "No DSources match the search criteria.",
                     args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'snapshot_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/snapshots", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == "create_snapshot":
     rs = dct_post_by_id(dct_base_url, args.id, None, "snapshots")
@@ -108,16 +108,16 @@ if args.command == "create_snapshot":
     if rs.status_code == 200:
         print(rs.json())
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_create':
-    payload = {"tags": args.tags}
+    payload = {"tags": json.loads(args.tags)}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
     if rs.status_code == 201:
         print("Create tags for dSource - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_delete':
@@ -126,7 +126,7 @@ if args.command == 'tag_delete':
     if rs.status_code == 204:
         print("Delete tag for DSourceID - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_delete_all':
@@ -134,5 +134,5 @@ if args.command == 'tag_delete_all':
     if rs.status_code == 204:
         print("Deleted all tags for DSource - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
