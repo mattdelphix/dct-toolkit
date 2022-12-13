@@ -47,18 +47,20 @@ args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
 dct_read_config(args.config)
+if args.debug:
+    cfg.level = args.debug
 
 dct_base_url = "/vcdbs"
 
 if args.command == 'list':
     rs = dct_search("VCDBs List ", dct_base_url, None, "No VCDBs defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("VCDBs List ", dct_base_url, args.filter, "No VCDBs match the search criteria.",
                     args.format)
-    print(rs)
+    dct_print_json(rs)

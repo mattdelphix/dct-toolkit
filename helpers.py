@@ -121,12 +121,9 @@ def url_PATCH(url_encoded_text, json_data):
 def url_DELETE(url_encoded_text):
     if cfg.level == 2:
         dct_print_url('DELETE',url_encoded_text,None)
-
     rsp = requests.delete(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
-
     if cfg.level == 2:
         dct_print_response(rsp)
-
     return rsp
 
 
@@ -148,16 +145,16 @@ def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
 
     if resp.status_code == 200:
         report_data = resp.json()
-        if report_data:
+        if report_data['items']:
             if dct_output == "report":
                 return tabular_report("DELPHIX Data Control Tower - " + dct_title + " - Filter = " + str(dct_filter),
-                                      report_data)
+                                      report_data['items'])
             else:
                 # return report_data
-                print(json.dumps(report_data, indent=4))
+                dct_print_json_formatted(report_data['items'])
                 return
         else:
-            print(f"\n" + dct_error)
+            print(dct_error)
             return
     else:
         dct_print_error(resp)
@@ -276,7 +273,6 @@ def dct_print_url(method, query, payload):
 def dct_print_error(response):
     print(f"ERROR: {response.status_code}")
     print(f"TEXT : {response.text}")
-
 
 def dct_print_json(jsontext):
     print(jsontext)

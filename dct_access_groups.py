@@ -16,7 +16,7 @@ def access_group_update(base_url, name, role_id):
         print("Access Group created with name " + name)
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 # Init
@@ -25,6 +25,7 @@ subparser = parser.add_subparsers(dest='command')
 
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 parser.add_argument('--config', type=str, required=False, help="Config file")
+parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]",choices=[0,1,2])
 
 # define commands
 lst = subparser.add_parser('list')
@@ -52,9 +53,8 @@ search.add_argument('--filter', type=str, required=False, help="Access Group sea
 search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
 
 # define create parms
-#create.add_argument('--id', type=str, required=False, help="Access Group ID to be updated")
 create.add_argument('--name', type=str, required=True, help="Access Group name to be updated")
-"""create.add_argument('--single_account', type=str, required=False, choices=['true', 'false'],
+create.add_argument('--single_account', type=str, required=False, choices=['true', 'false'],
                     help="Access Group is single account or not")
 create.add_argument('--account_id', type=str, required=False,
                     help="List of accounts ids included individually (as opposed to added by tags) in the Access group")
@@ -64,7 +64,7 @@ create.add_argument('--account_tags', type=str, required=False,
                     help="List of account tags. Accounts matching any of these tags will be automatically added to "
                          "the Access group.")
 create.add_argument('--policy_id', type=str, required=False, help="The Access group policy ID")
-create.add_argument('--policy_name', type=str, required=False, help="The Access group policy name")"""
+create.add_argument('--policy_name', type=str, required=False, help="The Access group policy name")
 create.add_argument('--role_id', type=str, required=True, help="The Access group role id")
 
 
@@ -109,21 +109,23 @@ args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
 dct_read_config(args.config)
+if args.debug:
+    cfg.level = args.debug
 
 dct_base_url = "/access-groups"
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'list':
     rs = dct_search("Access Groups", dct_base_url, None, "No Access Groups defined.", args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("Access Group", dct_base_url, args.filter, "No Access Group match the search criteria.",
                     args.format)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == "create":
     access_group_update(dct_base_url, args.name, args.role_id)
@@ -134,12 +136,12 @@ if args.command == "update":
     if rs.status_code == 200:
         print("Access Group " + args.id + " Name has been updated with new name " + args.name)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == "delete":
     rs = dct_delete_by_id(dct_base_url, "Access Group Deleted", args.id, 204)
-    print(rs)
+    dct_print_json(rs)
 
 if args.command == 'tag_create':
     payload = {"tags": args.tags}
@@ -147,7 +149,7 @@ if args.command == 'tag_create':
     if rs.status_code == 200:
         print("Create tags for Account - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_delete':
@@ -156,7 +158,7 @@ if args.command == 'tag_delete':
     if rs.status_code == 200:
         print("Delete tag for Masking Job Set - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'tag_delete_all':
@@ -165,7 +167,7 @@ if args.command == 'tag_delete_all':
     if rs.status_code == 200:
         print("Deleted all tags for Masking Job Set - ID=" + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'add_account':
@@ -174,7 +176,7 @@ if args.command == 'add_account':
     if rs.status_code == 200:
         print("Added account(s) with ID " + args.account_id + " to Access Group ID " + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == "delete_account":
@@ -190,7 +192,7 @@ if args.command == 'add_policy':
     if rs.status_code == 200:
         print("Added Policy " + args.policy_name + " with role " + args.role_id + " to Access Group ID " + args.id)
     else:
-        print(f"ERROR: Status = {rs.status_code} - {rs.text}")
+        dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'delete_policy':

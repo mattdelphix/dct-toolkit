@@ -28,11 +28,9 @@ def update_properties_config(base_url,disable_username_password):
     if resp.status_code == 200:
         print("Properties config updated")
         print(resp.json())
-        return
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
-
 
 # Init
 parser = argparse.ArgumentParser(description='Delphix DCT CDBs operations')
@@ -40,6 +38,7 @@ subparser = parser.add_subparsers(dest='command')
 
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 parser.add_argument('--config', type=str, required=False, help="Config file")
+parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]",choices=[0,1,2])
 
 # define commands
 lst = subparser.add_parser('list')
@@ -57,6 +56,8 @@ args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
 dct_read_config(args.config)
+if args.debug:
+    cfg.level = args.debug
 
 # dct_base_url = "/is-saml-enabled"
 dct_base_url = "/management/properties"

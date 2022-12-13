@@ -39,8 +39,9 @@ def update_smtp_config(base_url, enabled, server, port, authentication_enabled, 
         print(resp.json())
         return
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
+
 
 
 # Init
@@ -91,7 +92,7 @@ dct_base_url = "/management/smtp"
 if args.command == 'validate':
     payload = {"to_address": args.address}
     resp = dct_create(dct_base_url + "/validate", payload)
-    print(resp)
+    dct_print_json(resp)
 
 if args.command == 'list':
     dct_search("Saml List", dct_base_url, None, "No SAML defined.")
