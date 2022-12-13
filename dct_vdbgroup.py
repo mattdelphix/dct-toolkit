@@ -69,6 +69,7 @@ def vdbgroup_update(base_url, vdbgroup_id, vdbgroup_name, vdb_list):
         sys.exit(1)
 
 
+
 def vdbgroup_provision_from_bookmark(base_url, input_param, vdbgroup_name, bookmark_id, vdb_id, dataset_group=""):
     # create VDB_ID list
     vdb_id_list = vdb_id.split(",")
