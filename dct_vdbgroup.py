@@ -68,6 +68,32 @@ def vdbgroup_update(base_url, vdbgroup_id, vdbgroup_name, vdb_list):
         dct_print_error(resp)
         sys.exit(1)
 
+
+def vdbgroup_provision_from_bookmark(base_url, input_param, vdbgroup_name, bookmark_id, vdb_id, dataset_group=""):
+    # create VDB_ID list
+    vdb_id_list = vdb_id.split(",")
+    build_params: str = ""
+    payload: str = ""
+    for index, item in enumerate(vdb_id_list):
+        if index != len(vdb_id_list) - 1:
+            build_params += "\"" + item + "\"" + ": {\"auto_select_repository\": true"
+            if dataset_group is not None:
+                build_params += ",\"target_group_id\": \"" + dataset_group + "\""
+            build_params += "},"
+        else:
+            build_params += "\"" + item + "\"" + ": {\"auto_select_repository\": true"
+            if dataset_group is not None:
+                build_params += ",\"target_group_id\": \"" + dataset_group + "\""
+            build_params += "}"
+
+    payload = '{ "name": "' + vdbgroup_name + '", "bookmark_id": "' + bookmark_id + '", "provision_parameters": {' + \
+              build_params + '}}'
+    print(payload)
+    resp = dct_create(base_url + "/" + urllib.parse.quote(input_param), json.loads(payload))
+    dct_job_monitor(resp['job']['id'])
+
+
+
 # Init
 parser = argparse.ArgumentParser(description="Delphix DCT VDBgroup operations")
 subparser = parser.add_subparsers(dest='command')
@@ -87,6 +113,7 @@ bookmarks = subparser.add_parser('bookmarks')
 refresh = subparser.add_parser('refresh')
 rollback = subparser.add_parser('rollback')
 update = subparser.add_parser('update')
+provision_from_bookmark = subparser.add_parser('provision_from_bookmark')
 
 # define view parms
 view.add_argument('--id', type=str, required=True, help="VDBGroup full name or ID to be viewed")
@@ -126,6 +153,14 @@ update.add_argument('--vdb_id', type=str, required=True, help="List of VDB IDs s
 update = update.add_mutually_exclusive_group(required=True)
 update.add_argument('--name', type=str, help="Name of the VDBgroup to update")
 update.add_argument('--id', type=str, help="ID of the VDBGroup to be refreshed")
+
+# provision from bookmark
+provision_from_bookmark.add_argument('--vdbgroup_name', type=str, required=True, help="VDB Group name")
+provision_from_bookmark.add_argument('--bookmark_id', type=str, required=True, help="Bookmark_Id to provision from")
+provision_from_bookmark.add_argument('--vdb_id', type=str, required=True, help="List of VDB IDs separated by commas")
+provision_from_bookmark.add_argument('--dataset_group', type=str, required=False, help="Target Group where the VDBs "
+                                                                                       "will be created")
+# provision_from_bookmark.add_argument('--dataset_group', type=str, required=True, help="DataSet group for the VBDs to be created on")
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -176,3 +211,8 @@ if args.command == 'rollback':
 if args.command == 'update':
     print("Processing VDBGroup update ")
     vdbgroup_update(dct_base_url, args.id, args.name, args.vdb_id)
+
+if args.command == "provision_from_bookmark":
+    print("Attempting to Provisioning VDB Group")
+    vdbgroup_provision_from_bookmark(dct_base_url, args.command, args.vdbgroup_name, args.bookmark_id, args.vdb_id,
+                                     args.dataset_group)
