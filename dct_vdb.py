@@ -242,7 +242,7 @@ dct_base_url = "/vdbs"
 
 if args.command == 'list':
     rs = dct_search("VDB List ", dct_base_url, None, "No VDBs defined.", args.format)
-    dct_print_json(rs)
+    #dct_print_json(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)

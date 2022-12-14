@@ -95,7 +95,7 @@ if args.command == 'validate':
     dct_print_json(resp)
 
 if args.command == 'list':
-    dct_search("Saml List", dct_base_url, None, "No SAML defined.")
+    dct_simple_list("Saml List", dct_base_url, "No SAML defined.")
 
 if args.command == 'update':
     update_smtp_config(dct_base_url, args.enabled, args.server, args.port, args.authentication_enabled, args.tls_enabled

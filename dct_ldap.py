@@ -97,7 +97,7 @@ dct_read_config(args.config)
 dct_base_url = "/management/ldap-config"
 
 if args.command == 'list':
-    dct_search("Saml List", dct_base_url, None, "No SAML defined.", args.format)
+    dct_simple_list("Saml List", dct_base_url, "No SAML defined.", args.format)
 
 if args.command == 'validate':
     payload = {"username": args.username, "password": args.passsword}

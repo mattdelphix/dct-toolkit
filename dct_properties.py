@@ -63,7 +63,7 @@ if args.debug:
 dct_base_url = "/management/properties"
 
 if args.command == 'list':
-    dct_search("Properties List", dct_base_url, None, "No Properties defined.")
+    dct_simple_list("Properties List", dct_base_url, "No Properties defined.")
 
 if args.command == 'update':
     update_properties_config(dct_base_url, args.disable_username_password)

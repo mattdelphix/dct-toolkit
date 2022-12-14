@@ -135,14 +135,12 @@ def content_formatter(dct):
 
 
 def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
-    # this function satisfies both list and search API calls
-
+    # this function satisfies both list and search API calls with a list of resuklts
     if dct_filter is not None:
         payload = {"filter_expression": dct_filter}
         resp = url_POST(dct_query + "/search", payload)
     else:
         resp = url_GET(dct_query)
-
     if resp.status_code == 200:
         report_data = resp.json()
         if report_data['items']:
@@ -152,6 +150,23 @@ def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
             else:
                 # return report_data
                 dct_print_json_formatted(report_data['items'])
+        else:
+            print(dct_error)
+    else:
+        dct_print_error(resp)
+        sys.exit(1)
+
+def dct_simple_list(dct_title, dct_query, dct_error, dct_output="json"):
+    # this function satisfies both list and search API calls
+    resp = url_GET(dct_query)
+    if resp.status_code == 200:
+        report_data = resp.json()
+        if report_data:
+            if dct_output == "report":
+                return tabular_report("DELPHIX Data Control Tower - " + dct_title, report_data)
+            else:
+                # return report_data
+                dct_print_json_formatted(report_data)
                 return
         else:
             print(dct_error)
@@ -159,7 +174,6 @@ def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
     else:
         dct_print_error(resp)
         sys.exit(1)
-
 
 def dct_view_by_id(dct_query, view_id, dct_output="json"):
     resp = url_GET(dct_query + "/" + view_id)
@@ -275,7 +289,8 @@ def dct_print_error(response):
     print(f"TEXT : {response.text}")
 
 def dct_print_json(jsontext):
-    print(jsontext)
+    if jsontext:
+        print(jsontext)
     #print(json.dumps(jsontext, indent=2))
 
 def dct_print_json_formatted(jsontext):

@@ -41,6 +41,7 @@ lst.add_argument('--format', type=str, required=False, help="Type of output",  c
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="VCDB search string")
 search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]",choices=[0,1,2])
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
