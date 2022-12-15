@@ -55,9 +55,15 @@ update.add_argument('--disable_username_password', type=str, required=True, choi
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
+args = parser.parse_args()
+# Read config
 dct_read_config(args.config)
 if args.debug:
     cfg.level = args.debug
+# force help if no command
+if dct_check_empty_command(args):
+    parser.print_help()
+    sys.exit(1)
 
 # dct_base_url = "/is-saml-enabled"
 dct_base_url = "/management/properties"

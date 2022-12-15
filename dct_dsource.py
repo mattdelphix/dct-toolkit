@@ -75,9 +75,15 @@ tag_delete_all.add_argument('--id', type=str, required=True, help="DSource ID to
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
+args = parser.parse_args()
+# Read config
 dct_read_config(args.config)
 if args.debug:
     cfg.level = args.debug
+# force help if no command
+if dct_check_empty_command(args):
+    parser.print_help()
+    sys.exit(1)
 
 dct_base_url = "/dsources"
 

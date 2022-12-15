@@ -142,9 +142,15 @@ dsource_usage.add_argument('--filter', type=str, required=False, help="DSource U
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
+args = parser.parse_args()
+# Read config
 dct_read_config(args.config)
 if args.debug:
     cfg.level = args.debug
+# force help if no command
+if dct_check_empty_command(args):
+    parser.print_help()
+    sys.exit(1)
 
 if args.command == 'api_usage':
     rs = report_api_usage(args.begin, args.end)

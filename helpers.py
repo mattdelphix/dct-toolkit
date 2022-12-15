@@ -296,6 +296,16 @@ def dct_print_json(jsontext):
 def dct_print_json_formatted(jsontext):
     print(json.dumps(jsontext, indent=2))
 
+
+def dct_check_empty_command(parms):
+    if cfg.level == 2:
+        print("-(debug)--------------------------------------------------------------------")
+        print(parms)
+    if parms.command is None:
+        return True
+    else:
+        return False
+
 def dct_read_config(filename):
     if filename is None:
         fnm = "dct-toolkit.conf"
