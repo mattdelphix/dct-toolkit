@@ -18,8 +18,6 @@
 
 from helpers import *
 
-# TODO Environment delete to be tested
-
 # Environment functions
 def environment_operation(base_url, env_id, ops):
     ops = ops.lower()
@@ -28,7 +26,15 @@ def environment_operation(base_url, env_id, ops):
         sys.exit(1)
     resp = url_POST(base_url + "/" + urllib.parse.quote(env_id) + "/" + ops, "")
     if resp.status_code == 200:
-        return json.loads(resp.text)
+        return resp.json()
+    else:
+        dct_print_error(resp)
+        sys.exit(1)
+
+def environment_update(base_url, env_id, payload):
+    resp = url_PATCH(base_url + "/" + urllib.parse.quote(env_id), payload)
+    if resp.status_code == 200:
+        return resp.json()
     else:
         dct_print_error(resp)
         sys.exit(1)
@@ -60,7 +66,12 @@ create_win_tgt = subparser.add_parser('create_win_tgt')
 create_win_src_cls = subparser.add_parser('create_win_src_cls')
 create_win_tgt_cls = subparser.add_parser('create_win_tgt_cls')
 # update environment commands
-update = subparser.add_parser('update_unix')
+update_unix = subparser.add_parser('update_unix')
+update_unix_cls = subparser.add_parser('update_unix_cls')
+update_win_src = subparser.add_parser('update_win_src')
+update_win_tgt = subparser.add_parser('update_win_tgt')
+update_win_src_cls = subparser.add_parser('update_win_src_cls')
+update_win_tgt_cls = subparser.add_parser('update_win_tgt_cls')
 # tag command
 tag_list = subparser.add_parser('tag_list')
 tag_create = subparser.add_parser('tag_create')
@@ -219,7 +230,7 @@ create_unix.add_argument('--public_key', type=str, required=False, help="Use pub
 create_unix.add_argument('--nfs_addresses', type=str, required=False, help="NFS addresses for the environment separated by commas")
 #--
 create_unix.add_argument('--ase_username', type=str, required=False, help="ASE DB Username")
-create_unix.add_argument('--ase_password', type=str, required=False, help="ASEW DB Password")
+create_unix.add_argument('--ase_password', type=str, required=False, help="ASE DB Password")
 create_unix.add_argument('--ase_vault', type=str, required=False, help="ASE Name of Cyberark or Hashicorp Vault")
 create_unix.add_argument('--ase_hcorp_engine', type=str, required=False, help="ASE Hashicorp Vault engine")
 create_unix.add_argument('--ase_hcorp_secret_path', type=str, required=False,
@@ -363,6 +374,180 @@ create_win_tgt_cls.add_argument('--description', type=str, required=True, help="
 create_win_tgt_cls.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
                             help="Tags of the Environment in this format:  key=value key=value")
 
+# define update_unix.parms
+update_unix.add_argument('--id', type=str, required=False, help="Environment ID where host is to be updated")
+update_unix.add_argument('--name', type=str, required=False, help="Name of the environment")
+update_unix.add_argument('--engine', type=str, required=False, help="ID of the engine")
+update_unix.add_argument('--hostname', type=str, required=False, help="Hostname of the environment")
+update_unix.add_argument('--port', type=str, required=False, help="SSH port of the environment", default='22')
+update_unix.add_argument('--toolkit', type=str, required=False, help="Toolkit path of the environment")
+update_unix.add_argument('--username', type=str, required=False, help="Username for the environment")
+update_unix.add_argument('--password', type=str, required=False, help="Password for the user")
+#--
+update_unix.add_argument('--vault', type=str, required=False, help="Name of Cyberark or Hashicorp Vault")
+update_unix.add_argument('--hcorp_engine', type=str, required=False, help="Hashicorp Vault engine")
+update_unix.add_argument('--hcorp_secret_path', type=str, required=False,
+                         help="Hashicorp Vault Secret path")
+update_unix.add_argument('--hcorp_username', type=str, required=False, help="Hashicorp Vault Username")
+update_unix.add_argument('--hcorp_secret_key', type=str, required=False,
+                         help="Hashicorp Vault Secret key")
+update_unix.add_argument('--cyark_query', type=str, required=False, help="Cyberark Vault Query String")
+update_unix.add_argument('--kerberos', type=str, required=False, help="Kerberos Authentication",
+                         choices=('True', 'False'), default='False')
+update_unix.add_argument('--public_key', type=str, required=False, help="Use public key", choices=('True', 'False'),
+                         default='False')
+update_unix.add_argument('--nfs_addresses', type=str, required=False, help="NFS addresses for the environment separated by commas")
+#--
+update_unix.add_argument('--ase_username', type=str, required=False, help="ASE DB Username")
+update_unix.add_argument('--ase_password', type=str, required=False, help="ASE DB Password")
+update_unix.add_argument('--ase_vault', type=str, required=False, help="ASE Name of Cyberark or Hashicorp Vault")
+update_unix.add_argument('--ase_hcorp_engine', type=str, required=False, help="ASE Hashicorp Vault engine")
+update_unix.add_argument('--ase_hcorp_secret_path', type=str, required=False,
+                         help="ASE Hashicorp Vault Secret path")
+update_unix.add_argument('--ase_hcorp_username', type=str, required=False, help="ASE Hashicorp Vault Username")
+update_unix.add_argument('--ase_hcorp_secret_key', type=str, required=False,
+                         help="ASE Hashicorp Vault Secret key")
+update_unix.add_argument('--ase_cyark_query', type=str, required=False, help="ASE Cyberark Vault Query String")
+update_unix.add_argument('--ase_kerberos', type=str, required=False, help="ASE Kerberos Authentication",
+                         choices=('True', 'False'), default='False')
+#--
+update_unix.add_argument('--java', type=str, required=False, help="Java home")
+update_unix.add_argument('--dsp_k_path', type=str, required=False, help="DSP Keystore path")
+update_unix.add_argument('--dsp_k_password', type=str, required=False, help="DSP Keystore password")
+update_unix.add_argument('--dsp_k_alias', type=str, required=False, help="DSP Keystore alias")
+update_unix.add_argument('--dsp_t_path', type=str, required=False, help="DSP Truststore path")
+update_unix.add_argument('--dsp_t_password', type=str, required=False, help="DSP Truststore password")
+#--
+update_unix.add_argument('--description', type=str, required=False, help="Description of the environment")
+update_unix.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
+                         help="Tags of the Environment in this format:  key=value key=value")
+
+# define update_unix_cls.parms
+update_unix_cls.add_argument('--id', type=str, required=False, help="Environment ID where host is to be updated")
+update_unix_cls.add_argument('--name', type=str, required=False, help="Name of the environment")
+update_unix_cls.add_argument('--engine', type=str, required=False, help="ID of the engine")
+update_unix_cls.add_argument('--cluster_home', type=str, required=False, help="Cluster Home")
+update_unix_cls.add_argument('--hostname', type=str, required=False, help="Hostname of the environment")
+update_unix_cls.add_argument('--port', type=str, required=False, help="SSH port of the environment", default='22')
+update_unix_cls.add_argument('--toolkit', type=str, required=False, help="Toolkit path of the environment")
+update_unix_cls.add_argument('--username', type=str, required=False, help="Username for the environment")
+update_unix_cls.add_argument('--password', type=str, required=False, help="Password for the user")
+#--
+update_unix_cls.add_argument('--vault', type=str, required=False, help="Name of Cyberark or Hashicorp Vault")
+update_unix_cls.add_argument('--hcorp_engine', type=str, required=False, help="Hashicorp Vault engine")
+update_unix_cls.add_argument('--hcorp_secret_path', type=str, required=False,
+                         help="Hashicorp Vault Secret path")
+update_unix_cls.add_argument('--hcorp_username', type=str, required=False, help="Hashicorp Vault Username")
+update_unix_cls.add_argument('--hcorp_secret_key', type=str, required=False,
+                         help="Hashicorp Vault Secret key")
+update_unix_cls.add_argument('--cyark_query', type=str, required=False, help="Cyberark Vault Query String")
+update_unix_cls.add_argument('--kerberos', type=str, required=False, help="Kerberos Authentication",
+                         choices=('True', 'False'), default='False')
+update_unix_cls.add_argument('--public_key', type=str, required=False, help="Use public key", choices=('True', 'False'),
+                         default='False')
+update_unix_cls.add_argument('--nfs_addresses', type=str, required=False, help="NFS addresses for the environment separated by commas")
+#--
+update_unix_cls.add_argument('--java', type=str, required=False, help="Java home")
+update_unix_cls.add_argument('--dsp_k_path', type=str, required=False, help="DSP Keystore path")
+update_unix_cls.add_argument('--dsp_k_password', type=str, required=False, help="DSP Keystore password")
+update_unix_cls.add_argument('--dsp_k_alias', type=str, required=False, help="DSP Keystore alias")
+update_unix_cls.add_argument('--dsp_t_path', type=str, required=False, help="DSP Truststore path")
+update_unix_cls.add_argument('--dsp_t_password', type=str, required=False, help="DSP Truststore password")
+#--
+update_unix_cls.add_argument('--description', type=str, required=False, help="Description of the environment")
+update_unix_cls.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
+                         help="Tags of the Environment in this format:  key=value key=value")
+
+# define update_win_src parms
+update_win_src.add_argument('--id', type=str, required=False, help="Environment ID where host is to be updated")
+update_win_src.add_argument('--name', type=str, required=False, help="Name of the environment")
+update_win_src.add_argument('--engine', type=str, required=False, help="ID of the engine")
+update_win_src.add_argument('--hostname', type=str, required=False, help="Hostname of the environment")
+update_win_src.add_argument('--staging', type=str, required=False, help="ID of the staging environment")
+update_win_src.add_argument('--username', type=str, required=False, help="Username for the environment")
+update_win_src.add_argument('--password', type=str, required=False, help="Password for the user")
+update_win_src.add_argument('--vault', type=str, required=False, help="Name of Cyberark or Hashicorp Vault")
+update_win_src.add_argument('--hcorp_engine', type=str, required=False, help="Hashicorp Vault engine")
+update_win_src.add_argument('--hcorp_secret_path', type=str, required=False,
+                         help="Hashicorp Vault Secret path")
+update_win_src.add_argument('--hcorp_username', type=str, required=False, help="Hashicorp Vault Username")
+update_win_src.add_argument('--hcorp_secret_key', type=str, required=False,
+                         help="Hashicorp Vault Secret key")
+update_win_src.add_argument('--cyark_query', type=str, required=False, help="Cyberark Vault Query String")
+update_win_src.add_argument('--description', type=str, required=False, help="Description of the environment")
+update_win_src.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
+                            help="Tags of the Environment in this format:  key=value key=value")
+
+# define update_win_tgt parms
+update_win_tgt.add_argument('--id', type=str, required=False, help="Environment ID where host is to be updated")
+update_win_tgt.add_argument('--name', type=str, required=False, help="Name of the environment")
+update_win_tgt.add_argument('--engine', type=str, required=False, help="ID of the engine")
+update_win_tgt.add_argument('--hostname', type=str, required=False, help="Hostname of the environment")
+update_win_tgt.add_argument('--connport', type=str, required=False, help="Connection port - default 9100", default="9100")
+update_win_tgt.add_argument('--connauthkey', type=str, required=False, help="Connection auth key")
+update_win_tgt.add_argument('--username', type=str, required=False, help="Username for the environment")
+update_win_tgt.add_argument('--password', type=str, required=False, help="Password for the user")
+#--
+update_win_tgt.add_argument('--vault', type=str, required=False, help="Name of Cyberark or Hashicorp Vault")
+update_win_tgt.add_argument('--hcorp_engine', type=str, required=False, help="Hashicorp Vault engine")
+update_win_tgt.add_argument('--hcorp_secret_path', type=str, required=False,
+                         help="Hashicorp Vault Secret path")
+update_win_tgt.add_argument('--hcorp_username', type=str, required=False, help="Hashicorp Vault Username")
+update_win_tgt.add_argument('--hcorp_secret_key', type=str, required=False,
+                         help="Hashicorp Vault Secret key")
+update_win_tgt.add_argument('--cyark_query', type=str, required=False, help="Cyberark Vault Query String")
+update_win_tgt.add_argument('--java', type=str, required=False, help="Java home")
+update_win_tgt.add_argument('--dsp_k_path', type=str, required=False, help="DSP Keystore path")
+update_win_tgt.add_argument('--dsp_k_password', type=str, required=False, help="DSP Keystore password")
+update_win_tgt.add_argument('--dsp_k_alias', type=str, required=False, help="DSP Keystore alias")
+update_win_tgt.add_argument('--dsp_t_path', type=str, required=False, help="DSP Truststore path")
+update_win_tgt.add_argument('--dsp_t_password', type=str, required=False, help="DSP Truststore password")
+#--
+update_win_tgt.add_argument('--description', type=str, required=False, help="Description of the environment")
+update_win_tgt.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
+                            help="Tags of the Environment in this format:  key=value key=value")
+
+# define update_win_src_cls parms
+update_win_src_cls.add_argument('--id', type=str, required=False, help="Environment ID where host is to be updated")
+update_win_src_cls.add_argument('--name', type=str, required=False, help="Name of the environment")
+update_win_src_cls.add_argument('--engine', type=str, required=False, help="ID of the engine")
+update_win_src_cls.add_argument('--hostname', type=str, required=False, help="Hostname of the environment")
+update_win_src_cls.add_argument('--staging', type=str, required=False, help="ID of the staging environment")
+update_win_src_cls.add_argument('--username', type=str, required=False, help="Username for the environment")
+update_win_src_cls.add_argument('--password', type=str, required=False, help="Password for the user")
+update_win_src_cls.add_argument('--vault', type=str, required=False, help="Name of Cyberark or Hashicorp Vault")
+update_win_src_cls.add_argument('--hcorp_engine', type=str, required=False, help="Hashicorp Vault engine")
+update_win_src_cls.add_argument('--hcorp_secret_path', type=str, required=False,
+                         help="Hashicorp Vault Secret path")
+update_win_src_cls.add_argument('--hcorp_username', type=str, required=False, help="Hashicorp Vault Username")
+update_win_src_cls.add_argument('--hcorp_secret_key', type=str, required=False,
+                         help="Hashicorp Vault Secret key")
+update_win_src_cls.add_argument('--cyark_query', type=str, required=False, help="Cyberark Vault Query String")
+update_win_src_cls.add_argument('--description', type=str, required=False, help="Description of the environment")
+update_win_src_cls.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
+                            help="Tags of the Environment in this format:  key=value key=value")
+
+# define update_win_tgt_cls parms
+update_win_tgt_cls.add_argument('--id', type=str, required=False, help="Environment ID where host is to be updated")
+update_win_tgt_cls.add_argument('--name', type=str, required=False, help="Name of the environment")
+update_win_tgt_cls.add_argument('--engine', type=str, required=False, help="ID of the engine")
+update_win_tgt_cls.add_argument('--hostname', type=str, required=False, help="Hostname of the environment")
+update_win_tgt_cls.add_argument('--staging', type=str, required=False, help="ID of the staging environment")
+update_win_tgt_cls.add_argument('--username', type=str, required=False, help="Username for the environment")
+update_win_tgt_cls.add_argument('--password', type=str, required=False, help="Password for the user")
+#--
+update_win_tgt_cls.add_argument('--vault', type=str, required=False, help="Name of Cyberark or Hashicorp Vault")
+update_win_tgt_cls.add_argument('--hcorp_engine', type=str, required=False, help="Hashicorp Vault engine")
+update_win_tgt_cls.add_argument('--hcorp_secret_path', type=str, required=False,
+                         help="Hashicorp Vault Secret path")
+update_win_tgt_cls.add_argument('--hcorp_username', type=str, required=False, help="Hashicorp Vault Username")
+update_win_tgt_cls.add_argument('--hcorp_secret_key', type=str, required=False,
+                         help="Hashicorp Vault Secret key")
+update_win_tgt_cls.add_argument('--cyark_query', type=str, required=False, help="Cyberark Vault Query String")
+update_win_tgt_cls.add_argument('--description', type=str, required=False, help="Description of the environment")
+update_win_tgt_cls.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
+                            help="Tags of the Environment in this format:  key=value key=value")
+
 # define host_delete parms
 host_delete.add_argument('--id', type=str, required=True, help="Environment ID where host is to be deleted")
 host_delete.add_argument('--hostid', type=str, required=True, help="Host ID to be deleted")
@@ -422,7 +607,6 @@ if args.command == 'user_create':
         dct_print_error(rs)
         sys.exit(1)
 
-
 if args.command == 'user_create_pubkey':
     payload = {"use_engine_public_key": "true", "username": args.username}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "users")
@@ -431,7 +615,6 @@ if args.command == 'user_create_pubkey':
     else:
         dct_print_error(rs)
         sys.exit(1)
-
 
 if args.command == 'user_create_kerb':
     payload = {"use_kerberos_authentication": "true"}
@@ -442,7 +625,6 @@ if args.command == 'user_create_kerb':
         dct_print_error(rs)
         sys.exit(1)
 
-
 if args.command == 'user_create_cyark':
     payload = {"vault": args.vault, "vault_username": args.username,
                "cyberark_vault_query_string": "Safe=Test;Folder=Test;Object=Test"}
@@ -452,7 +634,6 @@ if args.command == 'user_create_cyark':
     else:
         dct_print_error(rs)
         sys.exit(1)
-
 
 if args.command == 'user_create_hcorp':
     payload = {"vault": args.vault, "vault_username": args.username, "hashicorp_vault_engine": args.vault_engine,
@@ -465,7 +646,6 @@ if args.command == 'user_create_hcorp':
         dct_print_error(rs)
         sys.exit(1)
 
-
 if args.command == 'user_update':
     payload = {"username": args.username, "password": args.password}
     rs = dct_update_ref_by_id(dct_base_url, args.id, payload, "users", args.user_ref_id)
@@ -474,7 +654,6 @@ if args.command == 'user_update':
     else:
         dct_print_error(rs)
         sys.exit(1)
-
 
 if args.command == 'user_update_pubkey':
     payload = {"use_engine_public_key": "true", "username": args.username}
@@ -485,7 +664,6 @@ if args.command == 'user_update_pubkey':
         dct_print_error(rs)
         sys.exit(1)
 
-
 if args.command == 'user_update_kerb':
     payload = {"use_kerberos_authentication": "true"}
     rs = dct_update_ref_by_id(dct_base_url, args.id, payload, "users", args.user_ref_id)
@@ -494,7 +672,6 @@ if args.command == 'user_update_kerb':
     else:
         dct_print_error(rs)
         sys.exit(1)
-
 
 if args.command == 'user_update_cyark':
     payload = {"vault": args.vault, "vault_username": args.username,
@@ -506,7 +683,6 @@ if args.command == 'user_update_cyark':
         dct_print_error(rs)
         sys.exit(1)
 
-
 if args.command == 'user_update_hcorp':
     payload = {"vault": args.vault, "vault_username": args.username, "hashicorp_vault_engine": args.vault_engine,
                "hashicorp_vault_secret_path": args.vault_secret_path,
@@ -517,7 +693,6 @@ if args.command == 'user_update_hcorp':
     else:
         dct_print_error(rs)
         sys.exit(1)
-
 
 if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
@@ -561,7 +736,6 @@ if args.command == 'tag_create':
         dct_print_error(rs)
         sys.exit(1)
 
-
 if args.command == 'tag_delete':
     payload = {"key": args.key}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
@@ -571,7 +745,6 @@ if args.command == 'tag_delete':
         dct_print_error(rs)
         sys.exit(1)
 
-
 if args.command == 'tag_delete_all':
     rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
     if rs.status_code == 204:
@@ -579,7 +752,6 @@ if args.command == 'tag_delete_all':
     else:
         dct_print_error(rs)
         sys.exit(1)
-
 
 if args.command == 'user_delete':
     print("Processing user'" + args.user_ref_id + "' delete for Environment ID=" + args.id)
@@ -804,3 +976,175 @@ if args.command == 'host_delete':
     else:
         dct_print_error(rs)
         sys.exit(1)
+
+if args.command == 'update_unix':
+    # build list of NFS addresses
+    nfs_list = args.nfs_addresses.split(",")
+    payload = {
+        "name": args.name,
+        "engine_id": args.engine,
+        "os_name": "UNIX",
+        "hostname": args.hostname,
+        "ssh_port": args.port,
+        "toolkit_path": args.toolkit,
+        "username": args.username,
+        "password": args.password,
+        "vault": args.vault,
+        "hashicorp_vault_engine": args.hcorp_engine,
+        "hashicorp_vault_secret_path": args.hcorp_path,
+        "hashicorp_vault_username_key": args.hcorp_username,
+        "hashicorp_vault_secret_key": args.hcorp_secret_key,
+        "cyberark_vault_query_string": args.cyark_query,
+        "use_kerberos_authentication": args.kerberos,
+        "use_engine_public_key": args.public_key,
+        "nfs_addresses": nfs_list,
+        "ase_db_username": args.ase_username,
+        "ase_db_password": args.ase_password,
+        "ase_db_vault": args.ase_vault,
+        "ase_db_hashicorp_vault_engine": args.ase_hcorp_engine,
+        "ase_db_hashicorp_vault_secret_path": args.ase_hcorp_path,
+        "ase_db_hashicorp_vault_username_key": args.ase_hcorp_username,
+        "ase_db_hashicorp_vault_secret_key": args.ase_hcorp_secret_key,
+        "ase_db_cyberark_vault_query_string": args.ase_cyark_query,
+        "ase_db_use_kerberos_authentication": args.ase_kerberos,
+        "java_home": args.java,
+        "dsp_keystore_path": args.dsp_k_path,
+        "dsp_keystore_password": args.dsp_k_password,
+        "dsp_keystore_alias": args.dsp_k_alias,
+        "dsp_truststore_path": args.dsp_t_path,
+        "dsp_truststore_password": args.dsp_t_password,
+        "description": args.description,
+        "tags": args.tags
+    }
+    rs = environment_update(dct_base_url, args.id, payload)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'update_unix_cls':
+    # build list of NFS addresses
+    nfs_list = args.nfs_addresses.split(",")
+    payload = {
+        "name": args.name,
+        "engine_id": args.engine,
+        "os_name": "UNIX",
+        "is_cluster": True,
+        "cluster_home": args.cluster_home,
+        "hostname": args.hostname,
+        "ssh_port": args.port,
+        "toolkit_path": args.toolkit,
+        "username": args.username,
+        "password": args.password,
+        "vault": args.vault,
+        "hashicorp_vault_engine": args.hcorp_engine,
+        "hashicorp_vault_secret_path": args.hcorp_path,
+        "hashicorp_vault_username_key": args.hcorp_username,
+        "hashicorp_vault_secret_key": args.hcorp_secret_key,
+        "cyberark_vault_query_string": args.cyark_query,
+        "use_kerberos_authentication": args.kerberos,
+        "use_engine_public_key": args.public_key,
+        "nfs_addresses": nfs_list,
+        "java_home": args.java,
+        "dsp_keystore_path": args.dsp_k_path,
+        "dsp_keystore_password": args.dsp_k_password,
+        "dsp_keystore_alias": args.dsp_k_alias,
+        "dsp_truststore_path": args.dsp_t_path,
+        "dsp_truststore_password": args.dsp_t_password,
+        "description": args.description,
+        "tags": args.tags
+    }
+    rs = environment_update(dct_base_url, args.id, payload)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'update_win_src':
+    payload = {
+        "name": args.name,
+        "engine_id": args.engine,
+        "os_name": "WINDOWS",
+        "hostname": args.hostname,
+        "staging_environment": args.staging,
+        "username": args.username,
+        "password": args.password,
+        "vault": args.vault,
+        "hashicorp_vault_engine": args.hcorp_engine,
+        "hashicorp_vault_secret_path": args.hcorp_path,
+        "hashicorp_vault_username_key": args.hcorp_username,
+        "hashicorp_vault_secret_key": args.hcorp_secret_key,
+        "cyberark_vault_query_string": args.cyark_query,
+        "description": args.description,
+        "tags": args.tags
+    }
+    rs = environment_update(dct_base_url, args.id, payload)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'update_win_tgt':
+    payload = {
+        "name": args.name,
+        "engine_id": args.engine,
+        "os_name": "WINDOWS",
+        "hostname": args.hostname,
+        "connector_port": args.connport,
+        "connector_authentication_key": args.connauthkey,
+        "username": args.username,
+        "password": args.password,
+        "vault": args.vault,
+        "hashicorp_vault_engine": args.hcorp_engine,
+        "hashicorp_vault_secret_path": args.hcorp_path,
+        "hashicorp_vault_username_key": args.hcorp_username,
+        "hashicorp_vault_secret_key": args.hcorp_secret_key,
+        "cyberark_vault_query_string": args.cyark_query,
+        "java_home": args.java,
+        "dsp_keystore_path": args.dsp_k_path,
+        "dsp_keystore_password": args.dsp_k_password,
+        "dsp_keystore_alias": args.dsp_k_alias,
+        "dsp_truststore_path": args.dsp_t_path,
+        "dsp_truststore_password": args.dsp_t_password,
+        "description": args.description,
+        "tags": args.tags
+    }
+    rs = environment_update(dct_base_url, args.id, payload)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'update_win_src_cls':
+    payload = {
+        "name": args.name,
+        "engine_id": args.engine,
+        "os_name": "WINDOWS",
+        "is_cluster": True,
+        "hostname": args.hostname,
+        "staging_environment": args.staging_env,
+        "username": args.username,
+        "password": args.password,
+        "vault": args.vault,
+        "hashicorp_vault_engine": args.hcorp_engine,
+        "hashicorp_vault_secret_path": args.hcorp_path,
+        "hashicorp_vault_username_key": args.hcorp_username,
+        "hashicorp_vault_secret_key": args.hcorp_secret_key,
+        "cyberark_vault_query_string": args.cyark_query,
+        "is_target": False,
+        "description": args.description,
+        "tags": args.tags
+    }
+    rs = environment_update(dct_base_url, args.id, payload)
+    dct_job_monitor(rs['job']['id'])
+
+if args.command == 'update_win_tgt_cls':
+    payload = {
+        "name": args.name,
+        "engine_id": args.engine,
+        "os_name": "WINDOWS",
+        "is_cluster": True,
+        "hostname": args.hostname,
+        "staging_environment": args.staging_env,
+        "username": args.username,
+        "password": args.password,
+        "vault": args.vault,
+        "hashicorp_vault_engine": args.hcorp_engine,
+        "hashicorp_vault_secret_path": args.hcorp_path,
+        "hashicorp_vault_username_key": args.hcorp_username,
+        "hashicorp_vault_secret_key": args.hcorp_secret_key,
+        "cyberark_vault_query_string": args.cyark_query,
+        "is_target": True,
+        "description": args.description,
+        "tags": args.tags
+    }
+    rs = environment_update(dct_base_url, args.id, payload)
+    dct_job_monitor(rs['job']['id'])

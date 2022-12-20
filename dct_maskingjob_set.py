@@ -14,7 +14,7 @@ def maskingjob_set_update(base_url, maskingjob_set_id, name):
         print("Updated Maskingjob_Set" + " - ID=" + maskingjob_set_id)
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 def maskingjob_set_copy(base_url, name, maskingjob_set_id, target_engine_id, source_engine_id, source_environment_id, target_environment_id):
@@ -34,7 +34,7 @@ def maskingjob_set_copy(base_url, name, maskingjob_set_id, target_engine_id, sou
         print("Masking Job copied " + maskingjob_set_id + " - ID to Engine " + target_engine_id + " for environment " + target_environment_id)
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 # Init

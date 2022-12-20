@@ -35,7 +35,7 @@ def bookmark_create(base_url, name, bookmark_id, retention, tags):
         print(f"Create Bookmark with ID={name}, Retention={retention}, Tags={tags}")
         return bookm
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 

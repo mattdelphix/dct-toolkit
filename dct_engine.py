@@ -31,7 +31,7 @@ def virt_engine_register(base_url, name, hostname, user, password, insecure_ssl,
         print(f"Registered Virtualization Engine with ID={rsp['id']}")
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -46,7 +46,7 @@ def mask_engine_register(base_url, name, hostname, mask_user, mask_password, ins
         print(f"Registered Masking Engine with ID={rsp['id']}")
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 

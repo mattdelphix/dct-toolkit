@@ -60,8 +60,7 @@ def vdb_refresh(base_url, vdb_id, ops, pit_id):
     if resp.status_code == 200:
         return json.loads(resp.text)
     else:
-        print(f"ERROR: Status = {resp.status_code}")
-        print(f"{resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -82,8 +81,7 @@ def vdb_rollback(base_url, vdb_id, ops, pit_id):
     if resp.status_code == 200:
         return json.loads(resp.text)
     else:
-        print(f"ERROR: Status = {resp.status_code}")
-        print(f"{resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
@@ -102,7 +100,7 @@ def vdb_update(base_url, vdb_id, name, db_username, db_password, validate_db_cre
         print("Updated Account" + " - ID=" + vdb_id)
         return rsp
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 

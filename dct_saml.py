@@ -38,7 +38,7 @@ def update_saml_config(base_url, enabled, auto_create_users, metadata_url, metad
         print(resp.json())
         return
     else:
-        print(f"ERROR: Status = {resp.status_code} - {resp.text}")
+        dct_print_error(resp)
         sys.exit(1)
 
 
