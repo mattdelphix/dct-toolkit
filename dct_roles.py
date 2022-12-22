@@ -44,7 +44,7 @@ lst = subparser.add_parser('list')
 view = subparser.add_parser('view')
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define view parms
 view.add_argument('--id', type=str, required=True, help="Bookmark ID to be viewed")
@@ -67,9 +67,8 @@ dct_base_url = "/roles"
 
 if args.command == 'list':
     rs = dct_search("Bookmarks List", dct_base_url, None, "No Bookmarks defined.", args.format)
-    dct_print_json(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 

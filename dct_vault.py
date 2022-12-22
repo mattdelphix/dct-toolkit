@@ -38,11 +38,11 @@ delete  = subparser.add_parser('delete')
 view.add_argument('--id', type=str, required=True, help="Hashicorp Vault to be viewed")
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 
 # define search parms
 #create.add_argument('--filter', type=str, required=False, help="Hashicorp Vault search string")
-#create.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+#create.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 
 # define delete parms
 delete.add_argument('--id', type=str, required=True, help="Hashicorp Vault to be deleted")
@@ -67,7 +67,8 @@ if args.command == 'list':
     dct_search("Hashicorp Vault List ", dct_base_url, None, "No Hashicorp Vault defined.", args.format)
 
 if args.command == 'view':
-    dct_view_by_id(dct_base_url, args.id)
+    rs = dct_view_by_id(dct_base_url, args.id)
+    dct_print_json_formatted(rs)
 
 if args.command == 'delete':
     dct_delete_by_id(dct_base_url, "Hashicorp Vault ID deleted ", args.id, 204)

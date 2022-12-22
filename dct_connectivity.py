@@ -15,18 +15,16 @@
 #
 # Author  : Matteo Ferrari, Ruben Catarrunas
 # Date    : September 2022
-
-
+import cfg
 from helpers import *
 
 def connectivity_check (base_url, id, host, port):
     payload = {"engine_id": id, "host": host, "port": port}
-
     resp = url_POST(base_url + "/check", payload)
     if resp.status_code == 200:
-        rsp = resp.json()
-        #print("Updated Account" + " - ID=" + vdb_id)
-        return rsp
+        if cfg.level == 1:
+            print("Tested connectivity with Engine " + " - ID=" + vdb_id)
+        return resp.json()
     else:
         dct_print_error(resp)
         sys.exit(1)
@@ -43,12 +41,11 @@ parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]
 # define commands
 check = subparser.add_parser('check')
 
-
 # define check parms
 check.add_argument('--id', type=str, required=True, help="Engine ID to test connectivity with")
 check.add_argument('--host', type=str, required=True, help="Host or IP of Engine to be tested")
 check.add_argument('--port', type=str, required=False, help="Port of Engine to be tested")
-check.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+check.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -70,5 +67,5 @@ if args.command == 'check':
     if args.port is None:
         args.port = 22
     rs = connectivity_check(dct_base_url, args.id, args.host, args.port)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 

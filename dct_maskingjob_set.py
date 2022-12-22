@@ -59,14 +59,14 @@ copy = subparser.add_parser('copy')
 remove_job = subparser.add_parser('remove_job')
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define view parms
 view.add_argument('--id', type=str, required=True, help="Masking job set ID to be viewed")
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="Masking Job Set search string")
-search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define update parms
 update.add_argument('--id', type=str, required=True, help="Masking job set ID to be updated")
@@ -78,7 +78,7 @@ tag_create.add_argument('--tags', nargs='*', type=str, required=True, action=dct
                         help="Tags of the DSource in this format:  key=value key=value")
 # define tag_list parms
 tag_list.add_argument('--id', type=str, required=True, help="Masking Job Set ID for tags list")
-tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define tag_delete params
 tag_delete.add_argument('--id', type=str, required=True, help="Masking Job Set ID to delete tags from")
@@ -90,7 +90,7 @@ tag_delete_all.add_argument('--id', type=str, required=True, help="Account ID to
 # define connector_list parms
 connector_list.add_argument('--id', type=str, required=True, help="Masking Job Set ID to be viewed")
 connector_list.add_argument('--engine_id', type=str, required=True, help="Continuous Compliance engine ID to be viewed")
-connector_list.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+connector_list.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 
 # define connector_list parms
 copy.add_argument('--id', type=str, required=True, help="Masking Job Set ID to be viewed")
@@ -121,53 +121,21 @@ dct_base_url = "/masking-job-sets"
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'list':
     rs = dct_search("Masking job set List", dct_base_url, None, "No Masking Job Sets defined.", args.format)
-    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("Masking job set List", dct_base_url, args.filter, "No Masking Job Sets match the search criteria.",
                     args.format)
-    dct_print_json(rs)
 
 if args.command == "update":
     maskingjob_set_update (dct_base_url,args.id ,args.name)
 
-if args.command == 'tag_create':
-    payload = {"tags": args.tags}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
-    if rs.status_code == 200:
-        print("Create tags for Account - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
-
-if args.command == 'tag_list':
-    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
-    dct_print_json(rs)
-
-if args.command == 'tag_delete':
-    payload = {"key": args.key}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
-    if rs.status_code == 204:
-        print("Delete tag for Masking Job Set - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
-
-if args.command == 'tag_delete_all':
-    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
-    if rs.status_code == 204:
-        print("Deleted all tags for Masking Job Set - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
-
 if args.command == 'connector_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/connectors?engine_id="+args.engine_id, args.format)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'copy':
     payload = {"target_engine_id":  args.target_engine_id, "source_engine_id":  args.source_engine_id}
@@ -177,4 +145,42 @@ if args.command == 'copy':
 if args.command == 'remove_job':
     payload = {"engine_id": args.engine_id}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "remove-job")
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
+
+
+if args.command == 'tag_list':
+    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
+    dct_print_json_formatted(rs['tags'])
+
+if args.command == 'tag_create':
+    payload = {"tags": args.tags}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
+    if rs.status_code == 201:
+        if cfg.level == 1:
+            print("Created tags for Masking job set - ID=" + args.id)
+        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
+        dct_print_json_formatted(rs['tags'])
+    else:
+        dct_print_error(rs)
+        sys.exit(1)
+
+if args.command == 'tag_delete':
+    payload = {"key": args.key}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
+    if rs.status_code == 204:
+        if cfg.level == 1:
+            print("Deleted tag by key for Masking job set - ID=" + args.id)
+        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
+        dct_print_json_formatted(rs['tags'])
+    else:
+        dct_print_error(rs)
+        sys.exit(1)
+
+if args.command == 'tag_delete_all':
+    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
+    if rs.status_code == 204:
+        if cfg.level == 1:
+            print("Deleted all tags for Masking job set - ID=" + args.id)
+    else:
+        dct_print_error(rs)
+        sys.exit(1)

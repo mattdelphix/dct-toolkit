@@ -56,10 +56,10 @@ lst = subparser.add_parser('list')
 update = subparser.add_parser('update')
 
 # define check params
-check.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+check.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define list params
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define update params
 update.add_argument('--enabled', type=str, required=False, help="Set or unset SAML, default is false",
@@ -83,6 +83,7 @@ update.add_argument('--first_name_attr', type=str, required=False,
                              help="First name attribute mapped on SAML used for mapping on DCT account")
 update.add_argument('--last_name_attr', type=str, required=False,
                              help="Last name attribute mapped on SAML used for mapping on DCT account")
+
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
@@ -97,7 +98,6 @@ if dct_check_empty_command(args):
     parser.print_help()
     sys.exit(1)
 
-# dct_base_url = "/is-saml-enabled"
 dct_base_url = "/management/saml-config"
 
 if args.command == 'is_enabled':
@@ -113,8 +113,7 @@ if args.command == 'is_enabled':
         sys.exit(1)
 
 if args.command == 'list':
-    dct_simple_list("Saml List", dct_base_url, "No SAML defined.")
-    #dct_search("Saml List", dct_base_url, None, "No SAML defined.")
+    dct_simple_list("SAML List", dct_base_url, "No SAML defined.")
 
 if args.command == 'update':
     update_saml_config(dct_base_url, args.enabled, args.auto_create_users, args.metadata_url, args.metadata,

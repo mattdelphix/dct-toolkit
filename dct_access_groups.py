@@ -43,14 +43,14 @@ add_policy = subparser.add_parser('add_policy')
 delete_policy = subparser.add_parser('delete_policy')
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define view parms
 view.add_argument('--id', type=str, required=True, help="Access Group ID to be viewed")
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="Access Group search string")
-search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define create parms
 create.add_argument('--name', type=str, required=True, help="Access Group name to be updated")
@@ -122,16 +122,14 @@ dct_base_url = "/access-groups"
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'list':
     rs = dct_search("Access Groups", dct_base_url, None, "No Access Groups defined.", args.format)
-    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("Access Group", dct_base_url, args.filter, "No Access Group match the search criteria.",
                     args.format)
-    dct_print_json(rs)
 
 if args.command == "create":
     access_group_update(dct_base_url, args.name, args.role_id)
@@ -147,34 +145,7 @@ if args.command == "update":
 
 if args.command == "delete":
     rs = dct_delete_by_id(dct_base_url, "Access Group Deleted", args.id, 204)
-    dct_print_json(rs)
-
-if args.command == 'tag_create':
-    payload = {"tags": args.tags}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
-    if rs.status_code == 200:
-        print("Create tags for Account - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
-
-if args.command == 'tag_delete':
-    payload = {"key": args.key}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
-    if rs.status_code == 200:
-        print("Delete tag for Masking Job Set - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
-
-if args.command == 'tag_delete_all':
-    payload = {}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
-    if rs.status_code == 200:
-        print("Deleted all tags for Masking Job Set - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    dct_print_json_formatted(rs)
 
 if args.command == 'add_account':
     payload = {"account_ids": [args.account_id]}
@@ -204,3 +175,40 @@ if args.command == 'add_policy':
 if args.command == 'delete_policy':
     dct_delete_ref_by_id(dct_base_url, "Policy ID " + args.policy_id + " deleted from Access Group ID" + args.id,
                          args.id, "policies", args.policy_id)
+
+if args.command == 'tag_list':
+    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
+    dct_print_json_formatted(rs['tags'])
+
+if args.command == 'tag_create':
+    payload = {"tags": args.tags}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
+    if rs.status_code == 201:
+        if cfg.level == 1:
+            print("Created tags for Access Group - ID=" + args.id)
+        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
+        dct_print_json_formatted(rs['tags'])
+    else:
+        dct_print_error(rs)
+        sys.exit(1)
+
+if args.command == 'tag_delete':
+    payload = {"key": args.key}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
+    if rs.status_code == 204:
+        if cfg.level == 1:
+            print("Deleted tag by key for Access Group - ID=" + args.id)
+        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
+        dct_print_json_formatted(rs['tags'])
+    else:
+        dct_print_error(rs)
+        sys.exit(1)
+
+if args.command == 'tag_delete_all':
+    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
+    if rs.status_code == 204:
+        if cfg.level == 1:
+            print("Deleted all tags for Access Group - ID=" + args.id)
+    else:
+        dct_print_error(rs)
+        sys.exit(1)

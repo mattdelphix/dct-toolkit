@@ -16,18 +16,14 @@
 # Author  : Matteo Ferrari, Ruben Catarrunas
 # Date    : September 2022
 
-
 from helpers import *
 
-
-# NOT OK
 def update_properties_config(base_url,disable_username_password):
     payload = {"disable_username_password": disable_username_password}
-
     resp = url_PATCH(base_url, payload)
     if resp.status_code == 200:
         print("Properties config updated")
-        print(resp.json())
+        print_json_formatted(resp.json())
     else:
         dct_print_error(resp)
         sys.exit(1)
@@ -45,7 +41,7 @@ lst = subparser.add_parser('list')
 update = subparser.add_parser('update')
 
 # define list params
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define update params
 update.add_argument('--disable_username_password', type=str, required=True, choices=['true', 'false'],
@@ -65,7 +61,6 @@ if dct_check_empty_command(args):
     parser.print_help()
     sys.exit(1)
 
-# dct_base_url = "/is-saml-enabled"
 dct_base_url = "/management/properties"
 
 if args.command == 'list':

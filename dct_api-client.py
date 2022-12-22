@@ -76,7 +76,7 @@ delete.add_argument('--id', type=str, required=True, help="API-client ID to be d
 view.add_argument('--id', type=str, required=True, help="API-client ID to be viewed")
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -96,21 +96,21 @@ dct_base_url = "/management/api-clients"
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'list':
     rs = dct_search("API-clients List", dct_base_url, None, "No API-clients defined.", args.format)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'create':
     #print("Processing API-clients create")
     rs = api_client_create(dct_base_url, args.api_client_id, args.name)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'update':
     #print("Processing API-client update")
     rs = api_client_update(dct_base_url, args.id, args.api_client_id, args.name)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'delete':
     #print("Processing API-client delete ID=" + args.id)

@@ -120,14 +120,14 @@ provision_from_bookmark = subparser.add_parser('provision_from_bookmark')
 view.add_argument('--id', type=str, required=True, help="VDBGroup full name or ID to be viewed")
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define delete parms
 delete.add_argument('--id', type=str, required=True, help="VDBgroup to be deleted")
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="VDBgroup search string")
-search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define create parms
 create.add_argument('--name', type=str, required=True, help="Name of the new VDBgroup")
@@ -135,7 +135,7 @@ create.add_argument('--vdb_id', type=str, required=True, help="List of VDB IDs s
 
 # define view parms
 bookmarks.add_argument('--id', type=str, required=True, help="VDBGroup full name or ID to be viewed")
-bookmarks.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+bookmarks.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # refresh view parms
 refresh.add_argument('--bookmark_id', type=str, help="ID of the bookmark to be refreshed")
@@ -181,11 +181,10 @@ dct_base_url = "/vdb-groups"
 
 if args.command == 'list':
     rs = dct_search("VDBGroup List ", dct_base_url, None, "No VDBGroups defined.", args.format)
-    dct_print_json(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'delete':
     print("Processing VDBGroup delete ID=" + args.id)
@@ -194,16 +193,15 @@ if args.command == 'delete':
 if args.command == 'search':
     rs = dct_search("VDBGroups List ", dct_base_url, args.filter, "No VDBGroups match the search criteria.",
                     args.format)
-    dct_print_json(rs)
 
 if args.command == 'create':
     print("Processing VDBGroup create ")
     rs = vdbgroup_create(dct_base_url, args.name, args.vdb_id)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'bookmarks':
     rs = dct_list_by_id(dct_base_url, args.id, "/bookmarks", args.format)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'refresh':
     print("Processing VDBGroup refresh ")

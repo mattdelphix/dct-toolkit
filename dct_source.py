@@ -37,11 +37,11 @@ view = subparser.add_parser('view')
 view.add_argument('--id', type=str, required=True, help="Source to be viewed")
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="Source search string")
-search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -61,13 +61,11 @@ dct_base_url = "/sources"
 
 if args.command == 'list':
     rs = dct_search("Source List ", dct_base_url, None, "No Sources defined.", args.format)
-    dct_print_json(rs)
-
-if args.command == 'view':
-    rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("Source List ", dct_base_url, args.filter, "No Sources match the search criteria.",
                     args.format)
-    dct_print_json(rs)
+
+if args.command == 'view':
+    rs = dct_view_by_id(dct_base_url, args.id)
+    dct_print_json_formatted(rs)

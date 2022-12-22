@@ -36,11 +36,11 @@ view = subparser.add_parser('view')
 view.add_argument('--id', type=str, required=True, help="VCDB to be viewed")
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="VCDB search string")
-search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]",choices=[0,1,2])
 
 # Start processing
@@ -58,13 +58,11 @@ dct_base_url = "/vcdbs"
 
 if args.command == 'list':
     rs = dct_search("VCDBs List ", dct_base_url, None, "No VCDBs defined.", args.format)
-    dct_print_json(rs)
-
-if args.command == 'view':
-    rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("VCDBs List ", dct_base_url, args.filter, "No VCDBs match the search criteria.",
                     args.format)
-    dct_print_json(rs)
+
+if args.command == 'view':
+    rs = dct_view_by_id(dct_base_url, args.id)
+    dct_print_json_formatted(rs)

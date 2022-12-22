@@ -123,6 +123,7 @@ product_info = subparser.add_parser('product_info')
 
 # Get current date time in ISO FORMAT
 #TODO to be implemented logic to set current time as API end timestamp
+
 end_time = datetime.now().isoformat()
 
 # define api_usage parms

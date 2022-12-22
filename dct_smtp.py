@@ -60,7 +60,7 @@ update = subparser.add_parser('update')
 validate.add_argument('--address', type=str, required=True, help="Address of Smtp server to validate")
 
 # define list params
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define update params
 update.add_argument('--enabled', type=str, required=False, help="Set or unset LDAP, default is false",
@@ -100,7 +100,7 @@ dct_base_url = "/management/smtp"
 if args.command == 'validate':
     payload = {"to_address": args.address}
     resp = dct_create(dct_base_url + "/validate", payload)
-    dct_print_json(resp)
+    dct_print_json_formatted(resp)
 
 if args.command == 'list':
     dct_simple_list("Saml List", dct_base_url, "No SAML defined.")

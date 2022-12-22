@@ -42,7 +42,7 @@ view = subparser.add_parser('view')
 view.add_argument('--id', type=str, required=True, help="Report Schedule ID to be viewed")
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 
 # define delete parms
 delete.add_argument('--id', type=str, required=True, help="Report Schedule ID to be deleted")
@@ -65,12 +65,11 @@ dct_base_url = "/reporting/schedule"
 
 if args.command == 'list':
     rs = dct_search("Report Schedule List ", dct_base_url, None, "No Report Schedules defined.", args.format)
-    dct_print_json(rs)
 
 if args.command == 'delete':
     print("Processing Report Schedule delete ID=" + args.id)
-    rs = dct_delete_by_id(dct_base_url, "Deleted Report Schedule", args.id)
+    dct_delete_by_id(dct_base_url, "Deleted Report Schedule", args.id)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)

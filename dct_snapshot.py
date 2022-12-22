@@ -19,7 +19,6 @@
 
 from helpers import *
 
-# TODO job cancel not implemented
 
 # Init
 parser = argparse.ArgumentParser(description="Delphix DCT Snapshot operations")
@@ -54,4 +53,4 @@ dct_base_url = "/snapshots"
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)

@@ -62,50 +62,41 @@ def tabular_report(title, ldict):
 def url_GET(url_encoded_text):
     if cfg.level == 2:
         dct_print_url('GET',url_encoded_text,None)
-
     rsp = requests.get(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
     if cfg.level == 2:
         dct_print_response(rsp)
-
     return rsp
 
 
 def url_POST(url_encoded_text, json_data):
     if cfg.level == 2:
         dct_print_url('POST',url_encoded_text,json_data)
-
     if json_data:
         rsp = requests.post(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
                             verify=False)
     else:
         rsp = requests.post(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
-
     if cfg.level == 2:
         dct_print_response(rsp)
-
     return rsp
 
 
 def url_PUT(url_encoded_text, json_data):
     if cfg.level == 2:
         dct_print_url('PUT',url_encoded_text,json_data)
-
     if json_data:
         rsp = requests.put(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
                            verify=False)
     else:
         rsp = requests.put(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
-
     if cfg.level == 2:
         dct_print_response(rsp)
-
     return rsp
 
 
 def url_PATCH(url_encoded_text, json_data):
     if cfg.level == 2:
         dct_print_url('PATCH',url_encoded_text,json_data)
-
     if json_data:
         rsp = requests.patch(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), json=json_data,
                              verify=False)
@@ -114,7 +105,6 @@ def url_PATCH(url_encoded_text, json_data):
 
     if cfg.level == 2:
         dct_print_response(rsp)
-
     return rsp
 
 
@@ -133,23 +123,34 @@ def content_formatter(dct):
         print(f" {key} = {value}")
     return
 
+def dct_print_list_id(listofdict):
+    # print comma separated list of IDs from a list dictionaries
+    result = []
+    for d in listofdict:
+        if 'id' in d:
+            result.append(d['id'])
+    return print(', '.join(result))
+
 
 def dct_search(dct_title, dct_query, dct_filter, dct_error, dct_output="json"):
-    # this function satisfies both list and search API calls with a list of resuklts
+    # this function satisfies both list and search API calls with a list of results
     if dct_filter is not None:
         payload = {"filter_expression": dct_filter}
         resp = url_POST(dct_query + "/search", payload)
     else:
         resp = url_GET(dct_query)
     if resp.status_code == 200:
-        report_data = resp.json()
-        if report_data['items']:
+        rep_data = resp.json()
+        report_data = rep_data['items']
+        if report_data:
             if dct_output == "report":
                 return tabular_report("DELPHIX Data Control Tower - " + dct_title + " - Filter = " + str(dct_filter),
-                                      report_data['items'])
+                                      report_data)
+            if dct_output == "id":
+                return dct_print_list_id(report_data)
             else:
                 # return report_data
-                dct_print_json_formatted(report_data['items'])
+                return dct_print_json_formatted(report_data)
         else:
             print(dct_error)
     else:
@@ -164,6 +165,8 @@ def dct_simple_list(dct_title, dct_query, dct_error, dct_output="json"):
         if report_data:
             if dct_output == "report":
                 return tabular_report("DELPHIX Data Control Tower - " + dct_title, report_data)
+            if dct_output == "id":
+                return dct_print_list_id(report_data)
             else:
                 # return report_data
                 dct_print_json_formatted(report_data)
@@ -198,10 +201,9 @@ def dct_create(dct_base_query, payload, dct_output="json"):
 
 def dct_list_by_id(dct_base_query, view_id, dct_operation, dct_output="json"):
     resp = url_GET(dct_base_query + "/" + view_id + dct_operation)
-
     if resp.status_code == 200:
-        # return resp.json()
-        return json.dumps(resp.json(), indent=4)
+        return resp.json()
+        # return json.dumps(resp.json(), indent=4)
     else:
         dct_print_error(resp)
         sys.exit(1)
@@ -209,7 +211,6 @@ def dct_list_by_id(dct_base_query, view_id, dct_operation, dct_output="json"):
 
 def dct_delete_by_id(dct_query, dct_message, delete_id, response_code=200):
     resp = url_DELETE(dct_query + "/" + urllib.parse.quote(delete_id))
-
     if resp.status_code == response_code:
         print(dct_message + " - ID=" + delete_id)
         try:
@@ -225,7 +226,6 @@ def dct_delete_by_id(dct_query, dct_message, delete_id, response_code=200):
 def dct_delete_ref_by_id(dct_query, dct_message, delete_id, dct_operation, ref_id):
     # this function deletes a ref_id from a primary object
     resp = url_DELETE(dct_query + "/" + urllib.parse.quote(delete_id) + "/" + dct_operation + "/" + urllib.parse.quote(ref_id))
-
     if resp.status_code == 200:
         print(dct_message + " - ID=" + delete_id + "/" + ref_id)
         return resp.json()
@@ -242,7 +242,6 @@ def dct_update_ref_by_id(dct_query, dct_message, update_id, payload, dct_operati
     resp = url_POST(
         dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation + "/" + urllib.parse.quote(ref_id),
         payload)
-
     if resp.status_code == 200:
         print(dct_message + " - ID=" + update_id + "/" + ref_id)
         return resp.json()
@@ -253,9 +252,9 @@ def dct_update_ref_by_id(dct_query, dct_message, update_id, payload, dct_operati
 
 def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
-
     if resp.status_code == 200:
-        print(dct_message + " - ID=" + update_id)
+        if cfg.level == 1:
+            print(dct_message + " - ID=" + update_id)
         return resp.json()
     else:
         dct_print_error(resp)
@@ -264,13 +263,13 @@ def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
 
 def dct_post_by_id(dct_query, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
-    return resp
+    return resp.json()
 
 
 def dct_post_ref_by_id(dct_query, update_id, payload, dct_operation, ref_id, post_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation + "/" + urllib.parse.quote(
         ref_id) + "/" + urllib.parse.quote(post_operation), payload)
-    return resp
+    return resp.json()
 
 
 def dct_print_response(response):
@@ -288,13 +287,10 @@ def dct_print_error(response):
     print(f"ERROR: {response.status_code}")
     print(f"TEXT : {response.text}")
 
-def dct_print_json(jsontext):
-    if jsontext:
-        print(jsontext)
-    #print(json.dumps(jsontext, indent=2))
 
-def dct_print_json_formatted(jsontext):
-    print(json.dumps(jsontext, indent=2))
+def dct_print_json_formatted(jsondict):
+    if jsondict:
+        print(json.dumps(jsondict, indent=2))
 
 
 def dct_check_empty_command(parms):
@@ -315,7 +311,6 @@ def dct_read_config(filename):
         if not flex.exists():
             print("Error: Config file " + fnm + " does not exist.")
             exit(1)
-
     file = open(fnm, "r")
     contents = file.read()
     dictionary = ast.literal_eval(contents)

@@ -16,7 +16,6 @@ def dct_login(dct_query, user, password):
         return resp.json()
     if resp.status_code == 201:
         print("User is unauthorized")
-        return
     else:
         dct_print_error(resp)
         sys.exit(1)
@@ -30,7 +29,6 @@ def dct_token(dct_query, dct_tkn, dct_type):
         return resp.json()
     if resp.status_code == 201:
         print("User is unauthorized")
-        return
     else:
         dct_print_error(resp)
         sys.exit(1)
@@ -75,9 +73,9 @@ if args.command == 'connect':
     dct_base_url = "/login"
     print("Login user=" + args.user)
     rs = dct_login(dct_base_url, args.user, args.password)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'token_info':
     dct_base_url = "/token-info"
     rs = dct_token(dct_base_url, args.token, args.type)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)

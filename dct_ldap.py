@@ -15,8 +15,7 @@
 #
 # Author  : Matteo Ferrari, Ruben Catarrunas
 # Date    : September 2022
-
-
+import cfg
 from helpers import *
 
 
@@ -35,9 +34,9 @@ def update_saml_config(base_url, enabled, auto_create_users, hostname, port, dom
 
     resp = url_PATCH(base_url, payload)
     if resp.status_code == 200:
-        print("LDAP config updated")
-        print(resp.json())
-        return
+        if cfg.level == 1:
+            print("LDAP config updated")
+        dct_print_json_formatted(resp.json())
     else:
         dct_print_error(resp)
         sys.exit(1)
@@ -56,7 +55,7 @@ validate = subparser.add_parser('validate')
 update = subparser.add_parser('update')
 
 # define list params
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define validate params
 validate.add_argument('--username', type=str, required=True, help="Username to validate if LDAP is valid")
@@ -105,11 +104,12 @@ if dct_check_empty_command(args):
 dct_base_url = "/management/ldap-config"
 
 if args.command == 'list':
-    dct_simple_list("Saml List", dct_base_url, "No SAML defined.", args.format)
+    dct_simple_list("LDAP List", dct_base_url, "No LDAP defined.", args.format)
 
 if args.command == 'validate':
     payload = {"username": args.username, "password": args.passsword}
-    dct_create(dct_base_url + "/validate", payload)
+    rs = dct_create(dct_base_url + "/validate", payload)
+    dct_print_json_formatted(rs)
 
 if args.command == 'update':
     update_saml_config(dct_base_url, args.enabled, args.hostname, args.port, args.domains, args.enable_ssl,

@@ -75,19 +75,19 @@ delete.add_argument('--id', type=str, required=True, help="Bookmark ID to be del
 view.add_argument('--id', type=str, required=True, help="Bookmark ID to be viewed")
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="Bookmark search string")
-search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define vdbgroup_list parms
 vdbgroup_list.add_argument('--id', type=str, required=True, help="Bookmark ID for VDBGroup list")
-vdbgroup_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+vdbgroup_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define tag_list parms
 tag_list.add_argument('--id', type=str, required=True, help="Bookmark ID for tags list")
-tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define tag_create params
 tag_create.add_argument('--id', type=str, required=True, help="Bookmark ID to add tags to")
@@ -118,16 +118,16 @@ dct_base_url = "/bookmarks"
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'search':
     rs = dct_search("Bookmark List", dct_base_url, args.filter, "No Bookmarks match the search criteria.",
                     args.format)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'list':
     rs = dct_search("Bookmarks List", dct_base_url, None, "No Bookmarks defined.", args.format)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'create':
     rs = bookmark_create(dct_base_url, args.name, args.vdb_id, args.retention, args.tags)
@@ -139,17 +139,20 @@ if args.command == 'delete':
 
 if args.command == 'vdbgroup_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/vdb-groups", args.format)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs['tags'])
 
 if args.command == 'tag_create':
     payload = {"tags": args.tags}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
     if rs.status_code == 201:
-        print("Create tags for dSource - ID=" + args.id)
+        if cfg.level == 1:
+            print("Created tags for Bookmark - ID=" + args.id)
+        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
+        dct_print_json_formatted(rs['tags'])
     else:
         dct_print_error(rs)
         sys.exit(1)
@@ -158,7 +161,10 @@ if args.command == 'tag_delete':
     payload = {"key": args.key}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
     if rs.status_code == 204:
-        print("Delete tag for DSourceID - ID=" + args.id)
+        if cfg.level == 1:
+            print("Deleted tag by key for Bookmark - ID=" + args.id)
+        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
+        dct_print_json_formatted(rs['tags'])
     else:
         dct_print_error(rs)
         sys.exit(1)
@@ -166,7 +172,8 @@ if args.command == 'tag_delete':
 if args.command == 'tag_delete_all':
     rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
     if rs.status_code == 204:
-        print("Deleted all tags for DSource - ID=" + args.id)
+        if cfg.level == 1:
+            print("Deleted all tags for Bookmark - ID=" + args.id)
     else:
         dct_print_error(rs)
         sys.exit(1)

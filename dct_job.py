@@ -45,14 +45,14 @@ canc = subparser.add_parser('cancel')
 view.add_argument('--id', type=str, required=True, help="Job ID to be viewed")
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 
 # define monitor parms
 monitor.add_argument('--id', type=str, required=True, help="job ID to be monitored")
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="Job search string")
-search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 
 # define cancel parms
 canc.add_argument('--id', type=str, required=True, help="job ID to be canceled")
@@ -79,22 +79,20 @@ if args.command == 'monitor':
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'cancel':
     print("Cancel Job ID=" + args.id)
     rs = dct_post_by_id(dct_base_url, args.id, None, "abandon")
     if rs is not None:
         rs = dct_job_monitor(args.id)
-        dct_print_json(rs)
+        dct_print_json_formatted(rs)
     else:
         exit(1)
 
 if args.command == 'search':
     rs = dct_search("Job List ", dct_base_url, args.filter, "No Jobs match the search criteria.",
                     args.format)
-    dct_print_json(rs)
 
 if args.command == 'list':
     rs = dct_search("Job List ", dct_base_url, None, "No Jobs defined.", args.format)
-    dct_print_json(rs)

@@ -33,8 +33,8 @@ lst = subparser.add_parser('list')
 search = subparser.add_parser('search')
 view = subparser.add_parser('view')
 snapshot_list = subparser.add_parser('snapshot_list')
-tag_list = subparser.add_parser('tag_list')
 create_snapshot = subparser.add_parser("create_snapshot")
+tag_list = subparser.add_parser('tag_list')
 tag_create = subparser.add_parser('tag_create')
 tag_delete = subparser.add_parser('tag_delete')
 tag_delete_all = subparser.add_parser('tag_delete_all')
@@ -43,22 +43,22 @@ tag_delete_all = subparser.add_parser('tag_delete_all')
 view.add_argument('--id', type=str, required=True, help="DSource ID to be viewed")
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="DSource search string")
-search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define snapshot_list parms
 snapshot_list.add_argument('--id', type=str, required=True, help="DSource ID for snapshot list")
-snapshot_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+snapshot_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
+
+# define create_snapshot parms
+create_snapshot.add_argument('--id', type=str, required=True, help="DSource ID for creating a new snapshot")
 
 # define tag_list parms
 tag_list.add_argument('--id', type=str, required=True, help="DSource ID for tags list")
-tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
-
-# define tag_list parms
-create_snapshot.add_argument('--id', type=str, required=True, help="DSource ID for creating a new snapshot")
+tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define tag_create params
 tag_create.add_argument('--id', type=str, required=True, help="DSource ID to add tags to")
@@ -89,24 +89,18 @@ dct_base_url = "/dsources"
 
 if args.command == 'list':
     rs = dct_search("DSource List ", dct_base_url, None, "No DSources defined.", args.format)
-    dct_print_json(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'search':
     rs = dct_search("DSource List ", dct_base_url, args.filter, "No DSources match the search criteria.",
                     args.format)
-    dct_print_json(rs)
 
 if args.command == 'snapshot_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/snapshots", args.format)
-    dct_print_json(rs)
-
-if args.command == 'tag_list':
-    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == "create_snapshot":
     rs = dct_post_by_id(dct_base_url, args.id, None, "snapshots")
@@ -116,6 +110,10 @@ if args.command == "create_snapshot":
     else:
         dct_print_error(rs)
         sys.exit(1)
+
+if args.command == 'tag_list':
+    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
+    dct_print_json_formatted(rs)
 
 if args.command == 'tag_create':
     payload = {"tags": json.loads(args.tags)}

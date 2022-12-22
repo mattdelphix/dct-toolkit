@@ -49,18 +49,18 @@ view = subparser.add_parser('view')
 updt = subparser.add_parser('update')
 
 # define list parms
-lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 
 # define test parms
 tst.add_argument('--id', type=str, required=True, help="Masking connector ID to be tested")
-tst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report'])
+tst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 
 # define view parms
 view.add_argument('--id', type=str, required=True, help="Masking connector ID to be viewed")
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="Masking connector search string")
-search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define update parms
 updt.add_argument('--id', type=str, required=True, help="Masking connector ID to be updated")
@@ -88,20 +88,18 @@ dct_base_url = "/connectors"
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'list':
     rs = dct_search("Masking connector List", dct_base_url, None, "No Masking connectors defined.", args.format)
-    dct_print_json(rs)
 
 if args.command == 'search':
     rs = dct_search("Masking connector List", dct_base_url, args.filter, "No Masking connectors match the search criteria.",
                     args.format)
-    dct_print_json(rs)
 
 if args.command == 'test':
     rs = dct_post_by_id(dct_base_url, args.id, "/test")
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'update':
     print("Processing Connector update ID=" + args.id)

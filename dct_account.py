@@ -118,14 +118,14 @@ view.add_argument('--id', type=str, required=True, help="Account ID to be viewed
 
 # define tag_list params
 tags.add_argument('--id', type=str, required=True, help="Account ID to be viewed")
-tags.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+tags.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define list params
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define search params
 search.add_argument('--filter', type=str, required=False, help="Account search string")
-search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define password_reset params
 pwd_reset.add_argument('--id', type=str, required=True, help="Account ID to have pwd reset")
@@ -145,7 +145,7 @@ tag_delete.add_argument('--key', type=str, required=True, help="Tags key of exis
 tag_delete_all.add_argument('--id', type=str, required=True, help="Account ID to delete tags from")
 
 # define lst_pwd_policy params
-lst_pwd_policy.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+lst_pwd_policy.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define updt_pwd_policy params
 updt_pwd_policy.add_argument('--enabled', type=str, required=True, help="Status of password policy",
@@ -183,73 +183,40 @@ dct_base_url = "/management/accounts"
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'search':
     rs = dct_search("Account List", dct_base_url, args.filter, "No Accounts match the search criteria.", args.format)
-    dct_print_json(rs)
 
 if args.command == 'list':
     rs = dct_search("Accounts List", dct_base_url, None, "No Accounts defined.", args.format)
-    dct_print_json(rs)
 
 if args.command == 'create':
     #print("Processing Accounts create")
     rs = account_create(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
                         args.password, args.tags)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'update':
     #print("Processing Account update ID=" + args.id)
     rs = account_update(dct_base_url, args.id, args.client_id, args.first_name, args.last_name, args.email,
                         args.username)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'delete':
     #print("Processing Account delete ID=" + args.id)
     rs = dct_delete_by_id(dct_base_url, "Deleted Account", args.id)
 
-if args.command == 'tag_list':
-    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
-    dct_print_json(rs)
-
 if args.command == 'password_reset':
     rs = dct_update_by_id(dct_base_url, "Password Reset for Account", args.id, {"old_password": args.old_password,
-                                                                                "new_password": args.new_password},
-                          args.command)
-    dct_print_json(rs)
-
-if args.command == 'tag_create':
-    payload = {"tags": args.tags}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
-    if rs.status_code == 201:
-        print("Create tags for Account - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
-
-if args.command == 'tag_delete':
-    payload = {"key": args.key}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
-    if rs.status_code == 204:
-        print("Delete tag for Account - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
-
-if args.command == 'tag_delete_all':
-    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
-    if rs.status_code == 204:
-        print("Deleted all tags for Account - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
-
+                     "new_password": args.new_password}, args.command)
+    dct_print_json_formatted(rs)
+    
 if args.command == 'list_pwd_policy':
     print("Retrieving password policies")
     rs = url_GET(dct_base_url + "/password-policies")
     if rs.status_code == 200:
-        print(rs.json())
+        dct_print_json_formatted(rs.json())
     else:
         dct_print_error(rs)
         sys.exit(1)
@@ -259,4 +226,41 @@ if args.command == 'update_pwd_policy':
     rs = password_policy_update(dct_base_url + "/password-policies", args.enabled, args.min_length,
                                 args.reuse_disallow_limit, args.digit, args.uppercase_letter, args.lowercase_letter,
                                 args.special_character, args.disallow_username_as_password)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
+
+if args.command == 'tag_list':
+    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
+    dct_print_json_formatted(rs['tags'])
+
+if args.command == 'tag_create':
+    payload = {"tags": args.tags}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
+    if rs.status_code == 201:
+        if cfg.level == 1:
+            print("Created tags for Account - ID=" + args.id)
+        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
+        dct_print_json_formatted(rs['tags'])
+    else:
+        dct_print_error(rs)
+        sys.exit(1)
+
+if args.command == 'tag_delete':
+    payload = {"key": args.key}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
+    if rs.status_code == 204:
+        if cfg.level == 1:
+            print("Deleted tag by key for Account - ID=" + args.id)
+        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
+        dct_print_json_formatted(rs['tags'])
+    else:
+        dct_print_error(rs)
+        sys.exit(1)
+
+if args.command == 'tag_delete_all':
+    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
+    if rs.status_code == 204:
+        if cfg.level == 1:
+            print("Deleted all tags for Account - ID=" + args.id)
+    else:
+        dct_print_error(rs)
+        sys.exit(1)

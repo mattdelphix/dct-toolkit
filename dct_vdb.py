@@ -37,7 +37,7 @@ def vdb_operation(base_url, vdb_id, ops):
         ops = "snapshots"
     resp = url_POST(base_url + "/" + urllib.parse.quote(vdb_id) + "/" + ops, payload)
     if resp.status_code == 200:
-        dct_print_json(resp)
+        dct_print_json_formatted(resp.json())
     else:
         dct_print_error(resp)
         sys.exit(1)
@@ -161,7 +161,7 @@ refr_by_book.add_argument('--book_id', type=str, required=True, help="Bookmark I
 refr_by_timestmp.add_argument('--id', type=str, required=True, help="VDB ID to be refreshed with a Timestamp")
 refr_by_timestmp.add_argument('--timestamp', type=str, required=True, help="Timestamp to be used for refresh")
 
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define enable parms
 enable.add_argument('--id', type=str, required=True, help="VDB ID to be enabled")
@@ -183,15 +183,15 @@ delete.add_argument('--id', type=str, required=True, help="VDB ID to be deleted"
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="VDB search string")
-search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+search.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define tag_list parms
 tag_list.add_argument('--id', type=str, required=True, help="VDB ID for tags list")
-tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define snapshot_list parms
 snapshot_list.add_argument('--id', type=str, required=True, help="DSource ID for snapshot list")
-snapshot_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report'])
+snapshot_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define tag_list parms
 create_snapshot.add_argument('--id', type=str, required=True, help="DSource ID for creating a new snapshot")
@@ -245,11 +245,10 @@ dct_base_url = "/vdbs"
 
 if args.command == 'list':
     rs = dct_search("VDB List ", dct_base_url, None, "No VDBs defined.", args.format)
-    #dct_print_json(rs)
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'delete':
     print("Processing VDB delete ID=" + args.id)
@@ -259,7 +258,6 @@ if args.command == 'delete':
 if args.command == 'search':
     rs = dct_search("VDB List ", dct_base_url, args.filter, "No VDBs match the search criteria.",
                     args.format)
-    dct_print_json(rs)
 
 if args.command == 'enable':
     print("Processing VDB enable ID=" + args.id)
@@ -286,46 +284,17 @@ if args.command == 'snapshot':
     rs = vdb_operation(dct_base_url, args.id, args.command)
     dct_job_monitor(rs['job']['id'])
 
-if args.command == 'tag_list':
-    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
-    dct_print_json(rs)
-
 if args.command == 'snapshot_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/snapshots", args.format)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == "create_snapshot":
-    rs = dct_post_by_id(dct_base_url, args.id, None, "snapshots")
-    if rs.status_code == 200:
-        print(rs.json())
+    resp = dct_post_by_id(dct_base_url, args.id, None, "snapshots")
+    if resp.status_code == 200:
+        rs = resp.json()
+        dct_print_json_formatted(rs)
     else:
-        dct_print_error(rs)
-        sys.exit(1)
-
-if args.command == 'tag_create':
-    payload = {"tags": args.tags}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
-    if rs.status_code == 201:
-        print("Create tags for dSource - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
-
-if args.command == 'tag_delete':
-    payload = {"key": args.key}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
-    if rs.status_code == 204:
-        print("Delete tag for DSourceID - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
-
-if args.command == 'tag_delete_all':
-    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
-    if rs.status_code == 204:
-        print("Deleted all tags for DSource - ID=" + args.id)
-    else:
-        dct_print_error(rs)
+        dct_print_error(resp)
         sys.exit(1)
 
 if args.command == 'update':
@@ -333,7 +302,7 @@ if args.command == 'update':
     rs = vdb_update(dct_base_url, args.id, args.name, args.db_username, args.db_password, args.validate_db_credentials,
                     args.auto_restart, args.environment_user_id, args.template_id, args.listener_ids,
                     args.new_dbid, args.cdc_on_provision, args.pre_script, args.post_script, args.hooks)
-    dct_print_json(rs)
+    dct_print_json_formatted(rs)
 
 if args.command == 'refresh_by_snapshot':
     print("Processing VDB refresh ID=" + args.id + " with snapshot_ID=" + args.snap_id)
@@ -364,3 +333,41 @@ if args.command == 'rollback_by_timestamp':
     print("Processing VDB rollback ID=" + args.id + " with timestamp=" + args.timestamp)
     rs = vdb_rollback(dct_base_url, args.id, args.command, args.timestamp)
     dct_job_monitor(rs['job']['id'])
+
+
+if args.command == 'tag_list':
+    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
+    dct_print_json_formatted(rs['tags'])
+
+if args.command == 'tag_create':
+    payload = {"tags": args.tags}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
+    if rs.status_code == 201:
+        if cfg.level == 1:
+            print("Created tags for VDB - ID=" + args.id)
+        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
+        dct_print_json_formatted(rs['tags'])
+    else:
+        dct_print_error(rs)
+        sys.exit(1)
+
+if args.command == 'tag_delete':
+    payload = {"key": args.key}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
+    if rs.status_code == 204:
+        if cfg.level == 1:
+            print("Deleted tag by key for Engine - ID=" + args.id)
+        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
+        dct_print_json_formatted(rs['tags'])
+    else:
+        dct_print_error(rs)
+        sys.exit(1)
+
+if args.command == 'tag_delete_all':
+    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
+    if rs.status_code == 204:
+        if cfg.level == 1:
+            print("Deleted all tags for Engine - ID=" + args.id)
+    else:
+        dct_print_error(rs)
+        sys.exit(1)
