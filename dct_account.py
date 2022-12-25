@@ -15,8 +15,7 @@
 #
 # Author  : Matteo Ferrari, Ruben Catarrunas
 # Date    : September 2022
-
-
+import cfg
 from helpers import *
 
 
@@ -192,20 +191,23 @@ if args.command == 'list':
     rs = dct_search("Accounts List", dct_base_url, None, "No Accounts defined.", args.format)
 
 if args.command == 'create':
-    #print("Processing Accounts create")
+    if cfg.level == 1:
+        print("Processing Accounts create")
     rs = account_create(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
                         args.password, args.tags)
     dct_print_json_formatted(rs)
 
 if args.command == 'update':
-    #print("Processing Account update ID=" + args.id)
+    if cfg.level == 1:
+        print("Processing Account update ID=" + args.id)
     rs = account_update(dct_base_url, args.id, args.client_id, args.first_name, args.last_name, args.email,
                         args.username)
     dct_print_json_formatted(rs)
 
 if args.command == 'delete':
-    #print("Processing Account delete ID=" + args.id)
-    rs = dct_delete_by_id(dct_base_url, "Deleted Account", args.id)
+    if cfg.level == 1:
+        print("Processing Account delete ID=" + args.id)
+    rs = dct_delete_by_id(dct_base_url, "Deleted Account", args.id, response_code=204)
 
 if args.command == 'password_reset':
     rs = dct_update_by_id(dct_base_url, "Password Reset for Account", args.id, {"old_password": args.old_password,
@@ -213,7 +215,8 @@ if args.command == 'password_reset':
     dct_print_json_formatted(rs)
     
 if args.command == 'list_pwd_policy':
-    print("Retrieving password policies")
+    if cfg.level == 1:
+        print("Retrieving password policies")
     rs = url_GET(dct_base_url + "/password-policies")
     if rs.status_code == 200:
         dct_print_json_formatted(rs.json())

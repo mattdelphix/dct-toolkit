@@ -102,7 +102,6 @@ def url_PATCH(url_encoded_text, json_data):
                              verify=False)
     else:
         rsp = requests.patch(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
-
     if cfg.level == 2:
         dct_print_response(rsp)
     return rsp
@@ -112,8 +111,8 @@ def url_DELETE(url_encoded_text):
     if cfg.level == 2:
         dct_print_url('DELETE',url_encoded_text,None)
     rsp = requests.delete(cfg.host + "/v2" + url_encoded_text, headers=build_headers(), verify=False)
-    if cfg.level == 2:
-        dct_print_response(rsp)
+    #if cfg.level == 2:
+    #    dct_print_response(rsp)
     return rsp
 
 
@@ -180,7 +179,6 @@ def dct_simple_list(dct_title, dct_query, dct_error, dct_output="json"):
 
 def dct_view_by_id(dct_query, view_id, dct_output="json"):
     resp = url_GET(dct_query + "/" + view_id)
-
     if resp.status_code == 200:
         return resp.json()
         # return json.dumps(resp.json(), indent=4)
@@ -191,7 +189,6 @@ def dct_view_by_id(dct_query, view_id, dct_output="json"):
 
 def dct_create(dct_base_query, payload, dct_output="json"):
     resp = url_POST(dct_base_query, payload)
-
     if resp.status_code == 200:
         return resp.json()
     else:
@@ -213,15 +210,9 @@ def dct_delete_by_id(dct_query, dct_message, delete_id, response_code=200):
     resp = url_DELETE(dct_query + "/" + urllib.parse.quote(delete_id))
     if resp.status_code == response_code:
         print(dct_message + " - ID=" + delete_id)
-        try:
-            report_data = resp.json()
-            return resp.json()
-        except json.decoder.JSONDecodeError:
-            return ""  # or return or whatever you want to do on a failed decode.
     else:
         dct_print_error(resp)
         sys.exit(1)
-
 
 def dct_delete_ref_by_id(dct_query, dct_message, delete_id, dct_operation, ref_id):
     # this function deletes a ref_id from a primary object
@@ -260,6 +251,15 @@ def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
         dct_print_error(resp)
         sys.exit(1)
 
+def dct_put_update_by_id(dct_query, dct_message, update_id, payload):
+    resp = url_PUT(dct_query + "/" + urllib.parse.quote(update_id), payload)
+    if resp.status_code == 200:
+        if cfg.level == 1:
+            print(dct_message + " - ID=" + update_id)
+        return resp.json()
+    else:
+        dct_print_error(resp)
+        sys.exit(1)
 
 def dct_post_by_id(dct_query, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)

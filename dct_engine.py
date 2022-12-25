@@ -51,6 +51,21 @@ def mask_engine_register(base_url, name, hostname, mask_user, mask_password, ins
         dct_print_error(resp)
         sys.exit(1)
 
+def virt_engine_update(base_url, engine_id, name, hostname, user, password, insecure_ssl, unsafe_ssl):
+    # TODO add hashicorp, trustore and tags
+    payload = {"name": name, "hostname": hostname, "username": user, "password": password,
+               "insecure_ssl": insecure_ssl,
+               "unsafe_ssl_hostname_check": unsafe_ssl}
+    rs = dct_put_update_by_id(base_url, "Update Engine ", engine_id, payload)
+    dct_print_json_formatted(rs)
+
+def mask_engine_update(base_url, engine_id, name, hostname, mask_user, mask_password, insecure_ssl, unsafe_ssl):
+    # TODO add hashicorp, trustore and tags
+    payload = {"name": name, "hostname": hostname, "masking_username": mask_user, "masking_password": mask_password,
+               "insecure_ssl": insecure_ssl,
+               "unsafe_ssl_hostname_check": unsafe_ssl}
+    rs = dct_put_update_by_id(base_url, "Update Engine ", engine_id, payload)
+    dct_print_json_formatted(rs)
 
 # Init
 parser = argparse.ArgumentParser(description="Delphix DCT Engine operations")
@@ -107,18 +122,20 @@ register_mask.add_argument('--unsafe_ssl_hostname_check', required=False, type=s
                            default=True)
 
 # define update_virt parms
-update_virt.add_argument('--name', type=str, required=True, help="Name used to refer to the engine in DCT")
-update_virt.add_argument('--hostname', type=str, required=True, help="hostname or ip address")
-update_virt.add_argument('--user', type=str, required=True, help="admin user")
-update_virt.add_argument('--password', type=str, required=True, help="admin password")
+update_virt.add_argument('--id', type=str, required=True, help="virtualization engine UUID to be updated")
+update_virt.add_argument('--name', type=str, required=False, help="name used to refer to the engine in DCT")
+update_virt.add_argument('--hostname', type=str, required=False, help="hostname or ip address")
+update_virt.add_argument('--user', type=str, required=False, help="admin user")
+update_virt.add_argument('--password', type=str, required=False, help="admin password")
 update_virt.add_argument('--insecure_ssl', type=str, required=False, help="is SSL secure?", default=True)
 update_virt.add_argument('--unsafe_ssl_hostname_check', required=False, type=str, help="check SSL connection",
                            default=True)
 
 # define update_mask parms
-update_mask.add_argument('--name', type=str, required=True, help="Name used to refer to the engine in DCT")
-update_mask.add_argument('--hostname', type=str, required=True, help="hostname or ip address")
-update_mask.add_argument('--user', type=str, required=True, help="masking admin user")
+update_mask.add_argument('--id', type=str, required=True, help="masking engine UUID to be updated")
+update_mask.add_argument('--name', type=str, required=False, help="name used to refer to the engine in DCT")
+update_mask.add_argument('--hostname', type=str, required=False, help="hostname or ip address")
+update_mask.add_argument('--user', type=str, required=False, help="masking admin user")
 update_mask.add_argument('--password', type=str, required=True, help="masking admin password")
 update_mask.add_argument('--insecure_ssl', type=str, required=False, help="is SSL secure?", default=True)
 update_mask.add_argument('--unsafe_ssl_hostname_check', required=False, type=str, help="check SSL connection",
@@ -221,3 +238,49 @@ if args.command == 'tag_delete_all':
     else:
         dct_print_error(rs)
         sys.exit(1)
+
+if args.command == 'update_virt':
+    if cfg.level == 1:
+        print("Updating Virtualization Engine " + args.hostname)
+    curr = dct_view_by_id(dct_base_url, args.id)
+    if curr['type'] != "VIRTUALIZATION":
+        print(f"Engine with ID = "+ args.id + " is not a Masking engine.")
+        sys.exit(1)
+    if args.name:
+        curr['name'] = args.name
+    if args.hostname:
+        curr['hostname'] = args.hostname
+    if args.user:
+        curr['username'] = args.user
+    if args.password:
+        curr['password'] = args.password
+    if args.insecure_ssl:
+        curr['insecure_ssl'] = args.insecure_ssl
+    if args.unsafe_ssl_hostname_check:
+        curr['unsafe_ssl_hostname_check'] = args.insecure_ssl
+    rs = mask_engine_update(dct_base_url, args.id, curr['name'], curr['hostname'], curr['username'], curr['password'], curr['insecure_ssl'],
+                              curr['unsafe_ssl_hostname_check'])
+    dct_print_json_formatted(rs)
+
+if args.command == 'update_mask':
+    if cfg.level == 1:
+        print("Updating Masking Engine " + args.hostname)
+    curr = dct_view_by_id(dct_base_url, args.id)
+    if curr['type'] != "MASKING":
+        print(f"Engine with ID = "+ args.id + " is not a Masking engine.")
+        sys.exit(1)
+    if args.name:
+        curr['name'] = args.name
+    if args.hostname:
+        curr['hostname'] = args.hostname
+    if args.user:
+        curr['masking_username'] = args.user
+    if args.password:
+        curr['masking_password'] = args.password
+    if args.insecure_ssl:
+        curr['insecure_ssl'] = args.insecure_ssl
+    if args.unsafe_ssl_hostname_check:
+        curr['unsafe_ssl_hostname_check'] = args.insecure_ssl
+    rs = mask_engine_update(dct_base_url, args.id, curr['name'], curr['hostname'], curr['username'], curr['password'], curr['insecure_ssl'],
+                              curr['unsafe_ssl_hostname_check'])
+    dct_print_json_formatted(rs)

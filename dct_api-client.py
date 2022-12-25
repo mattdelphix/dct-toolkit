@@ -26,19 +26,20 @@ def api_client_create(base_url, api_client_id, name):
     resp = url_POST(base_url, payload)
     if resp.status_code == 201:
         rsp = resp.json()
-        print(f"Registered API-client with ID={rsp['api_client_entity_id']}")
+        if cfg.level == 1:
+            print(f"Registered API-client with ID={rsp['api_client_entity_id']}")
         return rsp
     else:
         dct_print_error(resp)
         sys.exit(1)
 
 
-def api_client_update(base_url, id, api_client_id, name):
+def api_client_update(base_url, api_id, api_client_id, name):
     payload = {"api_client_id": api_client_id, "name": name}
-    resp = url_PUT(base_url + "/" + id, payload)
+    resp = url_PUT(base_url + "/" + ap_id, payload)
     if resp.status_code == 200:
         rsp = resp.json()
-        print(f"Updated API-client with ID={rsp['id']}")
+        print(f"Updated API-client - ID={rsp['id']}")
         return rsp
     else:
         dct_print_error(resp)
@@ -103,15 +104,18 @@ if args.command == 'list':
     dct_print_json_formatted(rs)
 
 if args.command == 'create':
-    #print("Processing API-clients create")
+    if cfg.level == 1:
+        print("Processing API-clients create")
     rs = api_client_create(dct_base_url, args.api_client_id, args.name)
     dct_print_json_formatted(rs)
 
 if args.command == 'update':
-    #print("Processing API-client update")
+    if cfg.level == 1:
+        print("Processing API-client update")
     rs = api_client_update(dct_base_url, args.id, args.api_client_id, args.name)
     dct_print_json_formatted(rs)
 
 if args.command == 'delete':
-    #print("Processing API-client delete ID=" + args.id)
-    rs = dct_delete_by_id(dct_base_url, "Deleted API-client", args.id)
+    if cfg.level == 1:
+        print("Processing API-client delete ID=" + args.id)
+    rs = dct_delete_by_id(dct_base_url, "Deleted API-client", args.id, response_code=204)

@@ -53,7 +53,7 @@ conn.add_argument('--password', type=str, required=True, help="Password for DCT 
 
 # define token parms
 token.add_argument('--token', type=str, required=True, help="DCT Token")
-token.add_argument('--type', type=str, required=False, help="DCT Token Type (default = 'Bearer'", default='Bearer')
+token.add_argument('--type', type=str, required=False, help="DCT Token Type (default = 'Bearer')", default='Bearer')
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
