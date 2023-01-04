@@ -18,6 +18,7 @@
 
 from helpers import *
 
+# NOTE:  only one command per hook type is supported at the moment
 
 # VDB functions
 
@@ -39,8 +40,6 @@ vdb_file.add_argument('--engine', type=str, required=True, help="Engine ID to be
 vdb_file.add_argument('--source', type=str, required=True, help="Source data ID to be used for VDB provisioning")
 vdb_file.add_argument('--target_group', type=str, required=True, help="Target group ID to be used for VDB provisioning")
 vdb_file.add_argument('--name', type=str, required=True, help="Name of the VDB to be provisioned")
-vdb_file.add_argument('--os_username', type=str, required=True, help="OS user")
-vdb_file.add_argument('--os_password', type=str, required=True, help="OS password")
 vdb_file.add_argument('--environment_id', type=str, required=True, help="Environment ID for the VDB")
 vdb_file.add_argument('--environment_user_id', type=str, required=True, help="Environment User Name")
 vdb_file.add_argument('--auto_select_repository', required=False, help="Choose repository automatically", action="store_true")
@@ -51,47 +50,47 @@ vdb_file.add_argument('--snapshot_policy_id', type=str, required=False, help="Sn
 vdb_file.add_argument('--retention_policy_id', type=str, required=False, help="Retention policy ID to be used for VDB provisioning")
 
 # Hooks
-vdb_file.add_argument('--pre_refresh_name', type=str, required=False, help="Pre-refresh hook name", default="pre_refresh_command")
+vdb_file.add_argument('--pre_refresh_name', type=str, required=False, help="Pre-refresh hook name")
 vdb_file.add_argument('--pre_refresh_command', type=str, required=False, help="Pre-refresh hook command")
 vdb_file.add_argument('--pre_refresh_shell', type=str, required=False, help="Pre-refresh hook shell")
 
-vdb_file.add_argument('--post_refresh_name', type=str, required=False, help="Post-refresh hook name", default="post_refresh_command")
+vdb_file.add_argument('--post_refresh_name', type=str, required=False, help="Post-refresh hook name")
 vdb_file.add_argument('--post_refresh_command', type=str, required=False, help="Post-refresh hook command")
 vdb_file.add_argument('--post_refresh_shell', type=str, required=False, help="Post-refresh hook shell")
 
-vdb_file.add_argument('--pre_rollback_name', type=str, required=False, help="Pre-rollback hook name", default="pre_rollback_command")
+vdb_file.add_argument('--pre_rollback_name', type=str, required=False, help="Pre-rollback hook name")
 vdb_file.add_argument('--pre_rollback_command', type=str, required=False, help="Pre-rollback hook command")
 vdb_file.add_argument('--pre_rollback_shell', type=str, required=False, help="Pre-rollback hook shell")
 
-vdb_file.add_argument('--post_rollback_name', type=str, required=False, help="Post-rollback hook name", default="post_rollback_command")
+vdb_file.add_argument('--post_rollback_name', type=str, required=False, help="Post-rollback hook name")
 vdb_file.add_argument('--post_rollback_command', type=str, required=False, help="Post-rollback hook command")
 vdb_file.add_argument('--post_rollback_shell', type=str, required=False, help="Post-rollback hook shell")
 
-vdb_file.add_argument('--configure_clone_name', type=str, required=False, help="Configure_clone hook name", default="configure_clone_command")
+vdb_file.add_argument('--configure_clone_name', type=str, required=False, help="Configure_clone hook name")
 vdb_file.add_argument('--configure_clone_command', type=str, required=False, help="Configure_clone hook command")
 vdb_file.add_argument('--configure_clone_shell', type=str, required=False, help="Configure_clone hook shell")
 
-vdb_file.add_argument('--pre_snapshot_name', type=str, required=False, help="Pre-snapshot hook name", default="pre_snapshot_command")
+vdb_file.add_argument('--pre_snapshot_name', type=str, required=False, help="Pre-snapshot hook name")
 vdb_file.add_argument('--pre_snapshot_command', type=str, required=False, help="Pre-snapshot hook command")
 vdb_file.add_argument('--pre_snapshot_shell', type=str, required=False, help="Pre-snapshot hook shell")
 
-vdb_file.add_argument('--post_snapshot_name', type=str, required=False, help="Post-snapshot hook name", default="post_snapshot_command")
+vdb_file.add_argument('--post_snapshot_name', type=str, required=False, help="Post-snapshot hook name")
 vdb_file.add_argument('--post_snapshot_command', type=str, required=False, help="Post-snapshot hook command")
 vdb_file.add_argument('--post_snapshot_shell', type=str, required=False, help="Post-snapshot hook shell")
 
-vdb_file.add_argument('--pre_start_name', type=str, required=False, help="Pre-start hook name", default="pre_start_command")
+vdb_file.add_argument('--pre_start_name', type=str, required=False, help="Pre-start hook name")
 vdb_file.add_argument('--pre_start_command', type=str, required=False, help="Pre-start hook command")
 vdb_file.add_argument('--pre_start_shell', type=str, required=False, help="Pre-start hook shell")
 
-vdb_file.add_argument('--post_start_name', type=str, required=False, help="Post-start hook name", default="post_start_command")
+vdb_file.add_argument('--post_start_name', type=str, required=False, help="Post-start hook name")
 vdb_file.add_argument('--post_start_command', type=str, required=False, help="Post-start hook command")
 vdb_file.add_argument('--post_start_shell', type=str, required=False, help="Post-start hook shell")
 
-vdb_file.add_argument('--pre_stop_name', type=str, required=False, help="Pre-stop hook name", default="pre_stop_command")
+vdb_file.add_argument('--pre_stop_name', type=str, required=False, help="Pre-stop hook name")
 vdb_file.add_argument('--pre_stop_command', type=str, required=False, help="Pre-stop hook command")
 vdb_file.add_argument('--pre_stop_shell', type=str, required=False, help="Pre-stop hook shell")
 
-vdb_file.add_argument('--post_stop_name', type=str, required=False, help="Post-stop hook name", default="post_stop_command")
+vdb_file.add_argument('--post_stop_name', type=str, required=False, help="Post-stop hook name")
 vdb_file.add_argument('--post_stop_command', type=str, required=False, help="Post-stop hook command")
 vdb_file.add_argument('--post_stop_shell', type=str, required=False, help="Post-stop hook shell")
 
@@ -120,47 +119,47 @@ vdb_oracle.add_argument('--snapshot_policy_id', type=str, required=True, help="S
 vdb_oracle.add_argument('--retention_policy_id', type=str, required=True, help="Retention policy ID to be used for VDB provisioning")
 
 # Hooks
-vdb_oracle.add_argument('--pre_refresh_name', type=str, required=False, help="Pre-refresh hook name", default="pre_refresh_command")
+vdb_oracle.add_argument('--pre_refresh_name', type=str, required=False, help="Pre-refresh hook name")
 vdb_oracle.add_argument('--pre_refresh_command', type=str, required=False, help="Pre-refresh hook command")
 vdb_oracle.add_argument('--pre_refresh_shell', type=str, required=False, help="Pre-refresh hook shell")
 
-vdb_oracle.add_argument('--post_refresh_name', type=str, required=False, help="Post-refresh hook name", default="post_refresh_command")
+vdb_oracle.add_argument('--post_refresh_name', type=str, required=False, help="Post-refresh hook name")
 vdb_oracle.add_argument('--post_refresh_command', type=str, required=False, help="Post-refresh hook command")
 vdb_oracle.add_argument('--post_refresh_shell', type=str, required=False, help="Post-refresh hook shell")
 
-vdb_oracle.add_argument('--pre_rollback_name', type=str, required=False, help="Pre-rollback hook name", default="pre_rollback_command")
+vdb_oracle.add_argument('--pre_rollback_name', type=str, required=False, help="Pre-rollback hook name")
 vdb_oracle.add_argument('--pre_rollback_command', type=str, required=False, help="Pre-rollback hook command")
 vdb_oracle.add_argument('--pre_rollback_shell', type=str, required=False, help="Pre-rollback hook shell")
 
-vdb_oracle.add_argument('--post_rollback_name', type=str, required=False, help="Post-rollback hook name", default="post_rollback_command")
+vdb_oracle.add_argument('--post_rollback_name', type=str, required=False, help="Post-rollback hook name")
 vdb_oracle.add_argument('--post_rollback_command', type=str, required=False, help="Post-rollback hook command")
 vdb_oracle.add_argument('--post_rollback_shell', type=str, required=False, help="Post-rollback hook shell")
 
-vdb_oracle.add_argument('--configure_clone_name', type=str, required=False, help="Configure_clone hook name", default="configure_clone_command")
+vdb_oracle.add_argument('--configure_clone_name', type=str, required=False, help="Configure_clone hook name")
 vdb_oracle.add_argument('--configure_clone_command', type=str, required=False, help="Configure_clone hook command")
 vdb_oracle.add_argument('--configure_clone_shell', type=str, required=False, help="Configure_clone hook shell")
 
-vdb_oracle.add_argument('--pre_snapshot_name', type=str, required=False, help="Pre-snapshot hook name", default="pre_snapshot_command")
+vdb_oracle.add_argument('--pre_snapshot_name', type=str, required=False, help="Pre-snapshot hook name")
 vdb_oracle.add_argument('--pre_snapshot_command', type=str, required=False, help="Pre-snapshot hook command")
 vdb_oracle.add_argument('--pre_snapshot_shell', type=str, required=False, help="Pre-snapshot hook shell")
 
-vdb_oracle.add_argument('--post_snapshot_name', type=str, required=False, help="Post-snapshot hook name", default="post_snapshot_command")
+vdb_oracle.add_argument('--post_snapshot_name', type=str, required=False, help="Post-snapshot hook name")
 vdb_oracle.add_argument('--post_snapshot_command', type=str, required=False, help="Post-snapshot hook command")
 vdb_oracle.add_argument('--post_snapshot_shell', type=str, required=False, help="Post-snapshot hook shell")
 
-vdb_oracle.add_argument('--pre_start_name', type=str, required=False, help="Pre-start hook name", default="pre_start_command")
+vdb_oracle.add_argument('--pre_start_name', type=str, required=False, help="Pre-start hook name")
 vdb_oracle.add_argument('--pre_start_command', type=str, required=False, help="Pre-start hook command")
 vdb_oracle.add_argument('--pre_start_shell', type=str, required=False, help="Pre-start hook shell")
 
-vdb_oracle.add_argument('--post_start_name', type=str, required=False, help="Post-start hook name", default="post_start_command")
+vdb_oracle.add_argument('--post_start_name', type=str, required=False, help="Post-start hook name")
 vdb_oracle.add_argument('--post_start_command', type=str, required=False, help="Post-start hook command")
 vdb_oracle.add_argument('--post_start_shell', type=str, required=False, help="Post-start hook shell")
 
-vdb_oracle.add_argument('--pre_stop_name', type=str, required=False, help="Pre-stop hook name", default="pre_stop_command")
+vdb_oracle.add_argument('--pre_stop_name', type=str, required=False, help="Pre-stop hook name")
 vdb_oracle.add_argument('--pre_stop_command', type=str, required=False, help="Pre-stop hook command")
 vdb_oracle.add_argument('--pre_stop_shell', type=str, required=False, help="Pre-stop hook shell")
 
-vdb_oracle.add_argument('--post_stop_name', type=str, required=False, help="Post-stop hook name", default="post_stop_command")
+vdb_oracle.add_argument('--post_stop_name', type=str, required=False, help="Post-stop hook name")
 vdb_oracle.add_argument('--post_stop_command', type=str, required=False, help="Post-stop hook command")
 vdb_oracle.add_argument('--post_stop_shell', type=str, required=False, help="Post-stop hook shell")
 
@@ -218,8 +217,6 @@ if args.command == 'file':
                "source_id": args.source,
                "target_group_id": args.target_group,
                "name": args.name,
-               "os_username": args.os_username,
-               "os_password": args.os_password,
                "environment_id": args.environment_id,
                "environment_user_id": args.environment_user_id
                }
@@ -240,68 +237,67 @@ if args.retention_policy_id:
 
 
 if args.pre_refresh_command:
-    payload['pre_refresh_name'] = args.pre_refresh_command
-    payload['pre_refresh_command'] = args.pre_refresh_command
-    payload['pre_refresh_shell'] = args.pre_refresh_shell
+    hooks_pre_refresh = {'name': args.pre_refresh_name, 'command': args.pre_refresh_command,
+                         'shell': args.pre_refresh_shell}
+    payload['pre_refresh'] = [hooks_pre_refresh]
 
 if args.post_refresh_command:
-    payload['pre_refresh_name'] = args.post_refresh_name
-    payload['pre_refresh_command'] = args.post_refresh_command
-    payload['pre_refresh_shell'] = args.post_refresh_shell
+    hooks_post_refresh = {'name': args.post_refresh_name, 'command': args.post_refresh_command,
+                          'shell': args.post_refresh_shell}
+    payload['post_refresh'] = [hooks_post_refresh]
 
 if args.pre_rollback_command:
-    payload['pre_rollback_name'] = args.pre_rollback_name
-    payload['pre_rollback_command'] = args.pre_rollback_command
-    payload['pre_rollback_shell'] = args.pre_rollback_shell
+    hooks_pre_rollback = {'name': args.pre_rollback_name, 'command': args.pre_rollback_command,
+                          'shell': args.pre_rollback_shell}
+    payload['pre_rollback'] = [hooks_pre_rollback]
 
 if args.post_rollback_command:
-    payload['pre_rollback_name'] = args.post_rollback_name
-    payload['pre_rollback_command'] = args.post_rollback_command
-    payload['pre_rollback_shell'] = args.post_rollbck_shell
+    hooks_post_rollback = {'name': args.post_rollback_name, 'command': args.post_rollback_command,
+                           'shell': args.post_rollback_shell}
+    payload['post_rollback'] = [hooks_post_rollback]
 
 if args.configure_clone_command:
-    payload['configure_clone_name'] = args.configure_clone_name
-    payload['configure_clone_command'] = args.configure_clone_command
-    payload['configure_clone_shell'] = args.configure_clone_shell
+    hooks_configure_clone = {'name': args.configure_clone_name, 'command': args.configure_clone_command,
+                             'shell': args.configure_clone_shell}
+    payload['configure_clone'] = [hooks_configure_clone]
 
 if args.pre_snapshot_command:
-    payload['pre_snapshot_name'] = args.pre_snapshot_name
-    payload['pre_snapshot_command'] = args.pre_snapshot_command
-    payload['pre_snapshot_shell'] = args.pre_snapshot_shell
+    hooks_pre_snapshot = {'name': args.pre_snapshot_name, 'command': args.pre_snapshot_command,
+                          'shell': args.pre_snapshot_shell}
+    payload['pre_snapshot'] = [hooks_pre_snapshot]
 
 if args.post_snapshot_command:
-    payload['pre_snapshot_name'] = args.post_snapshot_name
-    payload['pre_snapshot_command'] = args.post_snapshot_command
-    payload['pre_snapshot_shell'] = args.post_rollbck_shell
+    hooks_post_snapshot = {'name': args.post_snapshot_name, 'command': args.post_snapshot_command,
+                           'shell': args.post_snapshot_shell}
+    payload['post_snapshot'] = [hooks_post_snapshot]
 
 if args.pre_start_command:
-    payload['pre_start_name'] = args.pre_start_name
-    payload['pre_start_command'] = args.pre_start_command
-    payload['pre_start_shell'] = args.pre_start_shell
+    hooks_pre_start = {'name': args.pre_start_name, 'command': args.pre_start_command, 'shell': args.pre_start_shell}
+    payload['pre_start'] = [hooks_pre_start]
 
 if args.post_start_command:
-    payload['pre_start_name'] = args.post_start_name
-    payload['pre_start_command'] = args.post_start_command
-    payload['pre_start_shell'] = args.post_rollbck_shell
+    hooks_post_start = {'name': args.post_start_name, 'command': args.post_start_command,
+                        'shell': args.post_start_shell}
+    payload['post_start'] = [hooks_post_start]
 
 if args.pre_stop_command:
-    payload['pre_stop_name'] = args.pre_stop_name
-    payload['pre_stop_command'] = args.pre_stop_command
-    payload['pre_stop_shell'] = args.pre_stop_shell
+    hooks_pre_stop = {'name': args.pre_stop_name, 'command': args.pre_stop_command, 'shell': args.pre_stop_shell}
+    payload['pre_stop'] = [hooks_pre_stop]
 
 if args.post_stop_command:
-    payload['pre_stop_name'] = args.post_stop_name
-    payload['pre_stop_command'] = args.post_stop_command
-    payload['pre_stop_shell'] = args.post_rollbck_shell
+    hooks_post_stop = {'name': args.post_stop_name, 'command': args.post_stop_command, 'shell': args.post_stop_shell}
+    payload['post_stop'] = [hooks_post_stop]
 
 if args.tags:
-    payload['tags'] = json.loads(args.tags)
+    payload['tags'] = args.tags
 
-dct_print_json_formatted(payload)
+#dct_print_json_formatted(payload)
 #sys.exit(0)
+print("Processing VDB creation ID=" + args.name + " by snapshot " + args.snapshot_id)
 resp = url_POST(dct_base_url, payload)
+rsp = resp.json()
 if resp.status_code == 200:
-    dct_job_monitor(resp['job']['id'])
+    dct_job_monitor(rsp['job']['id'])
 else:
     dct_print_error(resp)
     sys.exit(1)

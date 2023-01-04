@@ -253,7 +253,7 @@ if args.command == 'view':
 if args.command == 'delete':
     print("Processing VDB delete ID=" + args.id)
     rs = dct_post_by_id(dct_base_url, args.id, {"force": "false"}, "delete")
-    # dct_job_monitor(rs['job']['id'])
+    dct_job_monitor(rs['job']['id'])
 
 if args.command == 'search':
     rs = dct_search("VDB List ", dct_base_url, args.filter, "No VDBs match the search criteria.",
