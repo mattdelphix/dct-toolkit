@@ -37,7 +37,7 @@ def vdb_operation(base_url, vdb_id, ops):
         ops = "snapshots"
     resp = url_POST(base_url + "/" + urllib.parse.quote(vdb_id) + "/" + ops, payload)
     if resp.status_code == 200:
-        dct_print_json_formatted(resp.json())
+        return resp.json()
     else:
         dct_print_error(resp)
         sys.exit(1)
