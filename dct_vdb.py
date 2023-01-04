@@ -199,13 +199,13 @@ create_snapshot.add_argument('--id', type=str, required=True, help="DSource ID f
 # define tag_create params
 tag_create.add_argument('--id', type=str, required=True, help="DSource ID to add tags to")
 tag_create.add_argument('--tags', nargs='*', type=str, required=True, action=dct_parsetags,
-                        help="Tags of the DSource in this format:  key=value key=value")
+                        help="Tags of the VDB in this format:  key=value key=value")
 # define tag_delete params
-tag_delete.add_argument('--id', type=str, required=True, help="DSource ID to delete tags from")
+tag_delete.add_argument('--id', type=str, required=True, help="VDB ID to delete tags from")
 tag_delete.add_argument('--key', type=str, required=True, help="Tags key of existing tag")
 
 # define tag_delete_all params
-tag_delete_all.add_argument('--id', type=str, required=True, help="DSource ID to delete tags from")
+tag_delete_all.add_argument('--id', type=str, required=True, help="VDB ID to delete tags from")
 
 # define update params
 updt.add_argument('--id', type=str, required=True, help="VDB ID to be updated")
