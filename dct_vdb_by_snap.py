@@ -21,6 +21,25 @@ from helpers import *
 # NOTE:  only one command per hook type is supported at the moment
 
 # VDB functions
+def unpack_postgres_properties(config):
+    # splits a string in the format var=value:True or var:value=False in a list of dictionaries
+    if config == "":
+        return []
+    # create dictionary
+    my_dict = {key: value for key, value in [item.split(
+        '=') for item in config.split(' ')]}
+    conf_final = []
+    for key, value in my_dict.items():
+        if ":" not in value:
+            print("ERROR: Postgres properties must be in the format 'var=value:True' or 'var:value=False'")
+            sys.exit(1)
+        v, b = value.split(':')
+        if b not in ['False','True']:
+            print("ERROR: Postgres properties must be in the format 'var=value:True' or 'var:value=False'")
+            sys.exit(1)
+        t = {"propertyName": key, "value": v, "commentProperty": b}
+        conf_final.append(t)
+    return conf_final
 
 # Init
 parser = argparse.ArgumentParser(description='Delphix DCT VDB provisioning by snapshot')
@@ -110,7 +129,9 @@ vdb_postgres.add_argument('--environment_user_id', type=str, required=True, help
 vdb_postgres.add_argument('--auto_select_repository', required=False, help="Choose repository automatically", action="store_true")
 vdb_postgres.add_argument('--vdb_restart', required=False, help="VDB will be restarted automatically?", action="store_true")
 vdb_postgres.add_argument('--mount_point', type=str, required=True, help="Mount point to be created on target host")
-vdb_postgres.add_argument('--port', type=int, required=True, help="Postgres port for the VDB", choices=range(1,32768))
+vdb_postgres.add_argument('--port', type=int, required=True, help="Postgres port for the VDB")
+vdb_postgres.add_argument('--properties', type=str, required=True, help="Postgres config properties in the format 'var=value:True var1=value1:False'")
+
 # Policies
 vdb_postgres.add_argument('--snapshot_policy_id', type=str, required=False, help="Snapshot policy ID to be used for VDB provisioning")
 vdb_postgres.add_argument('--retention_policy_id', type=str, required=False, help="Retention policy ID to be used for VDB provisioning")
@@ -275,6 +296,8 @@ dct_base_url = "/vdbs/provision_by_snapshot"
 if cfg.level == 1:
     print("Provisioning VDB by Snapshot")
 
+config_settings = unpack_postgres_properties(args.properties)
+
 if args.command == 'file':
     # mandatory fields
     payload = {"snapshot_id": args.snapshot_id,
@@ -297,7 +320,7 @@ if args.command == 'postgres':
                "environment_id": args.environment_id,
                "environment_user_id": args.environment_user_id,
                "appdata_source_params": {
-                    "configSettingsStg": [],
+                    "configSettingsStg": config_settings,
                     "postgresPort": args.port
                     },
                 "appdata_config_params": {
