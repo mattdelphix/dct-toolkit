@@ -42,7 +42,12 @@ def build_headers():
     headers = {'content-type': "application/json", 'accept': "application/json", 'authorization': cfg.apikey}
     return headers
 
-
+def validateJSON(jsonData):
+    try:
+        json.loads(jsonData)
+    except ValueError as err:
+        return False
+    return True
 def tabular_report(title, ldict):
     # function prints list of dictionaries as a tabular report
     if not ldict:
@@ -263,19 +268,28 @@ def dct_put_update_by_id(dct_query, dct_message, update_id, payload):
 
 def dct_post_by_id(dct_query, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
-    return resp.json()
-
+    if resp.status_code == 200:
+        return resp.json()
+    else:
+        dct_print_error(resp)
+        sys.exit(1)
 
 def dct_post_ref_by_id(dct_query, update_id, payload, dct_operation, ref_id, post_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation + "/" + urllib.parse.quote(
         ref_id) + "/" + urllib.parse.quote(post_operation), payload)
-    return resp.json()
+    if resp.status_code == 200:
+        return resp.json()
+    else:
+        dct_print_error(resp)
+        sys.exit(1)
 
 
 def dct_print_response(response):
     print("-(debug)--------------------------------------------------------------------")
     print(f"Status: {response.status_code}")
-    dct_print_json_formatted(response.json())
+    resp_text = response.text
+    if validateJSON(resp_text):
+        dct_print_json_formatted(response.json())
 
 def dct_print_url(method, query, payload):
     print("-(debug)--------------------------------------------------------------------")
@@ -285,7 +299,8 @@ def dct_print_url(method, query, payload):
 
 def dct_print_error(response):
     print(f"ERROR: {response.status_code}")
-    print(f"TEXT : {response.text}")
+    if validateJSON(response.text):
+        print(json.dumps(json.loads(response.text), indent=2))
 
 
 def dct_print_json_formatted(jsondict):

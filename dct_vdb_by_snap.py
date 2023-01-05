@@ -33,10 +33,12 @@ parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]
 # define commands
 vdb_oracle = subparser.add_parser('oracle')
 vdb_file = subparser.add_parser('file')
+vdb_postgres = subparser.add_parser('postgres')
+
 
 # define vdb_file parms
 vdb_file.add_argument('--snapshot_id', type=str, required=True, help="Snapshot ID to be used for VDB provisioning")
-vdb_file.add_argument('--engine', type=str, required=True, help="Engine ID to be used for VDB provisioning")
+vdb_file.add_argument('--engine', type=str, required=False, help="Engine ID to be used for VDB provisioning")
 vdb_file.add_argument('--source', type=str, required=True, help="Source data ID to be used for VDB provisioning")
 vdb_file.add_argument('--target_group', type=str, required=True, help="Target group ID to be used for VDB provisioning")
 vdb_file.add_argument('--name', type=str, required=True, help="Name of the VDB to be provisioned")
@@ -97,9 +99,73 @@ vdb_file.add_argument('--post_stop_shell', type=str, required=False, help="Post-
 vdb_file.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
                         help="Tags of the VDB in this format:  key=value key=value")
 
+# define vdb_postgres parms
+vdb_postgres.add_argument('--snapshot_id', type=str, required=True, help="Snapshot ID to be used for VDB provisioning")
+vdb_postgres.add_argument('--engine', type=str, required=False, help="Engine ID to be used for VDB provisioning")
+vdb_postgres.add_argument('--source', type=str, required=True, help="Source data ID to be used for VDB provisioning")
+vdb_postgres.add_argument('--target_group', type=str, required=True, help="Target group ID to be used for VDB provisioning")
+vdb_postgres.add_argument('--name', type=str, required=True, help="Name of the VDB to be provisioned")
+vdb_postgres.add_argument('--environment_id', type=str, required=True, help="Environment ID for the VDB")
+vdb_postgres.add_argument('--environment_user_id', type=str, required=True, help="Environment User Name")
+vdb_postgres.add_argument('--auto_select_repository', required=False, help="Choose repository automatically", action="store_true")
+vdb_postgres.add_argument('--vdb_restart', required=False, help="VDB will be restarted automatically?", action="store_true")
+vdb_postgres.add_argument('--mount_point', type=str, required=True, help="Mount point to be created on target host")
+vdb_postgres.add_argument('--port', type=int, required=True, help="Postgres port for the VDB", choices=range(1,32768))
+# Policies
+vdb_postgres.add_argument('--snapshot_policy_id', type=str, required=False, help="Snapshot policy ID to be used for VDB provisioning")
+vdb_postgres.add_argument('--retention_policy_id', type=str, required=False, help="Retention policy ID to be used for VDB provisioning")
+
+# Hooks
+vdb_postgres.add_argument('--pre_refresh_name', type=str, required=False, help="Pre-refresh hook name")
+vdb_postgres.add_argument('--pre_refresh_command', type=str, required=False, help="Pre-refresh hook command")
+vdb_postgres.add_argument('--pre_refresh_shell', type=str, required=False, help="Pre-refresh hook shell")
+
+vdb_postgres.add_argument('--post_refresh_name', type=str, required=False, help="Post-refresh hook name")
+vdb_postgres.add_argument('--post_refresh_command', type=str, required=False, help="Post-refresh hook command")
+vdb_postgres.add_argument('--post_refresh_shell', type=str, required=False, help="Post-refresh hook shell")
+
+vdb_postgres.add_argument('--pre_rollback_name', type=str, required=False, help="Pre-rollback hook name")
+vdb_postgres.add_argument('--pre_rollback_command', type=str, required=False, help="Pre-rollback hook command")
+vdb_postgres.add_argument('--pre_rollback_shell', type=str, required=False, help="Pre-rollback hook shell")
+
+vdb_postgres.add_argument('--post_rollback_name', type=str, required=False, help="Post-rollback hook name")
+vdb_postgres.add_argument('--post_rollback_command', type=str, required=False, help="Post-rollback hook command")
+vdb_postgres.add_argument('--post_rollback_shell', type=str, required=False, help="Post-rollback hook shell")
+
+vdb_postgres.add_argument('--configure_clone_name', type=str, required=False, help="Configure_clone hook name")
+vdb_postgres.add_argument('--configure_clone_command', type=str, required=False, help="Configure_clone hook command")
+vdb_postgres.add_argument('--configure_clone_shell', type=str, required=False, help="Configure_clone hook shell")
+
+vdb_postgres.add_argument('--pre_snapshot_name', type=str, required=False, help="Pre-snapshot hook name")
+vdb_postgres.add_argument('--pre_snapshot_command', type=str, required=False, help="Pre-snapshot hook command")
+vdb_postgres.add_argument('--pre_snapshot_shell', type=str, required=False, help="Pre-snapshot hook shell")
+
+vdb_postgres.add_argument('--post_snapshot_name', type=str, required=False, help="Post-snapshot hook name")
+vdb_postgres.add_argument('--post_snapshot_command', type=str, required=False, help="Post-snapshot hook command")
+vdb_postgres.add_argument('--post_snapshot_shell', type=str, required=False, help="Post-snapshot hook shell")
+
+vdb_postgres.add_argument('--pre_start_name', type=str, required=False, help="Pre-start hook name")
+vdb_postgres.add_argument('--pre_start_command', type=str, required=False, help="Pre-start hook command")
+vdb_postgres.add_argument('--pre_start_shell', type=str, required=False, help="Pre-start hook shell")
+
+vdb_postgres.add_argument('--post_start_name', type=str, required=False, help="Post-start hook name")
+vdb_postgres.add_argument('--post_start_command', type=str, required=False, help="Post-start hook command")
+vdb_postgres.add_argument('--post_start_shell', type=str, required=False, help="Post-start hook shell")
+
+vdb_postgres.add_argument('--pre_stop_name', type=str, required=False, help="Pre-stop hook name")
+vdb_postgres.add_argument('--pre_stop_command', type=str, required=False, help="Pre-stop hook command")
+vdb_postgres.add_argument('--pre_stop_shell', type=str, required=False, help="Pre-stop hook shell")
+
+vdb_postgres.add_argument('--post_stop_name', type=str, required=False, help="Post-stop hook name")
+vdb_postgres.add_argument('--post_stop_command', type=str, required=False, help="Post-stop hook command")
+vdb_postgres.add_argument('--post_stop_shell', type=str, required=False, help="Post-stop hook shell")
+
+vdb_postgres.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
+                        help="Tags of the VDB in this format:  key=value key=value")
+
 # define vdb_oracle parms
 vdb_oracle.add_argument('--snapshot_id', type=str, required=True, help="Snapshot ID to be used for VDB provisioning")
-vdb_oracle.add_argument('--engine', type=str, required=True, help="Engine ID to be used for VDB provisioning")
+vdb_oracle.add_argument('--engine', type=str, required=False, help="Engine ID to be used for VDB provisioning")
 vdb_oracle.add_argument('--source', type=str, required=True, help="Source data ID to be used for VDB provisioning")
 vdb_oracle.add_argument('--target_group', type=str, required=True, help="Target group ID to be used for VDB provisioning")
 vdb_oracle.add_argument('--name', type=str, required=True, help="Name of the VDB to be provisioned")
@@ -193,7 +259,7 @@ vdb_oracle.add_argument('--tags', nargs='*', type=str, required=True, action=dct
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
-args = parser.parse_args()
+#args = parser.parse_args()
 # Read config
 dct_read_config(args.config)
 if args.debug:
@@ -213,18 +279,40 @@ if args.command == 'file':
     # mandatory fields
     payload = {"snapshot_id": args.snapshot_id,
                "mount_point": args.mount_point,
-               "engine": args.engine,
-               "source_id": args.source,
+               "source_data_id": args.source,
                "target_group_id": args.target_group,
                "name": args.name,
                "environment_id": args.environment_id,
                "environment_user_id": args.environment_user_id
                }
 
+if args.command == 'postgres':
+    # mandatory fields
+    #db_path = "Postgres-" + str(args.port) + " - " + args.mount_point
+    payload = {"snapshot_id": args.snapshot_id,
+               "mount_point": args.mount_point,
+               "source_data_id": args.source,
+               "target_group_id": args.target_group,
+               "name": args.name,
+               "environment_id": args.environment_id,
+               "environment_user_id": args.environment_user_id,
+               "appdata_source_params": {
+                    "configSettingsStg": [],
+                    "postgresPort": args.port
+                    },
+                "appdata_config_params": {
+                    }
+               }
+
 if args.vdb_restart:
+    # noinspection PyUnboundLocalVariable
     payload['vdb_restart'] = True
 else:
+    # noinspection PyUnboundLocalVariable
     payload['vdb_restart'] = False
+
+if args.engine:
+    payload['engine'] = args.engine
 
 if args.auto_select_repository:
     payload['auto_select_repository'] = True
