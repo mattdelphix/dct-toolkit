@@ -42,7 +42,7 @@ canc = subparser.add_parser('cancel')
 
 
 # define view parms
-view.add_argument('--id', type=str, required=True, help="Job ID to be viewed")
+view.add_argument('--id', type=str, required=True, help="Job ID or Name to be viewed")
 
 # define list parms
 lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
@@ -78,7 +78,7 @@ if args.command == 'monitor':
     rs = dct_job_monitor(args.id)
 
 if args.command == 'view':
-    rs = dct_view_by_id(dct_base_url, args.id)
+    rs = dct_simple_view_by_id(dct_base_url, args.id)
     dct_print_json_formatted(rs)
 
 if args.command == 'cancel':

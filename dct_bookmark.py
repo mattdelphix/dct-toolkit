@@ -72,7 +72,7 @@ create.add_argument('--tags', type=str, required=False,
 delete.add_argument('--id', type=str, required=True, help="Bookmark ID to be deleted")
 
 # define view parms
-view.add_argument('--id', type=str, required=True, help="Bookmark ID to be viewed")
+view.add_argument('--id', type=str, required=True, help="Bookmark ID or Name to be viewed")
 
 # define list parms
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])

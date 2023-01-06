@@ -47,7 +47,7 @@ view = subparser.add_parser('view')
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define view parms
-view.add_argument('--id', type=str, required=True, help="Bookmark ID to be viewed")
+view.add_argument('--id', type=str, required=True, help="Bookmark ID or Name to be viewed")
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])

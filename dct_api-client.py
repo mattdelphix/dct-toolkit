@@ -74,7 +74,7 @@ updt.add_argument('--api_client_id', type=str, required=True, help="API client I
 delete.add_argument('--id', type=str, required=True, help="API-client ID to be deleted")
 
 # define view parms
-view.add_argument('--id', type=str, required=True, help="API-client ID to be viewed")
+view.add_argument('--id', type=str, required=True, help="API-client ID or Name to be viewed")
 
 # define list parms
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])

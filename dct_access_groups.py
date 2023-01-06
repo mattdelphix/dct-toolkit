@@ -46,7 +46,7 @@ delete_policy = subparser.add_parser('delete_policy')
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define view parms
-view.add_argument('--id', type=str, required=True, help="Access Group ID to be viewed")
+view.add_argument('--id', type=str, required=True, help="Access Group ID or Name to be viewed")
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="Access Group search string")

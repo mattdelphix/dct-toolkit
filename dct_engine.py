@@ -91,7 +91,7 @@ tag_delete = subparser.add_parser('tag_delete')
 tag_delete_all = subparser.add_parser('tag_delete_all')
 
 # define view parms
-view.add_argument('--id', type=str, required=True, help="engine UUID to be viewed")
+view.add_argument('--id', type=str, required=True, help="engine UUID or Name to be viewed")
 
 # define list parms
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
@@ -176,7 +176,7 @@ if args.command == 'list':
     rs = dct_search("Engine List", dct_base_url, None, "No Engines defined.", args.format)
 
 if args.command == 'view':
-    rs = dct_view_by_id(dct_base_url, args.id)
+    rs = dct_simple_view_by_id(dct_base_url, args.id)
     dct_print_json_formatted(rs)
 
 if args.command == 'delete':

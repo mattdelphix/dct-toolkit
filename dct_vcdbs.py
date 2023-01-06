@@ -65,4 +65,4 @@ if args.command == 'search':
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json_formatted(rs)
+

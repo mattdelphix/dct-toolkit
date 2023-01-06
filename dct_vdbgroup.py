@@ -117,7 +117,7 @@ update = subparser.add_parser('update')
 provision_from_bookmark = subparser.add_parser('provision_from_bookmark')
 
 # define view parms
-view.add_argument('--id', type=str, required=True, help="VDBGroup full name or ID to be viewed")
+view.add_argument('--id', type=str, required=True, help="VDBGroup full name or ID or Name to be viewed")
 
 # define list parms
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
@@ -134,7 +134,7 @@ create.add_argument('--name', type=str, required=True, help="Name of the new VDB
 create.add_argument('--vdb_id', type=str, required=True, help="List of VDB IDs separated by commas")
 
 # define view parms
-bookmarks.add_argument('--id', type=str, required=True, help="VDBGroup full name or ID to be viewed")
+bookmarks.add_argument('--id', type=str, required=True, help="VDBGroup full name or ID or Name to be viewed")
 bookmarks.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # refresh view parms
@@ -184,7 +184,6 @@ if args.command == 'list':
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json_formatted(rs)
 
 if args.command == 'delete':
     print("Processing VDBGroup delete ID=" + args.id)

@@ -62,7 +62,7 @@ remove_job = subparser.add_parser('remove_job')
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define view parms
-view.add_argument('--id', type=str, required=True, help="Masking job set ID to be viewed")
+view.add_argument('--id', type=str, required=True, help="Masking job set ID or Name to be viewed")
 
 # define search parms
 search.add_argument('--filter', type=str, required=False, help="Masking Job Set search string")
@@ -88,12 +88,12 @@ tag_delete.add_argument('--key', type=str, required=True, help="Tags key of exis
 tag_delete_all.add_argument('--id', type=str, required=True, help="Account ID to delete tags from")
 
 # define connector_list parms
-connector_list.add_argument('--id', type=str, required=True, help="Masking Job Set ID to be viewed")
-connector_list.add_argument('--engine_id', type=str, required=True, help="Continuous Compliance engine ID to be viewed")
+connector_list.add_argument('--id', type=str, required=True, help="Masking Job Set ID or Name to be viewed")
+connector_list.add_argument('--engine_id', type=str, required=True, help="Continuous Compliance engine ID or Name to be viewed")
 connector_list.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 
 # define connector_list parms
-copy.add_argument('--id', type=str, required=True, help="Masking Job Set ID to be viewed")
+copy.add_argument('--id', type=str, required=True, help="Masking Job Set ID or Name to be viewed")
 copy.add_argument('--source_engine_id', type=str, required=True, help="Continuous Compliance engine ID to be copied from")
 copy.add_argument('--target_engine_id', type=str, required=True, help="Continuous Compliance engine ID to receive job")
 #copy.add_argument('--source_environment_id', type=str, required=False, help="Continuous Compliance environment ID or Name to be copied from")

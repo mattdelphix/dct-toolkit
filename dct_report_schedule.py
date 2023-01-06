@@ -39,7 +39,7 @@ view = subparser.add_parser('view')
 
 
 # define view parms
-view.add_argument('--id', type=str, required=True, help="Report Schedule ID to be viewed")
+view.add_argument('--id', type=str, required=True, help="Report Schedule ID or Name to be viewed")
 
 # define list parms
 lst.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])

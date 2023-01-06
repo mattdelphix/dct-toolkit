@@ -51,6 +51,14 @@ def account_update(base_url, account_id, client_id, first_name, last_name, email
         dct_print_error(resp)
         sys.exit(1)
 
+def account_view(base_url, account_id, dct_output="json"):
+    # enhanced search that filters by ID or username
+    if account_id.isnumeric():
+        args_filter = "id eq '" + str(account_id) + "'"
+    else:
+        args_filter = " username eq '" + str(account_id) + "'"
+    rs = dct_search("", base_url, args_filter, "No accounts match the search criteria."),
+    return rs
 
 def password_policy_update(base_url, is_enabled, min_length, reuse_disallow_limit, digit, uppercase_letter,
                            lowercase_letter, special_character, disallow_username_as_password):
@@ -113,10 +121,10 @@ updt.add_argument('--username', type=str, required=False, help="Username of the 
 delete.add_argument('--id', type=str, required=True, help="Account ID to be deleted")
 
 # define view params
-view.add_argument('--id', type=str, required=True, help="Account ID to be viewed")
+view.add_argument('--id', type=str, required=True, help="Account ID or Name to be viewed")
 
 # define tag_list params
-tags.add_argument('--id', type=str, required=True, help="Account ID to be viewed")
+tags.add_argument('--id', type=str, required=True, help="Account ID or Name to be viewed")
 tags.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define list params
@@ -181,8 +189,7 @@ if dct_check_empty_command(args):
 dct_base_url = "/management/accounts"
 
 if args.command == 'view':
-    rs = dct_view_by_id(dct_base_url, args.id)
-    dct_print_json_formatted(rs)
+    rs = account_view(dct_base_url, args.id)
 
 if args.command == 'search':
     rs = dct_search("Account List", dct_base_url, args.filter, "No Accounts match the search criteria.", args.format)

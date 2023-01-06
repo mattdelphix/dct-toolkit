@@ -100,7 +100,7 @@ host_create = subparser.add_parser('host_create')
 lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define view parms
-view.add_argument('--id', type=str, required=True, help="Environment ID to be viewed")
+view.add_argument('--id', type=str, required=True, help="Environment ID or Name to be viewed")
 
 # define enable parms
 enable.add_argument('--id', type=str, required=True, help="Environment ID to be enabled")
@@ -123,7 +123,7 @@ user_list.add_argument('--id', type=str, required=True, help="Environment ID wit
 user_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define tag_list parms
-tag_list.add_argument('--id', type=str, required=True, help="Environment ID to be viewed")
+tag_list.add_argument('--id', type=str, required=True, help="Environment ID or Name to be viewed")
 tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define tag_create params

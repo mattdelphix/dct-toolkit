@@ -138,7 +138,7 @@ tag_delete_all = subparser.add_parser('tag_delete_all')
 updt = subparser.add_parser('update')
 
 # define view parms
-view.add_argument('--id', type=str, required=True, help="VDB ID to be viewed")
+view.add_argument('--id', type=str, required=True, help="VDB ID or Name to be viewed")
 
 # define list parms
 
