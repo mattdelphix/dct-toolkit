@@ -78,7 +78,7 @@ if args.command == 'monitor':
     rs = dct_job_monitor(args.id)
 
 if args.command == 'view':
-    rs = dct_simple_view_by_id(dct_base_url, args.id)
+    rs = dct_view_by_id(dct_base_url, args.id)
     dct_print_json_formatted(rs)
 
 if args.command == 'cancel':

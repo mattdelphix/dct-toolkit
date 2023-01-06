@@ -183,13 +183,6 @@ def dct_simple_list(dct_title, dct_query, dct_error, dct_output="json"):
         sys.exit(1)
 
 def dct_view_by_id(dct_query, view_id, dct_output="json"):
-    # enhanced search that filters by ID or name
-    args_filter = "id eq '" + view_id + "' or name eq '" + view_id + "'"
-    rs = dct_search("", dct_query, args_filter, "No objects match the search criteria."),
-    return rs
-
-def dct_simple_view_by_id(dct_query, view_id, dct_output="json"):
-    # view that filters by ID only
     resp = url_GET(dct_query + "/" + view_id)
     if resp.status_code == 200:
         return resp.json()

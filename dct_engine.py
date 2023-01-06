@@ -176,7 +176,7 @@ if args.command == 'list':
     rs = dct_search("Engine List", dct_base_url, None, "No Engines defined.", args.format)
 
 if args.command == 'view':
-    rs = dct_simple_view_by_id(dct_base_url, args.id)
+    rs = dct_view_by_id(dct_base_url, args.id)
     dct_print_json_formatted(rs)
 
 if args.command == 'delete':

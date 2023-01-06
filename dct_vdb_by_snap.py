@@ -296,8 +296,6 @@ dct_base_url = "/vdbs/provision_by_snapshot"
 if cfg.level == 1:
     print("Provisioning VDB by Snapshot")
 
-config_settings = unpack_postgres_properties(args.properties)
-
 if args.command == 'file':
     # mandatory fields
     payload = {"snapshot_id": args.snapshot_id,
@@ -311,6 +309,7 @@ if args.command == 'file':
 
 if args.command == 'postgres':
     # mandatory fields
+    config_settings = unpack_postgres_properties(args.properties)
     #db_path = "Postgres-" + str(args.port) + " - " + args.mount_point
     payload = {"snapshot_id": args.snapshot_id,
                "mount_point": args.mount_point,
