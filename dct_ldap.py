@@ -34,7 +34,7 @@ def update_saml_config(base_url, enabled, auto_create_users, hostname, port, dom
 
     resp = url_PATCH(base_url, payload)
     if resp.status_code == 200:
-        if cfg.level == 1:
+        if cfg.level > 0:
             print("LDAP config updated")
         dct_print_json_formatted(resp.json())
     else:
@@ -46,7 +46,7 @@ def update_saml_config(base_url, enabled, auto_create_users, hostname, port, dom
 parser = argparse.ArgumentParser(description='Delphix DCT CDBs operations')
 subparser = parser.add_subparsers(dest='command')
 
-parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--version', action='version', version='%(prog)s Version '+cfg.version)
 parser.add_argument('--config', type=str, required=False, help="Config file")
 
 # define commands

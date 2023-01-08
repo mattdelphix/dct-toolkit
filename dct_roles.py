@@ -35,7 +35,7 @@ def connectivity_check (base_url, id, host, port):
 parser = argparse.ArgumentParser(description="Delphix DCT Roles")
 subparser = parser.add_subparsers(dest='command')
 
-parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--version', action='version', version='%(prog)s Version '+cfg.version)
 parser.add_argument('--config', type=str, required=False, help="Config file")
 parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]",choices=[0,1,2])
 

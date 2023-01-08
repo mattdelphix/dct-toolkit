@@ -10,3 +10,4 @@
 apikey = "no_key"
 host = "no_host"
 level = -1
+version = "0.92"

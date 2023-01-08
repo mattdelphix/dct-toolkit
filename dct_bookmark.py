@@ -43,7 +43,7 @@ def bookmark_create(base_url, name, bookmark_id, retention, tags):
 parser = argparse.ArgumentParser(description="Delphix DCT Bookmark operations")
 subparser = parser.add_subparsers(dest='command')
 
-parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--version', action='version', version='%(prog)s Version '+cfg.version)
 parser.add_argument('--config', type=str, required=False, help="Config file")
 parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]",choices=[0,1,2])
 
@@ -149,7 +149,7 @@ if args.command == 'tag_create':
     payload = {"tags": args.tags}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
     if rs.status_code == 201:
-        if cfg.level == 1:
+        if cfg.level > 0:
             print("Created tags for Bookmark - ID=" + args.id)
         rs = dct_list_by_id(dct_base_url, args.id, "/tags")
         dct_print_json_formatted(rs['tags'])
@@ -161,7 +161,7 @@ if args.command == 'tag_delete':
     payload = {"key": args.key}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
     if rs.status_code == 204:
-        if cfg.level == 1:
+        if cfg.level > 0:
             print("Deleted tag by key for Bookmark - ID=" + args.id)
         rs = dct_list_by_id(dct_base_url, args.id, "/tags")
         dct_print_json_formatted(rs['tags'])
@@ -172,7 +172,7 @@ if args.command == 'tag_delete':
 if args.command == 'tag_delete_all':
     rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
     if rs.status_code == 204:
-        if cfg.level == 1:
+        if cfg.level > 0:
             print("Deleted all tags for Bookmark - ID=" + args.id)
     else:
         dct_print_error(rs)

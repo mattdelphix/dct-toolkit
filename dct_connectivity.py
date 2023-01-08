@@ -22,7 +22,7 @@ def connectivity_check (base_url, id, host, port):
     payload = {"engine_id": id, "host": host, "port": port}
     resp = url_POST(base_url + "/check", payload)
     if resp.status_code == 200:
-        if cfg.level == 1:
+        if cfg.level > 0:
             print("Tested connectivity with Engine " + " - ID=" + vdb_id)
         return resp.json()
     else:
@@ -34,7 +34,7 @@ def connectivity_check (base_url, id, host, port):
 parser = argparse.ArgumentParser(description="Delphix DCT connectivity test")
 subparser = parser.add_subparsers(dest='command')
 
-parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--version', action='version', version='%(prog)s Version '+cfg.version)
 parser.add_argument('--config', type=str, required=False, help="Config file")
 parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]",choices=[0,1,2])
 

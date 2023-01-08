@@ -16,13 +16,15 @@
 # Author  : Matteo Ferrari, Ruben Catarrunas
 # Date    : September 2022
 
+
 from helpers import *
 
 # NOTE:  only one command per hook type is supported at the moment
+# TODO clarify how to use provision bty timestamp
 
 # VDB functions
 def unpack_postgres_properties(config):
-    # splits a string in the format var=value:True or var:value=False in a list of dictionaries
+    # splits a string in the format var=value:True or var=value:False in a list of dictionaries
     if config == "":
         return []
     # create dictionary
@@ -41,11 +43,24 @@ def unpack_postgres_properties(config):
         conf_final.append(t)
     return conf_final
 
+def unpack_oracle_env_vars(config):
+    # splits a string in the format var=value var1=value in a single dictionary
+    if config == "":
+        return
+    # create dictionary
+    env_var_list = {}
+    my_dict = {key: value for key, value in [item.split(
+        '=') for item in config.split(' ')]}
+    for key, value in my_dict.items():
+        env_var_list[key] = value
+    return env_var_list
+
+
 # Init
 parser = argparse.ArgumentParser(description='Delphix DCT VDB provisioning by snapshot')
 subparser = parser.add_subparsers(dest='command')
 
-parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--version', action='version', version='%(prog)s Version '+cfg.version)
 parser.add_argument('--config', type=str, required=False, help="Config file")
 parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]",choices=[0,1,2])
 
@@ -53,10 +68,16 @@ parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]
 vdb_oracle = subparser.add_parser('oracle')
 vdb_file = subparser.add_parser('file')
 vdb_postgres = subparser.add_parser('postgres')
+vdb_mssql = subparser.add_parser('mssql')
 
 
 # define vdb_file parms
-vdb_file.add_argument('--snapshot_id', type=str, required=True, help="Snapshot ID to be used for VDB provisioning")
+
+# type of provisioning
+vdb_file.add_argument('--snapshot_id', type=str, required=False, help="Snapshot ID to be used for VDB provisioning")
+vdb_file.add_argument('--bookmark_id', type=str, required=False, help="Bookmark ID to be used for VDB provisioning")
+vdb_file.add_argument('--timestamp', type=str, required=False, help="Timestamp ID to be used for VDB provisioning")
+
 vdb_file.add_argument('--engine', type=str, required=False, help="Engine ID to be used for VDB provisioning")
 vdb_file.add_argument('--source', type=str, required=True, help="Source data ID to be used for VDB provisioning")
 vdb_file.add_argument('--target_group', type=str, required=True, help="Target group ID to be used for VDB provisioning")
@@ -119,7 +140,12 @@ vdb_file.add_argument('--tags', nargs='*', type=str, required=False, action=dct_
                         help="Tags of the VDB in this format:  key=value key=value")
 
 # define vdb_postgres parms
-vdb_postgres.add_argument('--snapshot_id', type=str, required=True, help="Snapshot ID to be used for VDB provisioning")
+
+# type of provisioning
+vdb_postgres.add_argument('--snapshot_id', type=str, required=False, help="Snapshot ID to be used for VDB provisioning")
+vdb_postgres.add_argument('--bookmark_id', type=str, required=False, help="Bookmark ID to be used for VDB provisioning")
+vdb_postgres.add_argument('--timestamp', type=str, required=False, help="Timestamp ID to be used for VDB provisioning")
+
 vdb_postgres.add_argument('--engine', type=str, required=False, help="Engine ID to be used for VDB provisioning")
 vdb_postgres.add_argument('--source', type=str, required=True, help="Source data ID to be used for VDB provisioning")
 vdb_postgres.add_argument('--target_group', type=str, required=True, help="Target group ID to be used for VDB provisioning")
@@ -185,7 +211,12 @@ vdb_postgres.add_argument('--tags', nargs='*', type=str, required=False, action=
                         help="Tags of the VDB in this format:  key=value key=value")
 
 # define vdb_oracle parms
-vdb_oracle.add_argument('--snapshot_id', type=str, required=True, help="Snapshot ID to be used for VDB provisioning")
+
+# type of provisioning
+vdb_oracle.add_argument('--snapshot_id', type=str, required=False, help="Snapshot ID to be used for VDB provisioning")
+vdb_oracle.add_argument('--bookmark_id', type=str, required=False, help="Bookmark ID to be used for VDB provisioning")
+vdb_oracle.add_argument('--timestamp', type=str, required=False, help="Timestamp ID to be used for VDB provisioning")
+
 vdb_oracle.add_argument('--engine', type=str, required=False, help="Engine ID to be used for VDB provisioning")
 vdb_oracle.add_argument('--source', type=str, required=True, help="Source data ID to be used for VDB provisioning")
 vdb_oracle.add_argument('--target_group', type=str, required=True, help="Target group ID to be used for VDB provisioning")
@@ -196,16 +227,28 @@ vdb_oracle.add_argument('--os_password', type=str, required=True, help="OS passw
 vdb_oracle.add_argument('--environment_id', type=str, required=True, help="Environment ID for the VDB")
 vdb_oracle.add_argument('--environment_user_id', type=str, required=True, help="Environment User Name")
 vdb_oracle.add_argument('--auto_select_repository', required=True, help="Choose repository automatically", action="store_true")
-vdb_oracle.add_argument('--cluster_node_ids', type=str, required=True, help="Cluster nodes ids")
-vdb_oracle.add_argument('--vdb_restart', required=True, help="VDB will be restarted automatically?", action="store_true")
-vdb_oracle.add_argument('--template_id', type=str, required=True, help="Template ID to be used for VDB provisioning")
-vdb_oracle.add_argument('--aux_template_id', type=str, required=True, help="Aux Template ID to be used for VDB provisioning")
+vdb_oracle.add_argument('--cluster_node_ids', type=str, required=False, help="Cluster nodes ids")
+vdb_oracle.add_argument('--vdb_restart', required=False, help="VDB will be restarted automatically?", default=False, action="store_true")
+vdb_oracle.add_argument('--template_id', type=str, required=False, help="Template ID to be used for VDB provisioning")
+vdb_oracle.add_argument('--aux_template_id', type=str, required=False, help="Aux Template ID to be used for VDB provisioning")
 vdb_oracle.add_argument('--mount_point', type=str, required=True, help="Mount point to be created on target host")
-# Policies
-vdb_oracle.add_argument('--snapshot_policy_id', type=str, required=True, help="Snapshot policy ID to be used for VDB provisioning")
-vdb_oracle.add_argument('--retention_policy_id', type=str, required=True, help="Retention policy ID to be used for VDB provisioning")
+vdb_oracle.add_argument('--instance_name', type=str, required=True, help="Oracle instance name ID to be used for VDB provisioning")
+vdb_oracle.add_argument('--unique_name', type=str, required=True, help="Oracle unique name to be used for VDB provisioning")
+vdb_oracle.add_argument('--open_reset_logs', required=False, help="Oracle reset logs?", default=False, action="store_true")
+vdb_oracle.add_argument('--online_log_size', type=str, required=False, help="Oracle online log size in GB to be used for VDB provisioning")
+vdb_oracle.add_argument('--online_log_groups', type=str, required=False, help="Oracle online log groups to be used for VDB provisioning")
+vdb_oracle.add_argument('--archive_log', required=False, help="Oracle reset logs?", default=False, action="store_true")
+vdb_oracle.add_argument('--new_dbid', required=False, help="Oracle new dbid?", default=False, action="store_true")
+vdb_oracle.add_argument('--file_mapping_rules', type=str, required=False, help="Oracle file mapping rules")
+vdb_oracle.add_argument('--custom_env_vars', type=str, required=False, help="Custom environment variables")
+vdb_oracle.add_argument('--custom_env_files', type=str, required=False, help="Custom environment files")
+vdb_oracle.add_argument('--listener_ids', type=str, required=False, help="Oracle listener IDS, in the form: listener1,listener2")
 
-# Hooks
+# Policies
+vdb_oracle.add_argument('--snapshot_policy_id', type=str, required=False, help="Snapshot policy ID to be used for VDB provisioning")
+vdb_oracle.add_argument('--retention_policy_id', type=str, required=False, help="Retention policy ID to be used for VDB provisioning")
+
+# Hook
 vdb_oracle.add_argument('--pre_refresh_name', type=str, required=False, help="Pre-refresh hook name")
 vdb_oracle.add_argument('--pre_refresh_command', type=str, required=False, help="Pre-refresh hook command")
 vdb_oracle.add_argument('--pre_refresh_shell', type=str, required=False, help="Pre-refresh hook shell")
@@ -250,37 +293,17 @@ vdb_oracle.add_argument('--post_stop_name', type=str, required=False, help="Post
 vdb_oracle.add_argument('--post_stop_command', type=str, required=False, help="Post-stop hook command")
 vdb_oracle.add_argument('--post_stop_shell', type=str, required=False, help="Post-stop hook shell")
 
-# Oracle parms
-vdb_oracle.add_argument('--instance_name', type=str, required=True, help="Oracle instance name ID to be used for VDB provisioning")
-vdb_oracle.add_argument('--unique_name', type=str, required=True, help="Oracle unique name to be used for VDB provisioning")
-vdb_oracle.add_argument('--open_reset_logs', required=False, help="Oracle reset logs?", action="store_true")
-vdb_oracle.add_argument('--online_log_size', type=str, required=True, help="Oracle online log size in GB to be used for VDB provisioning")
-vdb_oracle.add_argument('--online_log_groups', type=str, required=True, help="Oracle online log groups to be used for VDB provisioning")
-vdb_oracle.add_argument('--archive_log', required=False, help="Oracle reset logs?", action="store_true")
-vdb_oracle.add_argument('--new_dbid', required=False, help="Oracle new dbid?", action="store_true")
-vdb_oracle.add_argument('--file_mapping_rules', type=str, required=False, help="Oracle file mapping rules")
-vdb_oracle.add_argument('--custom_env_vars', type=str, required=False, help="Custom environment variables")
-
-vdb_oracle.add_argument('--tags', nargs='*', type=str, required=True, action=dct_parsetags,
+vdb_oracle.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
                         help="Tags of the VDB in this format:  key=value key=value")
 
 
-# define new_by_bookmark parms
-#new_by_book.add_argument('--book_id', type=str, required=True, help="Bookmark ID to be used for provisioning")
-#new_by_book.add_argument('--tags', nargs='*', type=str, required=True, action=dct_parsetags,
-#                        help="Tags of the VDB in this format:  key=value key=value")
-
-# define new_by_timestamp parms
-#new_by_timestamp.add_argument('--timestamp', type=str, required=True, help="Timestamp ID to be used for rollback")
-#new_by_timestamp.add_argument('--tags', nargs='*', type=str, required=True, action=dct_parsetags,
-#                        help="Tags of the VDB in this format:  key=value key=value")
 
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
 # Start processing
-#args = parser.parse_args()
+
 # Read config
 dct_read_config(args.config)
 if args.debug:
@@ -290,16 +313,35 @@ if dct_check_empty_command(args):
     parser.print_help()
     sys.exit(1)
 
-dct_base_url = "/vdbs/provision_by_snapshot"
+# determine which option to be used for provisioning
+provisioning_option = 0
 
+if args.snapshot_id:
+   cmd = "provision_by_snapshot"
+   provisioning_option += 1
+if args.bookmark_id:
+   cmd = "provision_from_bookmark"
+   provisioning_option += 1
+if args.timestamp:
+   cmd = "provision_by_timestamp"
+   provisioning_option += 1
 
-if cfg.level == 1:
-    print("Provisioning VDB by Snapshot")
+if provisioning_option == 0:
+    print("ERROR: please specify how to provision VDB. One of --bookmark_id, --timestamp or --snapshot_id is needed.")
+    sys.exit(1)
+
+if provisioning_option > 1:
+    print("ERROR: --bookmark_id, --timestamp and --snapshot_id are mutually exclusive.")
+    sys.exit(1)
+
+dct_base_url = "/vdbs/"+cmd
+
+if cfg.level > 0:
+    print("VDB "+cmd)
 
 if args.command == 'file':
     # mandatory fields
-    payload = {"snapshot_id": args.snapshot_id,
-               "mount_point": args.mount_point,
+    payload = {"mount_point": args.mount_point,
                "source_data_id": args.source,
                "target_group_id": args.target_group,
                "name": args.name,
@@ -311,8 +353,7 @@ if args.command == 'postgres':
     # mandatory fields
     config_settings = unpack_postgres_properties(args.properties)
     #db_path = "Postgres-" + str(args.port) + " - " + args.mount_point
-    payload = {"snapshot_id": args.snapshot_id,
-               "mount_point": args.mount_point,
+    payload = {"mount_point": args.mount_point,
                "source_data_id": args.source,
                "target_group_id": args.target_group,
                "name": args.name,
@@ -325,6 +366,63 @@ if args.command == 'postgres':
                 "appdata_config_params": {
                     }
                }
+
+if args.command == 'oracle':
+    # mandatory fields
+    payload = {"mount_point": args.mount_point,
+               "source_data_id": args.source,
+               "target_group_id": args.target_group,
+               "name": args.name,
+               "databqse_name": args.database_name,
+               "oracle_instance_name": args.instance_name,
+               "unique_name": args.unique_name,
+               "os_username": args.os_username,
+               "os_password": args.os_password,
+               "environment_id": args.environment_id,
+               "environment_user_id": args.environment_user_id
+               }
+    if args.cluster_node_ids:
+        list_cluster_nodes = args.cluster_node_ids.split(",")
+        payload['cluster_node_ids'] = list_cluster_nodes
+
+    if args.listener_ids:
+        listeners = args.listener_ids.split(",")
+        payload['listener_ids'] = listeners
+
+    if args.template_id:
+        payload['template_id'] = args.template_id
+
+    if args.aux_template_id:
+        payload['auxiliary_template_id'] = args.aux_template_id
+
+    if args.online_log_size:
+        payload['online_log_size'] = args.online_log_size
+
+    if args.online_log_groups:
+        payload['online_log_groups'] = args.online_log_groups
+
+    if args.online_log_groups:
+        payload['archive_log'] = args.archive_log
+
+    if args.new_dbid:
+        payload['new_dbid'] = args.new_dbid
+
+    if args.custom_env_vars:
+        lst_vars = unpack_oracle_env_vars(args.custom_env_vars)
+        payload['custom_env_vars'] = lst_vars
+
+    if args.custom_env_files:
+        list_env_files = args.custom_env_files.split(",")
+        payload['custom_env_files'] = list_env_files
+
+if args.snapshot_id:
+    payload['snapshot_id'] = args.snapshot_id
+
+if args.bookmark_id:
+    payload['bookmark_id'] = args.bookmark_id
+
+if args.timestamp:
+    payload['timestamp'] = args.timestamp
 
 if args.vdb_restart:
     # noinspection PyUnboundLocalVariable
@@ -403,7 +501,8 @@ if args.tags:
 
 #dct_print_json_formatted(payload)
 #sys.exit(0)
-print("Processing VDB creation ID=" + args.name + " by snapshot " + args.snapshot_id)
+
+print("Processing VDB creation ID=" + args.name + " - " +cmd)
 resp = url_POST(dct_base_url, payload)
 rsp = resp.json()
 if resp.status_code == 200:

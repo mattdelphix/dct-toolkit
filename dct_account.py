@@ -80,7 +80,7 @@ def password_policy_update(base_url, is_enabled, min_length, reuse_disallow_limi
 parser = argparse.ArgumentParser(description="Delphix DCT Account operations")
 subparser = parser.add_subparsers(dest='command')
 
-parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--version', action='version', version='%(prog)s Version '+cfg.version)
 parser.add_argument('--config', type=str, required=False, help="Config file")
 parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]",choices=[0,1,2])
 
@@ -198,21 +198,21 @@ if args.command == 'list':
     rs = dct_search("Accounts List", dct_base_url, None, "No Accounts defined.", args.format)
 
 if args.command == 'create':
-    if cfg.level == 1:
+    if cfg.level > 0:
         print("Processing Accounts create")
     rs = account_create(dct_base_url, args.client_id, args.first_name, args.last_name, args.email, args.username,
                         args.password, args.tags)
     dct_print_json_formatted(rs)
 
 if args.command == 'update':
-    if cfg.level == 1:
+    if cfg.level > 0:
         print("Processing Account update ID=" + args.id)
     rs = account_update(dct_base_url, args.id, args.client_id, args.first_name, args.last_name, args.email,
                         args.username)
     dct_print_json_formatted(rs)
 
 if args.command == 'delete':
-    if cfg.level == 1:
+    if cfg.level > 0:
         print("Processing Account delete ID=" + args.id)
     rs = dct_delete_by_id(dct_base_url, "Deleted Account", args.id, response_code=204)
 
@@ -222,7 +222,7 @@ if args.command == 'password_reset':
     dct_print_json_formatted(rs)
     
 if args.command == 'list_pwd_policy':
-    if cfg.level == 1:
+    if cfg.level > 0:
         print("Retrieving password policies")
     rs = url_GET(dct_base_url + "/password-policies")
     if rs.status_code == 200:
@@ -246,7 +246,7 @@ if args.command == 'tag_create':
     payload = {"tags": args.tags}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
     if rs.status_code == 201:
-        if cfg.level == 1:
+        if cfg.level > 0:
             print("Created tags for Account - ID=" + args.id)
         rs = dct_list_by_id(dct_base_url, args.id, "/tags")
         dct_print_json_formatted(rs['tags'])
@@ -258,7 +258,7 @@ if args.command == 'tag_delete':
     payload = {"key": args.key}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
     if rs.status_code == 204:
-        if cfg.level == 1:
+        if cfg.level > 0:
             print("Deleted tag by key for Account - ID=" + args.id)
         rs = dct_list_by_id(dct_base_url, args.id, "/tags")
         dct_print_json_formatted(rs['tags'])
@@ -269,7 +269,7 @@ if args.command == 'tag_delete':
 if args.command == 'tag_delete_all':
     rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
     if rs.status_code == 204:
-        if cfg.level == 1:
+        if cfg.level > 0:
             print("Deleted all tags for Account - ID=" + args.id)
     else:
         dct_print_error(rs)

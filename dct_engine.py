@@ -28,7 +28,7 @@ def virt_engine_register(base_url, name, hostname, user, password, insecure_ssl,
     resp = url_POST(base_url, payload)
     if resp.status_code == 201:
         rsp = resp.json()
-        if cfg.level == 1:
+        if cfg.level > 0:
             print(f"Registered Virtualization Engine with ID={rsp['id']}")
         return rsp
     else:
@@ -44,7 +44,7 @@ def mask_engine_register(base_url, name, hostname, mask_user, mask_password, ins
     resp = url_POST(base_url, payload)
     if resp.status_code == 201:
         rsp = resp.json()
-        if cfg.level == 1:
+        if cfg.level > 0:
             print(f"Registered Masking Engine with ID={rsp['id']}")
         return rsp
     else:
@@ -71,7 +71,7 @@ def mask_engine_update(base_url, engine_id, name, hostname, mask_user, mask_pass
 parser = argparse.ArgumentParser(description="Delphix DCT Engine operations")
 subparser = parser.add_subparsers(dest='command')
 
-parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--version', action='version', version='%(prog)s Version '+cfg.version)
 parser.add_argument('--config', type=str, required=False, help="Config file")
 parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]",choices=[0,1,2])
 
@@ -180,7 +180,7 @@ if args.command == 'view':
     dct_print_json_formatted(rs)
 
 if args.command == 'delete':
-    if cfg.level == 1:
+    if cfg.level > 0:
         print("Processing Engine delete ID=" + args.id)
     rs = dct_delete_by_id(dct_base_url, "Deleted Engine", args.id)
 
@@ -189,14 +189,14 @@ if args.command == 'search':
                     args.format)
 
 if args.command == 'register_virt':
-    if cfg.level == 1:
+    if cfg.level > 0:
         print("Registering Virtualization Engine " + args.hostname)
     rs = virt_engine_register(dct_base_url, args.name, args.hostname, args.user, args.password, args.insecure_ssl,
                               args.unsafe_ssl_hostname_check)
     dct_print_json_formatted(rs)
 
 if args.command == 'register_mask':
-    if cfg.level == 1:
+    if cfg.level > 0:
         print("Registering Masking Engine " + args.hostname)
     rs = mask_engine_register(dct_base_url, args.name, args.hostname, args.user, args.password, args.insecure_ssl,
                               args.unsafe_ssl_hostname_check)
@@ -210,7 +210,7 @@ if args.command == 'tag_create':
     payload = {"tags": args.tags}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
     if rs.status_code == 201:
-        if cfg.level == 1:
+        if cfg.level > 0:
             print("Created tags for Engine - ID=" + args.id)
         rs = dct_list_by_id(dct_base_url, args.id, "/tags")
         dct_print_json_formatted(rs['tags'])
@@ -222,7 +222,7 @@ if args.command == 'tag_delete':
     payload = {"key": args.key}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
     if rs.status_code == 204:
-        if cfg.level == 1:
+        if cfg.level > 0:
             print("Deleted tag by key for Engine - ID=" + args.id)
         rs = dct_list_by_id(dct_base_url, args.id, "/tags")
         dct_print_json_formatted(rs['tags'])
@@ -233,14 +233,14 @@ if args.command == 'tag_delete':
 if args.command == 'tag_delete_all':
     rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
     if rs.status_code == 204:
-        if cfg.level == 1:
+        if cfg.level > 0:
             print("Deleted all tags for Engine - ID=" + args.id)
     else:
         dct_print_error(rs)
         sys.exit(1)
 
 if args.command == 'update_virt':
-    if cfg.level == 1:
+    if cfg.level > 0:
         print("Updating Virtualization Engine " + args.hostname)
     curr = dct_view_by_id(dct_base_url, args.id)
     if curr['type'] != "VIRTUALIZATION":
@@ -263,7 +263,7 @@ if args.command == 'update_virt':
     dct_print_json_formatted(rs)
 
 if args.command == 'update_mask':
-    if cfg.level == 1:
+    if cfg.level > 0:
         print("Updating Masking Engine " + args.hostname)
     curr = dct_view_by_id(dct_base_url, args.id)
     if curr['type'] != "MASKING":

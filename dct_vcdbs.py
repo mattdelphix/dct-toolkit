@@ -23,7 +23,7 @@ from helpers import *
 parser = argparse.ArgumentParser(description='Delphix DCT VCDBs operations')
 subparser = parser.add_subparsers(dest='command')
 
-parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--version', action='version', version='%(prog)s Version '+cfg.version)
 parser.add_argument('--config', type=str, required=False, help="Config file")
 
 # define commands

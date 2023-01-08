@@ -249,7 +249,7 @@ def dct_update_ref_by_id(dct_query, dct_message, update_id, payload, dct_operati
 def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
     resp = url_POST(dct_query + "/" + urllib.parse.quote(update_id) + "/" + dct_operation, payload)
     if resp.status_code == 200:
-        if cfg.level == 1:
+        if cfg.level > 0:
             print(dct_message + " - ID=" + update_id)
         return resp.json()
     else:
@@ -259,7 +259,7 @@ def dct_update_by_id(dct_query, dct_message, update_id, payload, dct_operation):
 def dct_put_update_by_id(dct_query, dct_message, update_id, payload):
     resp = url_PUT(dct_query + "/" + urllib.parse.quote(update_id), payload)
     if resp.status_code == 200:
-        if cfg.level == 1:
+        if cfg.level > 0:
             print(dct_message + " - ID=" + update_id)
         return resp.json()
     else:
