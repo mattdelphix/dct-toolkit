@@ -23,7 +23,7 @@ def connectivity_check (base_url, id, host, port):
     resp = url_POST(base_url + "/check", payload)
     if resp.status_code == 200:
         if cfg.level > 0:
-            print("Tested connectivity with Engine " + " - ID=" + vdb_id)
+            print("Tested connectivity with Engine " + " - ID=" + id)
         return resp.json()
     else:
         dct_print_error(resp)
