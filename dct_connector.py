@@ -98,7 +98,7 @@ if args.command == 'search':
                     args.format)
 
 if args.command == 'test':
-    rs = dct_post_by_id(dct_base_url, args.id, "/test")
+    rs = dct_post_by_id(dct_base_url, args.id, None, "test")
     dct_print_json_formatted(rs)
 
 if args.command == 'update':
