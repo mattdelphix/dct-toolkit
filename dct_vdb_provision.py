@@ -225,8 +225,8 @@ vdb_oracle.add_argument('--source', type=str, required=True, help="Source data I
 vdb_oracle.add_argument('--target_group', type=str, required=True, help="Target group ID to be used for VDB provisioning")
 vdb_oracle.add_argument('--name', type=str, required=True, help="Name of the VDB to be provisioned")
 vdb_oracle.add_argument('--database_name', type=str, required=True, help="Name of the Oracle DB to be provisioned")
-vdb_oracle.add_argument('--os_username', type=str, required=True, help="OS user")
-vdb_oracle.add_argument('--os_password', type=str, required=True, help="OS password")
+vdb_oracle.add_argument('--os_username', type=str, required=False, help="OS user")
+vdb_oracle.add_argument('--os_password', type=str, required=False, help="OS password")
 vdb_oracle.add_argument('--environment_id', type=str, required=True, help="Environment ID for the VDB")
 vdb_oracle.add_argument('--environment_user_id', type=str, required=True, help="Environment User Name")
 vdb_oracle.add_argument('--auto_select_repository', required=True, help="Choose repository automatically", action="store_true")
@@ -377,11 +377,9 @@ if args.command == 'oracle':
                "source_data_id": args.source,
                "target_group_id": args.target_group,
                "name": args.name,
-               "databqse_name": args.database_name,
-               "oracle_instance_name": args.instance_name,
+               "database_name": args.database_name,
                "unique_name": args.unique_name,
-               "os_username": args.os_username,
-               "os_password": args.os_password,
+               "instance_name": args.instance_name,
                "environment_id": args.environment_id,
                "environment_user_id": args.environment_user_id
                }
@@ -392,6 +390,12 @@ if args.command == 'oracle':
     if args.listener_ids:
         listeners = args.listener_ids.split(",")
         payload['listener_ids'] = listeners
+
+    if args.os_username:
+        payload['os_username'] = args.os_username
+
+    if args.os_password:
+        payload['os_password'] = args.os_password
 
     if args.template_id:
         payload['template_id'] = args.template_id
