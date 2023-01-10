@@ -27,16 +27,18 @@ def bookmark_create(base_url, name, bookmark_id, retention, tags):
     # build payload
     payload = {"name": name, "vdb_ids": vdb_id_list, "retention": retention}
     if tags is not None:
-        tags_dic = json.loads(tags)
-        payload['tags'] = tags_dic
+        payload['tags'] = tags
+
     resp = url_POST(base_url, payload)
     if resp.status_code == 201:
-        bookm = resp.json()
         print(f"Create Bookmark with ID={name}, Retention={retention}, Tags={tags}")
-        return bookm
+        return resp.json()
     else:
-        dct_print_error(resp)
-        sys.exit(1)
+        if resp.status_code == 409:
+            print(f"A bookmark with the same name {name} already exists, duplicate names not allowed.")
+        else:
+            dct_print_error(resp)
+            sys.exit(1)
 
 
 # Init
@@ -64,9 +66,8 @@ tag_delete_all = subparser.add_parser('tag_delete_all')
 create.add_argument('--name', type=str, required=True, help="Name of the new Bookmark")
 create.add_argument('--vdb_id', type=str, required=True, help="List of VDB IDs separated by commas")
 create.add_argument('--retention', type=int, required=False, help="Bookmark retention period in days", default=365)
-create.add_argument('--tags', type=str, required=False,
-                    help="Tags of the new Account in this format:  [{'key': 'key-1','value': 'value-1'},"
-                         " {'key': 'key-2','value': 'value-2'}]")
+create.add_argument('--tags', nargs='*', type=str, required=True, action=dct_parsetags,
+                    help="Tags of the DSource in this format:  key=value key=value")
 
 # define delete parms
 delete.add_argument('--id', type=str, required=True, help="Bookmark ID to be deleted")
@@ -131,11 +132,11 @@ if args.command == 'list':
 
 if args.command == 'create':
     rs = bookmark_create(dct_base_url, args.name, args.vdb_id, args.retention, args.tags)
-    dct_job_monitor(rs['job']['id'])
+
 
 if args.command == 'delete':
     print("Processing Bookmark delete ID=" + args.id)
-    rs = dct_delete_by_id(dct_base_url, "Deleted Bookmark", args.id)
+    rs = dct_delete_by_id(dct_base_url, "Deleted Bookmark", args.id, 204)
 
 if args.command == 'vdbgroup_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/vdb-groups", args.format)
@@ -147,33 +148,14 @@ if args.command == 'tag_list':
 
 if args.command == 'tag_create':
     payload = {"tags": args.tags}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
-    if rs.status_code == 201:
-        if cfg.level > 0:
-            print("Created tags for Bookmark - ID=" + args.id)
-        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
-        dct_print_json_formatted(rs['tags'])
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags", 201)
+    print("Created tags for Account - ID=" + args.id)
 
 if args.command == 'tag_delete':
     payload = {"key": args.key}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
-    if rs.status_code == 204:
-        if cfg.level > 0:
-            print("Deleted tag by key for Bookmark - ID=" + args.id)
-        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
-        dct_print_json_formatted(rs['tags'])
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete", 204)
+    print("Deleted tag by key for Account - ID=" + args.id)
 
 if args.command == 'tag_delete_all':
-    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
-    if rs.status_code == 204:
-        if cfg.level > 0:
-            print("Deleted all tags for Bookmark - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete", 204)
+    print("Deleted all tags for Account - ID=" + args.id)

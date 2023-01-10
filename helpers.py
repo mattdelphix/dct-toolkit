@@ -210,7 +210,8 @@ def dct_create(dct_base_query, payload, dct_output="json"):
 def dct_list_by_id(dct_base_query, view_id, dct_operation, dct_output="json"):
     resp = url_GET(dct_base_query + "/" + view_id + dct_operation)
     if resp.status_code == 200:
-        return resp.json()['items']
+        #return resp.json()['items']
+        return resp.json()
     else:
         dct_print_error(resp)
         sys.exit(1)
