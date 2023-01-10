@@ -34,8 +34,13 @@ def account_create(base_url, client_id, first_name, last_name, email, username, 
         print(f"Registered account with ID={rsp['id']}")
         return rsp
     else:
-        dct_print_error(resp)
-        sys.exit(1)
+        if resp.status_code == 409:
+            dct_print_error(resp)
+            print("Please check the username or client_id, there seems to be a clash with existing values.")
+            sys.exit(1)
+        else:
+            dct_print_error(resp)
+            sys.exit(1)
 
 
 def account_update(base_url, account_id, client_id, first_name, last_name, email, username):
@@ -48,8 +53,13 @@ def account_update(base_url, account_id, client_id, first_name, last_name, email
         print("Updated Account" + " - ID=" + account_id)
         return rsp
     else:
-        dct_print_error(resp)
-        sys.exit(1)
+        if resp.status_code == 409:
+            dct_print_error(resp)
+            print("Please check the username or client_id, there seems to be a clash with existing values.")
+            sys.exit(1)
+        else:
+            dct_print_error(resp)
+            sys.exit(1)
 
 def account_view(base_url, account_id, dct_output="json"):
     # enhanced search that filters by ID or username
@@ -61,10 +71,12 @@ def account_view(base_url, account_id, dct_output="json"):
     return rs
 
 def password_policy_update(base_url, is_enabled, min_length, reuse_disallow_limit, digit, uppercase_letter,
-                           lowercase_letter, special_character, disallow_username_as_password):
+                           lowercase_letter, special_character, disallow_username_as_password,
+                           maximum_password_attempts):
     payload = {"enabled": is_enabled, "min_length": min_length, "reuse_disallow_limit": reuse_disallow_limit,
                "digit": digit, "uppercase_letter": uppercase_letter, "lowercase_letter": lowercase_letter,
-               "special_character": special_character, "disallow_username_as_password": disallow_username_as_password}
+               "special_character": special_character, "disallow_username_as_password": disallow_username_as_password,
+               "maximum_password_attempts": maximum_password_attempts}
 
     resp = url_PATCH(base_url, payload)
     if resp.status_code == 200:
@@ -92,7 +104,8 @@ search = subparser.add_parser('search')
 view = subparser.add_parser('view')
 updt = subparser.add_parser('update')
 tags = subparser.add_parser('tag_list')
-pwd_reset = subparser.add_parser('password_reset')
+pwd_reset = subparser.add_parser('reset_password')
+change_pwd = subparser.add_parser('change_password')
 tag_create = subparser.add_parser('tag_create')
 tag_delete = subparser.add_parser('tag_delete')
 tag_delete_all = subparser.add_parser('tag_delete_all')
@@ -136,8 +149,12 @@ search.add_argument('--format', type=str, required=False, help="Type of output",
 
 # define password_reset params
 pwd_reset.add_argument('--id', type=str, required=True, help="Account ID to have pwd reset")
-pwd_reset.add_argument('--old_password', type=str, required=True, help="Existing Password of the Account")
 pwd_reset.add_argument('--new_password', type=str, required=True, help="New Password of the Account")
+
+# define change_password params
+change_pwd.add_argument('--id', type=str, required=True, help="Account ID to have pwd reset")
+change_pwd.add_argument('--old_password', type=str, required=True, help="Existing Password of the Account")
+change_pwd.add_argument('--new_password', type=str, required=True, help="New Password of the Account")
 
 # define tag_create params
 tag_create.add_argument('--id', type=str, required=True, help="Account ID to add tags to")
@@ -159,7 +176,7 @@ updt_pwd_policy.add_argument('--enabled', type=str, required=True, help="Status 
                              choices=['true', 'false'])
 updt_pwd_policy.add_argument('--min_length', type=int, required=True, help="Minimum length password should have",
                              choices=range(1, 50))
-updt_pwd_policy.add_argument('--reuse_disallow_limit', type=int, required=True, choices=range(1, 50),
+updt_pwd_policy.add_argument('--reuse_disallow_limit', type=int, required=True, choices=range(1, 20),
                              help="Times password has to be different in order to be reused")
 updt_pwd_policy.add_argument('--digit', type=str, required=True, help="Has to contain at least one number",
                              choices=['true', 'false'])
@@ -171,6 +188,8 @@ updt_pwd_policy.add_argument('--special_character', type=str, required=True,
                              help="Has to contain at least one special character", choices=['true', 'false'])
 updt_pwd_policy.add_argument('--disallow_username_as_password', type=str, required=True,
                              help="Username cannot be used as password", choices=['true', 'false'])
+updt_pwd_policy.add_argument('--maximum_password_attempts',  type=int, required=True, choices=range(1, 100),
+                             help="Username cannot be used as password")
 
 # force help if no params
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -216,26 +235,26 @@ if args.command == 'delete':
         print("Processing Account delete ID=" + args.id)
     rs = dct_delete_by_id(dct_base_url, "Deleted Account", args.id, response_code=204)
 
-if args.command == 'password_reset':
+if args.command == 'reset_password':
+    rs = dct_update_by_id(dct_base_url, "Password Reset for Account", args.id, {"new_password": args.new_password},
+                          args.command, 204)
+    dct_print_json_formatted(rs)
+
+if args.command == 'change_password':
     rs = dct_update_by_id(dct_base_url, "Password Reset for Account", args.id, {"old_password": args.old_password,
-                     "new_password": args.new_password}, args.command)
+                     "new_password": args.new_password}, args.command, 204)
     dct_print_json_formatted(rs)
     
 if args.command == 'list_pwd_policy':
-    if cfg.level > 0:
-        print("Retrieving password policies")
-    rs = url_GET(dct_base_url + "/password-policies")
-    if rs.status_code == 200:
-        dct_print_json_formatted(rs.json())
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    rs = dct_simple_list("Retrieving password policies", dct_base_url + "/password-policies", None, args.format)
+
 
 if args.command == 'update_pwd_policy':
     print("Processing password policy update")
     rs = password_policy_update(dct_base_url + "/password-policies", args.enabled, args.min_length,
                                 args.reuse_disallow_limit, args.digit, args.uppercase_letter, args.lowercase_letter,
-                                args.special_character, args.disallow_username_as_password)
+                                args.special_character, args.disallow_username_as_password,
+                                args.maximum_password_attempts)
     dct_print_json_formatted(rs)
 
 if args.command == 'tag_list':
@@ -244,33 +263,14 @@ if args.command == 'tag_list':
 
 if args.command == 'tag_create':
     payload = {"tags": args.tags}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
-    if rs.status_code == 201:
-        if cfg.level > 0:
-            print("Created tags for Account - ID=" + args.id)
-        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
-        dct_print_json_formatted(rs['tags'])
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags", 201)
+    print("Created tags for Account - ID=" + args.id)
 
 if args.command == 'tag_delete':
     payload = {"key": args.key}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
-    if rs.status_code == 204:
-        if cfg.level > 0:
-            print("Deleted tag by key for Account - ID=" + args.id)
-        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
-        dct_print_json_formatted(rs['tags'])
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete", 204)
+    print("Deleted tag by key for Account - ID=" + args.id)
 
 if args.command == 'tag_delete_all':
-    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
-    if rs.status_code == 204:
-        if cfg.level > 0:
-            print("Deleted all tags for Account - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete", 204)
+    print("Deleted all tags for Account - ID=" + args.id)
