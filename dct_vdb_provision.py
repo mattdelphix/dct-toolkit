@@ -20,7 +20,8 @@
 from helpers import *
 
 # NOTE:  only one command per hook type is supported at the moment
-# TODO clarify how to use provision bty timestamp
+# NOTE:  postgres plugin must be 3.1 or newer
+# TODO clarify how to use provision by timestamp
 
 # VDB functions
 def unpack_postgres_properties(config):
@@ -39,7 +40,8 @@ def unpack_postgres_properties(config):
         if b not in ['False','True']:
             print("ERROR: Postgres properties must be in the format 'var=value:True' or 'var:value=False'")
             sys.exit(1)
-        t = {"propertyName": key, "value": v, "commentProperty": b}
+        comment = eval(b)
+        t = {"propertyName": key, "value": v, "commentProperty": comment}
         conf_final.append(t)
     return conf_final
 
@@ -156,6 +158,7 @@ vdb_postgres.add_argument('--auto_select_repository', required=False, help="Choo
 vdb_postgres.add_argument('--vdb_restart', required=False, help="VDB will be restarted automatically?", action="store_true")
 vdb_postgres.add_argument('--mount_point', type=str, required=True, help="Mount point to be created on target host")
 vdb_postgres.add_argument('--port', type=int, required=True, help="Postgres port for the VDB")
+vdb_postgres.add_argument('--privilegedOsUser', type=str, required=False, help="Privileged OS account")
 vdb_postgres.add_argument('--properties', type=str, required=True, help="Postgres config properties in the format 'var=value:True var1=value1:False'")
 
 # Policies
@@ -353,15 +356,16 @@ if args.command == 'postgres':
     # mandatory fields
     config_settings = unpack_postgres_properties(args.properties)
     #db_path = "Postgres-" + str(args.port) + " - " + args.mount_point
-    payload = {"mount_point": args.mount_point,
-               "source_data_id": args.source,
+    payload = {"source_data_id": args.source,
                "target_group_id": args.target_group,
                "name": args.name,
                "environment_id": args.environment_id,
                "environment_user_id": args.environment_user_id,
                "appdata_source_params": {
-                    "configSettingsStg": config_settings,
-                    "postgresPort": args.port
+                    "mountLocation": args.mount_point,
+                    "privilegedOsUser": args.privilegedOsUser,
+                    "postgresPort": args.port,
+                    "configSettingsStg": config_settings
                     },
                 "appdata_config_params": {
                     }

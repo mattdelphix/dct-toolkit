@@ -92,7 +92,8 @@ if args.command == 'list':
 
 if args.command == 'view':
     rs = dct_view_by_id(dct_base_url, args.id)
- 
+    dct_print_json_formatted(rs)
+
 if args.command == 'search':
     rs = dct_search("DSource List ", dct_base_url, args.filter, "No DSources match the search criteria.",
                     args.format)

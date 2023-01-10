@@ -190,14 +190,14 @@ tag_list.add_argument('--id', type=str, required=True, help="VDB ID for tags lis
 tag_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define snapshot_list parms
-snapshot_list.add_argument('--id', type=str, required=True, help="DSource ID for snapshot list")
+snapshot_list.add_argument('--id', type=str, required=True, help="VDB ID for snapshot list")
 snapshot_list.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
 
 # define tag_list parms
 create_snapshot.add_argument('--id', type=str, required=True, help="DSource ID for creating a new snapshot")
 
 # define tag_create params
-tag_create.add_argument('--id', type=str, required=True, help="DSource ID to add tags to")
+tag_create.add_argument('--id', type=str, required=True, help="VDB ID to add tags to")
 tag_create.add_argument('--tags', nargs='*', type=str, required=True, action=dct_parsetags,
                         help="Tags of the VDB in this format:  key=value key=value")
 # define tag_delete params
