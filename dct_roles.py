@@ -19,18 +19,6 @@
 
 from helpers import *
 
-def connectivity_check (base_url, id, host, port):
-    payload = {"engine_id": id, "host": host, "port": port}
-
-    resp = url_POST(base_url + "/check", payload)
-    if resp.status_code == 200:
-        rsp = resp.json()
-        #print("Updated Account" + " - ID=" + vdb_id)
-        return rsp
-    else:
-        dct_print_error(resp)
-        sys.exit(1)
-
 # Init
 parser = argparse.ArgumentParser(description="Delphix DCT Roles")
 subparser = parser.add_subparsers(dest='command')

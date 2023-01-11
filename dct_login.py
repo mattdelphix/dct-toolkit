@@ -48,7 +48,7 @@ conn = subparser.add_parser('connect')
 token = subparser.add_parser('token_info')
 
 # define connect parms
-conn.add_argument('--user', type=str, required=True, help="Userid for DCT login")
+conn.add_argument('--username', type=str, required=True, help="Userid for DCT login")
 conn.add_argument('--password', type=str, required=True, help="Password for DCT login")
 
 # define token parms
@@ -71,8 +71,8 @@ if dct_check_empty_command(args):
 
 if args.command == 'connect':
     dct_base_url = "/login"
-    print("Login user=" + args.user)
-    rs = dct_login(dct_base_url, args.user, args.password)
+    print("Login user=" + args.username)
+    rs = dct_login(dct_base_url, args.username, args.password)
     dct_print_json_formatted(rs)
 
 if args.command == 'token_info':
