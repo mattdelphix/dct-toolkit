@@ -30,15 +30,14 @@ def update_saml_config(base_url, enabled, auto_create_users, hostname, port, dom
                "truststore_filename": truststore_filename,
                "truststore_password": truststore_password,
                "insecure_ssl": insecure_ssl,
-               "unsafe_ssl_hostname_check": unsafe_ssl_hostname_check }
-
-    resp = url_PATCH(base_url, payload)
-    if resp.status_code == 200:
+               "unsafe_ssl_hostname_check": unsafe_ssl_hostname_check}
+    rs = url_PUT(base_url, payload)
+    if rs.status_code == 200:
         if cfg.level > 0:
             print("LDAP config updated")
-        dct_print_json_formatted(resp.json())
+        dct_print_json_formatted(rs.json())
     else:
-        dct_print_error(resp)
+        dct_print_error(rs)
         sys.exit(1)
 
 
@@ -46,8 +45,9 @@ def update_saml_config(base_url, enabled, auto_create_users, hostname, port, dom
 parser = argparse.ArgumentParser(description='Delphix DCT CDBs operations')
 subparser = parser.add_subparsers(dest='command')
 
-parser.add_argument('--version', action='version', version='%(prog)s Version '+cfg.version)
+parser.add_argument('--version', action='version', version='%(prog)s Version ' + cfg.version)
 parser.add_argument('--config', type=str, required=False, help="Config file")
+parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]", choices=[0, 1, 2])
 
 # define commands
 lst = subparser.add_parser('list')
@@ -55,7 +55,7 @@ validate = subparser.add_parser('validate')
 update = subparser.add_parser('update')
 
 # define list params
-lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report','id'])
+lst.add_argument('--format', type=str, required=False, help="Type of output", choices=['json', 'report', 'id'])
 
 # define validate params
 validate.add_argument('--username', type=str, required=True, help="Username to validate if LDAP is valid")
@@ -107,11 +107,16 @@ if args.command == 'list':
     dct_simple_list("LDAP List", dct_base_url, "No LDAP defined.", args.format)
 
 if args.command == 'validate':
-    payload = {"username": args.username, "password": args.passsword}
-    rs = dct_create(dct_base_url + "/validate", payload)
-    dct_print_json_formatted(rs)
+    payload = {"username": args.username, "password": args.password}
+    # dct_create(dct_base_url + "/validate", payload)
+    resp = url_POST(dct_base_url + "/validate", payload)
+    if resp.status_code == 200:
+        print("Validation successful")
+    else:
+        dct_print_error(resp)
+        sys.exit(1)
 
 if args.command == 'update':
-    update_saml_config(dct_base_url, args.enabled, args.hostname, args.port, args.domains, args.enable_ssl,
-                       args.truststore_filename, args.truststore_password, args.insecure_ssl,
+    update_saml_config(dct_base_url, args.enabled, args.auto_create_users, args.hostname, args.port, args.domains,
+                       args.enable_ssl, args.truststore_filename, args.truststore_password, args.insecure_ssl,
                        args.unsafe_ssl_hostname_check)
