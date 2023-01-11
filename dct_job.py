@@ -35,10 +35,9 @@ parser.add_argument('--debug', type=int, required=False, help="Debug level [0-2]
 
 view = subparser.add_parser('view')
 monitor = subparser.add_parser('monitor')
-cancel = subparser.add_parser('cancel')
 search = subparser.add_parser('search')
 lst = subparser.add_parser('list')
-canc = subparser.add_parser('cancel')
+cancel = subparser.add_parser('cancel')
 
 
 # define view parms
@@ -55,7 +54,7 @@ search.add_argument('--filter', type=str, required=False, help="Job search strin
 search.add_argument('--format', type=str, required=False, help="Type of output",  choices=['json', 'report','id'])
 
 # define cancel parms
-canc.add_argument('--id', type=str, required=True, help="job ID to be canceled")
+cancel.add_argument('--id', type=str, required=True, help="job ID to be canceled")
 
 # force help if no parms
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -83,7 +82,7 @@ if args.command == 'view':
 
 if args.command == 'cancel':
     print("Cancel Job ID=" + args.id)
-    rs = dct_post_by_id(dct_base_url, args.id, None, "abandon")
+    rs = dct_post_by_id(dct_base_url, args.id, None, "abandon", 204)
     if rs is not None:
         rs = dct_job_monitor(args.id)
         dct_print_json_formatted(rs)
