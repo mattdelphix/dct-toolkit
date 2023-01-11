@@ -29,7 +29,7 @@ def update_properties_config(base_url,disable_username_password):
         sys.exit(1)
 
 # Init
-parser = argparse.ArgumentParser(description='Delphix DCT CDBs operations')
+parser = argparse.ArgumentParser(description='Delphix DCT Managment Properties operations')
 subparser = parser.add_subparsers(dest='command')
 
 parser.add_argument('--version', action='version', version='%(prog)s Version '+cfg.version)
