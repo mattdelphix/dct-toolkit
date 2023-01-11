@@ -216,8 +216,7 @@ def dct_list_by_id(dct_base_query, view_id, dct_operation, dct_output="json"):
             return lst['items']
         else:
             return lst
-        #return resp.json()['items']
-        #return resp.json()
+        return resp.json()['items']
     else:
         dct_print_error(resp)
         sys.exit(1)
