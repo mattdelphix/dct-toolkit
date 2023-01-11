@@ -23,7 +23,7 @@ def update_properties_config(base_url,disable_username_password):
     resp = url_PATCH(base_url, payload)
     if resp.status_code == 200:
         print("Properties config updated")
-        print_json_formatted(resp.json())
+        return resp.json()
     else:
         dct_print_error(resp)
         sys.exit(1)
