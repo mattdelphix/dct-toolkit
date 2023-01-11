@@ -36,7 +36,7 @@ def api_client_create(base_url, api_client_id, name):
 
 def api_client_update(base_url, api_id, api_client_id, name):
     payload = {"api_client_id": api_client_id, "name": name}
-    resp = url_PUT(base_url + "/" + ap_id, payload)
+    resp = url_PUT(base_url + "/" + api_id, payload)
     if resp.status_code == 200:
         rsp = resp.json()
         print(f"Updated API-client - ID={rsp['id']}")

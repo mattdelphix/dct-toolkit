@@ -31,15 +31,13 @@ def update_saml_config(base_url, enabled, auto_create_users, metadata_url, metad
                "group_attr": group_attr,
                "first_name_attr:": first_name_attr,
                "last_name_attr": last_name_attr}
-
-    resp = url_PATCH(base_url, payload)
-    if resp.status_code == 200:
+    rs = url_PUT(base_url, payload)
+    if rs.status_code == 200:
         print("SAML config updated")
-        print(resp.json())
-        return
+        print(rs.json())
     else:
-        dct_print_error(resp)
-        sys.exit(1)
+        dct_print_error(rs)
+    sys.exit(1)
 
 
 # Init
@@ -102,10 +100,8 @@ dct_base_url = "/management/saml-config"
 
 if args.command == 'is_enabled':
     resp = url_GET("/is-saml-enabled")
-    print(resp)
     if resp.status_code == 200:
         print("SAML is enabled")
-        # return json.dumps(resp.json(), indent=4)
     if resp.status_code == 400:
         print("SAML is NOT enabled")
     else:
