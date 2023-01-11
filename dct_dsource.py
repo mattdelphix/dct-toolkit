@@ -105,38 +105,22 @@ if args.command == 'snapshot_list':
 if args.command == "create_snapshot":
     rs = dct_post_by_id(dct_base_url, args.id, None, "snapshots")
     dct_job_monitor(rs['job']['id'])
-    if rs.status_code == 200:
-        print(rs.json())
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    print("Created Snapshot for dSource - ID=" + args.id)
 
 if args.command == 'tag_list':
     rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
     dct_print_json_formatted(rs)
 
 if args.command == 'tag_create':
-    payload = {"tags": json.loads(args.tags)}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
-    if rs.status_code == 201:
-        print("Create tags for dSource - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    payload = {"tags": args.tags}
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags", 201)
+    print("Created tags for Account - ID=" + args.id)
 
 if args.command == 'tag_delete':
     payload = {"key": args.key}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
-    if rs.status_code == 204:
-        print("Delete tag for DSourceID - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete", 204)
+    print("Deleted tag by key for Account - ID=" + args.id)
 
 if args.command == 'tag_delete_all':
-    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
-    if rs.status_code == 204:
-        print("Deleted all tags for DSource - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete", 204)
+    print("Deleted all tags for Account - ID=" + args.id)
