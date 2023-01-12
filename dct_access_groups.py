@@ -67,7 +67,6 @@ create.add_argument('--policy_id', type=str, required=False, help="The Access gr
 create.add_argument('--policy_name', type=str, required=False, help="The Access group policy name")
 create.add_argument('--role_id', type=str, required=True, help="The Access group role id")
 
-
 # define update parms
 update.add_argument('--id', type=str, required=True, help="Access Group ID to be updated")
 update.add_argument('--name', type=str, required=True, help="Access Group name to be updated")
@@ -150,11 +149,7 @@ if args.command == "delete":
 if args.command == 'add_account':
     payload = {"account_ids": [args.account_id]}
     rs = dct_post_by_id(dct_base_url, args.id, payload, "account-ids")
-    if rs.status_code == 200:
-        print("Added account(s) with ID " + args.account_id + " to Access Group ID " + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    print("Added account(s) with ID " + args.account_id + " to Access Group ID " + args.id)
 
 if args.command == "delete_account":
     dct_delete_ref_by_id(dct_base_url, "Account ID " + args.account_id + " deleted from Access Group ID" + args.id,
@@ -165,50 +160,23 @@ if args.command == 'add_policy':
         "name": args.policy_name,
         "role_id": args.role_id
     }]}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "policies")
-    if rs.status_code == 200:
-        print("Added Policy " + args.policy_name + " with role " + args.role_id + " to Access Group ID " + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    dct_post_by_id(dct_base_url, args.id, payload, "policies")
+    print("Added Policy " + args.policy_name + " with role " + args.role_id + " to Access Group ID " + args.id)
 
 if args.command == 'delete_policy':
     dct_delete_ref_by_id(dct_base_url, "Policy ID " + args.policy_id + " deleted from Access Group ID" + args.id,
                          args.id, "policies", args.policy_id)
 
-if args.command == 'tag_list':
-    rs = dct_list_by_id(dct_base_url, args.id, "/tags", args.format)
-    dct_print_json_formatted(rs['tags'])
-
 if args.command == 'tag_create':
     payload = {"tags": args.tags}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags")
-    if rs.status_code == 201:
-        if cfg.level > 0:
-            print("Created tags for Access Group - ID=" + args.id)
-        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
-        dct_print_json_formatted(rs['tags'])
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags", 201)
+    print("Created tags for Account - ID=" + args.id)
 
 if args.command == 'tag_delete':
     payload = {"key": args.key}
-    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete")
-    if rs.status_code == 204:
-        if cfg.level > 0:
-            print("Deleted tag by key for Access Group - ID=" + args.id)
-        rs = dct_list_by_id(dct_base_url, args.id, "/tags")
-        dct_print_json_formatted(rs['tags'])
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    rs = dct_post_by_id(dct_base_url, args.id, payload, "tags/delete", 204)
+    print("Deleted tag by key for Account - ID=" + args.id)
 
 if args.command == 'tag_delete_all':
-    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete")
-    if rs.status_code == 204:
-        if cfg.level > 0:
-            print("Deleted all tags for Access Group - ID=" + args.id)
-    else:
-        dct_print_error(rs)
-        sys.exit(1)
+    rs = dct_post_by_id(dct_base_url, args.id, None, "tags/delete", 200)
+    print("Deleted all tags for Account - ID=" + args.id)
