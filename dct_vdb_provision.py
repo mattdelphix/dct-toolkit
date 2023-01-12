@@ -89,6 +89,7 @@ vdb_file.add_argument('--environment_user_id', type=str, required=True, help="En
 vdb_file.add_argument('--auto_select_repository', required=False, help="Choose repository automatically", action="store_true")
 vdb_file.add_argument('--vdb_restart', required=False, help="VDB will be restarted automatically?", action="store_true")
 vdb_file.add_argument('--mount_point', type=str, required=True, help="Mount point to be created on target host")
+
 # Policies
 vdb_file.add_argument('--snapshot_policy_id', type=str, required=False, help="Snapshot policy ID to be used for VDB provisioning")
 vdb_file.add_argument('--retention_policy_id', type=str, required=False, help="Retention policy ID to be used for VDB provisioning")
@@ -139,6 +140,74 @@ vdb_file.add_argument('--post_stop_command', type=str, required=False, help="Pos
 vdb_file.add_argument('--post_stop_shell', type=str, required=False, help="Post-stop hook shell")
 
 vdb_file.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
+                        help="Tags of the VDB in this format:  key=value key=value")
+
+# define vdb_mssql parms
+
+vdb_mssql.add_argument('--engine', type=str, required=False, help="Engine ID to be used for VDB provisioning")
+vdb_mssql.add_argument('--source', type=str, required=True, help="Source data ID to be used for VDB provisioning")
+vdb_mssql.add_argument('--target_group', type=str, required=True, help="Target group ID to be used for VDB provisioning")
+vdb_mssql.add_argument('--name', type=str, required=True, help="Name of the VDB to be provisioned")
+vdb_mssql.add_argument('--environment_id', type=str, required=True, help="Environment ID for the VDB")
+vdb_mssql.add_argument('--environment_user_id', type=str, required=True, help="Environment User Name")
+vdb_mssql.add_argument('--auto_select_repository', required=False, help="Choose repository automatically", action="store_true")
+vdb_mssql.add_argument('--vdb_restart', required=False, help="VDB will be restarted automatically?", action="store_true")
+vdb_mssql.add_argument('--mount_point', type=str, required=True, help="Mount point to be created on target host")
+vdb_mssql.add_argument('--recovery_model', type=str, required=True, help="SQL Server Recovery Model",choices=['Simple', 'Full', 'Bulk logged'])
+vdb_mssql.add_argument('--pre_script', type=str, required=False, help="Pre script to be executed")
+vdb_mssql.add_argument('--post_script', type=str, required=False, help="Post script to be executed")
+vdb_mssql.add_argument('--cdc_on_provision', required=False, help="VDB will be restarted automatically?", action="store_true")
+
+# Policies
+vdb_mssql.add_argument('--snapshot_policy_id', type=str, required=False, help="Snapshot policy ID to be used for VDB provisioning")
+vdb_mssql.add_argument('--retention_policy_id', type=str, required=False, help="Retention policy ID to be used for VDB provisioning")
+
+# Hooks
+vdb_mssql.add_argument('--pre_refresh_name', type=str, required=False, help="Pre-refresh hook name")
+vdb_mssql.add_argument('--pre_refresh_command', type=str, required=False, help="Pre-refresh hook command")
+vdb_mssql.add_argument('--pre_refresh_shell', type=str, required=False, help="Pre-refresh hook shell")
+
+vdb_mssql.add_argument('--post_refresh_name', type=str, required=False, help="Post-refresh hook name")
+vdb_mssql.add_argument('--post_refresh_command', type=str, required=False, help="Post-refresh hook command")
+vdb_mssql.add_argument('--post_refresh_shell', type=str, required=False, help="Post-refresh hook shell")
+
+vdb_mssql.add_argument('--pre_rollback_name', type=str, required=False, help="Pre-rollback hook name")
+vdb_mssql.add_argument('--pre_rollback_command', type=str, required=False, help="Pre-rollback hook command")
+vdb_mssql.add_argument('--pre_rollback_shell', type=str, required=False, help="Pre-rollback hook shell")
+
+vdb_mssql.add_argument('--post_rollback_name', type=str, required=False, help="Post-rollback hook name")
+vdb_mssql.add_argument('--post_rollback_command', type=str, required=False, help="Post-rollback hook command")
+vdb_mssql.add_argument('--post_rollback_shell', type=str, required=False, help="Post-rollback hook shell")
+
+vdb_mssql.add_argument('--configure_clone_name', type=str, required=False, help="Configure_clone hook name")
+vdb_mssql.add_argument('--configure_clone_command', type=str, required=False, help="Configure_clone hook command")
+vdb_mssql.add_argument('--configure_clone_shell', type=str, required=False, help="Configure_clone hook shell")
+
+vdb_mssql.add_argument('--pre_snapshot_name', type=str, required=False, help="Pre-snapshot hook name")
+vdb_mssql.add_argument('--pre_snapshot_command', type=str, required=False, help="Pre-snapshot hook command")
+vdb_mssql.add_argument('--pre_snapshot_shell', type=str, required=False, help="Pre-snapshot hook shell")
+
+vdb_mssql.add_argument('--post_snapshot_name', type=str, required=False, help="Post-snapshot hook name")
+vdb_mssql.add_argument('--post_snapshot_command', type=str, required=False, help="Post-snapshot hook command")
+vdb_mssql.add_argument('--post_snapshot_shell', type=str, required=False, help="Post-snapshot hook shell")
+
+vdb_mssql.add_argument('--pre_start_name', type=str, required=False, help="Pre-start hook name")
+vdb_mssql.add_argument('--pre_start_command', type=str, required=False, help="Pre-start hook command")
+vdb_mssql.add_argument('--pre_start_shell', type=str, required=False, help="Pre-start hook shell")
+
+vdb_mssql.add_argument('--post_start_name', type=str, required=False, help="Post-start hook name")
+vdb_mssql.add_argument('--post_start_command', type=str, required=False, help="Post-start hook command")
+vdb_mssql.add_argument('--post_start_shell', type=str, required=False, help="Post-start hook shell")
+
+vdb_mssql.add_argument('--pre_stop_name', type=str, required=False, help="Pre-stop hook name")
+vdb_mssql.add_argument('--pre_stop_command', type=str, required=False, help="Pre-stop hook command")
+vdb_mssql.add_argument('--pre_stop_shell', type=str, required=False, help="Pre-stop hook shell")
+
+vdb_mssql.add_argument('--post_stop_name', type=str, required=False, help="Post-stop hook name")
+vdb_mssql.add_argument('--post_stop_command', type=str, required=False, help="Post-stop hook command")
+vdb_mssql.add_argument('--post_stop_shell', type=str, required=False, help="Post-stop hook shell")
+
+vdb_mssql.add_argument('--tags', nargs='*', type=str, required=False, action=dct_parsetags,
                         help="Tags of the VDB in this format:  key=value key=value")
 
 # define vdb_postgres parms
@@ -351,6 +420,27 @@ if args.command == 'file':
                "environment_id": args.environment_id,
                "environment_user_id": args.environment_user_id
                }
+
+if args.command == 'mssql':
+    # mandatory fields
+    payload = {"mount_point": args.mount_point,
+               "source_data_id": args.source,
+               "target_group_id": args.target_group,
+               "name": args.name,
+               "environment_id": args.environment_id,
+               "environment_user_id": args.environment_user_id
+               }
+    if args.pre_script:
+        payload['pre_script'] = args.pre_script
+
+    if args.post_script:
+        payload['post_script'] = args.post_script
+
+    if args.recovery_model:
+        payload['recovery_model'] = args.recovery_model
+
+    if args.cdc_on_provision:
+        payload['cdc_on_provision'] = args.cdc_on_provision
 
 if args.command == 'postgres':
     # mandatory fields
